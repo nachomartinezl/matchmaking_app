@@ -200,7 +200,6 @@ button:disabled {
   border-color: var(--accent);
 }
 
-
 /* Responsive tweaks */
 @media (max-width: 480px) {
   .form-container {

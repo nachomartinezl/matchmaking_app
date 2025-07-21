@@ -1,5 +1,5 @@
-// This component also needs to be a Client Component
-'use client'; 
+// app/signup/components/Step1_PersonalData.tsx
+'use client';
 
 interface StepProps {
   formData: {
@@ -10,39 +10,73 @@ interface StepProps {
   };
   updateFormData: (data: Partial<StepProps['formData']>) => void;
   nextStep: () => void;
+  prevStep: () => void;
 }
 
-export default function Step1_PersonalData({ formData, updateFormData, nextStep }: StepProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    updateFormData({ [name]: value });
-  };
-  
+export default function Step1_PersonalData({
+  formData,
+  updateFormData,
+  nextStep,
+  prevStep,
+}: StepProps) {
+  const canProceed = formData.name && formData.surname && formData.dob && formData.gender;
+
   return (
-    <div className="form-step">
-      <h2>Personal Data</h2>
-      <label htmlFor="name">Name</label>
-      <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Your first name" />
-      
-      <label htmlFor="surname">Surname</label>
-      <input type="text" id="surname" name="surname" value={formData.surname} onChange={handleChange} placeholder="Your last name" />
-      
+    // Using a Fragment <> because your global CSS handles all spacing.
+    <>
+      <h2>Tell us about yourself</h2>
+      <p>This information will be on your public profile.</p>
+
+      <label htmlFor="name">First Name</label>
+      <input
+        id="name"
+        type="text"
+        value={formData.name}
+        onChange={(e) => updateFormData({ name: e.target.value })}
+      />
+
+      <label htmlFor="surname">Last Name</label>
+      <input
+        id="surname"
+        type="text"
+        value={formData.surname}
+        onChange={(e) => updateFormData({ surname: e.target.value })}
+      />
+
       <label htmlFor="dob">Date of Birth</label>
-      <input type="date" id="dob" name="dob" value={formData.dob} onChange={handleChange} />
-      
+      <input
+        id="dob"
+        type="date"
+        value={formData.dob}
+        onChange={(e) => updateFormData({ dob: e.target.value })}
+      />
+
       <label htmlFor="gender">Gender</label>
-      <select id="gender" name="gender" value={formData.gender} onChange={handleChange}>
-        <option value="">Select Gender</option>
+      <select
+        id="gender"
+        value={formData.gender}
+        onChange={(e) => updateFormData({ gender: e.target.value })}
+      >
+        <option value="">Select...</option>
         <option value="male">Male</option>
         <option value="female">Female</option>
         <option value="non-binary">Non-binary</option>
         <option value="other">Other</option>
+        <option value="prefer-not-to-say">Prefer not to say</option>
       </select>
-      
+
       <div className="button-group">
-        {/* No "Back" button on the first step */}
-        <button onClick={nextStep} className="button-primary" style={{marginLeft: 'auto'}}>Next</button>
+        <button onClick={prevStep} className="button-secondary">
+          Back
+        </button>
+        <button
+          onClick={nextStep}
+          className="button-primary"
+          disabled={!canProceed}
+        >
+          Next
+        </button>
       </div>
-    </div>
+    </>
   );
 }

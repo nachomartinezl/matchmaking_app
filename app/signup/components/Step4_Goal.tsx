@@ -1,12 +1,13 @@
+// app/signup/components/Step4_Goal.tsx
 'use client';
 
-import { useState } from 'react';
-
+// Define the component's props
 interface StepProps {
   formData: { goal: string };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: (data: Partial<{ goal: string }>) => void;
   handleSubmit: () => void;
   prevStep: () => void;
+  isSubmitting: boolean; // <-- THE FIX: Add this line
 }
 
 export default function Step4_Goal({
@@ -14,6 +15,7 @@ export default function Step4_Goal({
   updateFormData,
   handleSubmit,
   prevStep,
+  isSubmitting, // <-- THE FIX: Destructure the new prop
 }: StepProps) {
   const options = [
     { value: 'friends', label: 'Make new friends' },
@@ -34,7 +36,8 @@ export default function Step4_Goal({
             className={`option-item ${
               formData.goal === value ? 'selected' : ''
             }`}
-            onClick={() => select(value)}
+            // Prevent changing selection while submitting
+            onClick={() => !isSubmitting && select(value)}
           >
             {label}
           </div>
@@ -42,15 +45,20 @@ export default function Step4_Goal({
       </div>
 
       <div className="button-group">
-        <button onClick={prevStep} className="button-secondary">
+        <button 
+          onClick={prevStep} 
+          className="button-secondary"
+          disabled={isSubmitting} // Disable during submission
+        >
           Back
         </button>
         <button
           onClick={handleSubmit}
           className="button-primary"
-          disabled={!formData.goal}
+          // Disable if no goal is selected OR if it's currently submitting
+          disabled={!formData.goal || isSubmitting}
         >
-          Finish Sign Up
+          {isSubmitting ? 'Finishing...' : 'Finish Sign Up'}
         </button>
       </div>
     </div>

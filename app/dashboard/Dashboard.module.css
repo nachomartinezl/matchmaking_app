@@ -1,0 +1,119 @@
+/* app/dashboard/Dashboard.module.css */
+
+.dashboardContainer {
+  width: 100%;
+  max-width: 480px; /* Max width for larger screens */
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem; /* Space between major sections */
+  color: var(--text-primary);
+}
+
+/* === Header Section === */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.userInfo h1 {
+  font-size: var(--fs-title);
+  margin: 0;
+  color: #ffffff;
+}
+
+.userInfo p {
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0;
+  text-align: left;
+}
+
+.profilePic {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
+.progressContainer {
+  width: 100%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: -1.5rem; /* Pulls it closer to the header */
+}
+
+.progressBar {
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: 4px;
+  transition: width 0.5s ease-in-out;
+}
+
+/* === General Section Styling === */
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 1.25rem 0;
+}
+
+/* === Matches Section === */
+.matchesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.matchCard {
+  background: transparent; /* The grid items themselves have no background */
+  text-align: center;
+  cursor: pointer;
+}
+
+.matchImage {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.matchCard:hover .matchImage {
+  transform: scale(1.05);
+}
+
+.matchName {
+  margin-top: 0.75rem;
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* === Train Algorithm Section === */
+.trainGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.trainButton {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.trainButton:hover {
+  background-color: #2a2a2a;
+  transform: translateY(-2px);
+}
