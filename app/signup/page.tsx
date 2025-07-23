@@ -3,19 +3,25 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // <-- 1. Import the router
+import { useRouter } from 'next/navigation';
 
-// Import ALL your step components, including the new Step 0
+// Import ALL step components
 import Step0_Credentials from './components/Step0_Credentials';
 import Step1_PersonalData from './components/Step1_PersonalData';
 import Step2_AboutYou from './components/Step2_AboutYou';
-import Step3_Profile from './components/Step3_Profile';
-import Step4_Goal from './components/Step4_Goal';
+import Step3_Religion from './components/Step3_Religion';
+import Step4_Pets from './components/Step4_Pets';
+import Step5_Smoking from './components/Step5_Smoking';
+import Step6_Drinking from './components/Step6_Drinking';
+import Step7_Kids from './components/Step7_Kids';
+import Step8_MaritalStatus from './components/Step8_MaritalStatus';
+import Step9_Profile from './components/Step9_Profile';
+import Step10_Goal from './components/Step10_Goal';
 
 // Define the complete structure of our form data
 interface FormData {
-  email: string;        // <-- Added
-  password: string;     // <-- Added
+  email: string;
+  password: string;
   name: string;
   surname: string;
   dob: string;
@@ -23,22 +29,28 @@ interface FormData {
   country: string;
   preference: string;
   height: string;
+  religion: string;
+  pets: string;
+  smoking: string;
+  drinking: string;
+  kids: string;
+  maritalStatus: string;
   profilePicture: File | null;
   description: string;
   goal: string;
 }
 
 export default function SignUpPage() {
-  const router = useRouter(); // <-- 2. Initialize the router
-  const [step, setStep] = useState(0); // <-- 3. Start at step 0
+  const router = useRouter();
+  const [step, setStep] = useState(0);
   
   // State for loading and error handling during submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<FormData>({
-    email: '',          // <-- Added
-    password: '',       // <-- Added
+    email: '',
+    password: '',
     name: '',
     surname: '',
     dob: '',
@@ -46,6 +58,12 @@ export default function SignUpPage() {
     country: '',
     preference: '',
     height: '',
+    religion: '',
+    pets: '',
+    smoking: '',
+    drinking: '',
+    kids: '',
+    maritalStatus: '',
     profilePicture: null,
     description: '',
     goal: '',
@@ -58,7 +76,6 @@ export default function SignUpPage() {
     setFormData((prev) => ({ ...prev, ...newData }));
   };
 
-  // 4. This is the new handleSubmit function
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
@@ -89,9 +106,21 @@ export default function SignUpPage() {
       case 2:
         return <Step2_AboutYou formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
       case 3:
-        return <Step3_Profile formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return <Step3_Religion formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
       case 4:
-        return <Step4_Goal formData={formData} updateFormData={updateFormData} handleSubmit={handleSubmit} prevStep={prevStep} isSubmitting={isSubmitting} />;
+        return <Step4_Pets formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 5:
+        return <Step5_Smoking formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 6:
+        return <Step6_Drinking formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 7:
+        return <Step7_Kids formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 8:
+        return <Step8_MaritalStatus formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 9:
+        return <Step9_Profile formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 10:
+        return <Step10_Goal formData={formData} updateFormData={updateFormData} handleSubmit={handleSubmit} prevStep={prevStep} isSubmitting={isSubmitting} />;
       default:
         return <p>Invalid step!</p>;
     }
@@ -100,8 +129,7 @@ export default function SignUpPage() {
   return (
     <div className="form-container">
       <h1>Create Your Profile</h1>
-      {/* 5. Updated the step counter to reflect the 5 total steps (0-4) */}
-      <p style={{ textAlign: 'center', color: '#a0a0a0', marginBottom: 'var(--space-md)' }}>Step {step + 1} of 5</p>
+      <p style={{ textAlign: 'center', color: '#a0a0a0', marginBottom: 'var(--space-md)' }}>Step {step + 1} of 11</p>
       
       {renderCurrentStep()}
 
