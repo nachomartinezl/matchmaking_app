@@ -1,0 +1,119 @@
+{
+  "personality": {
+    "mbti": [
+      {
+        "question": "At a party do you:",
+        "options": [
+          "Interact with many, including strangers",
+          "Interact with a few, known to you"
+        ]
+      },
+      {
+        "question": "Are you more:",
+        "options": [
+          "Realistic than speculative",
+          "Speculative than realistic"
+        ]
+      },
+      {
+        "question": "Is it worse to:",
+        "options": [
+          "Have your head in the clouds",
+          "Be in a rut"
+        ]
+      }
+    ],
+    "values": {
+      "values": [
+        {
+          "question": "POWER (social power, authority, wealth)",
+          "options": ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+        },
+        {
+          "question": "ACHIEVEMENT (success, capability, ambition, influence on people and events)",
+          "options": ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+        },
+        {
+          "question": "HEDONISM (gratification of desires, enjoyment in life, self-indulgence)",
+          "options": ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+        }
+      ]
+    }
+  },
+  "emotional": {
+    "attachment_styles": [
+      {
+        "question": "I find it easy to get close to others and am comfortable depending on them.",
+        "options": [
+          "1 – Strongly Disagree",
+          "2 – Disagree",
+          "3 – Somewhat Disagree",
+          "4 – Neutral",
+          "5 – Somewhat Agree",
+          "6 – Agree",
+          "7 – Strongly Agree"
+        ]
+      },
+      {
+        "question": "I don't worry about being abandoned or about someone getting too close to me.",
+        "options": [
+          "1 – Strongly Disagree",
+          "2 – Disagree",
+          "3 – Somewhat Disagree",
+          "4 – Neutral",
+          "5 – Somewhat Agree",
+          "6 – Agree",
+          "7 – Strongly Agree"
+        ]
+      }
+    ]
+  },
+  "character": {
+    "hexaco": [
+      {
+        "question": "I would be quite bored by a visit to an art gallery.",
+        "options": [
+          "1 – Strongly Disagree",
+          "2 – Disagree",
+          "3 – Neutral",
+          "4 – Agree",
+          "5 – Strongly Agree"
+        ]
+      },
+      {
+        "question": "I plan ahead and organize things, to avoid scrambling at the last minute.",
+        "options": [
+          "1 – Strongly Disagree",
+          "2 – Disagree",
+          "3 – Neutral",
+          "4 – Agree",
+          "5 – Strongly Agree"
+        ]
+      }
+    ]
+  },
+  "values": {
+    "relationship_values": [
+      {
+        "question": "How important is trust in a relationship?",
+        "options": [
+          "Not important",
+          "Slightly important",
+          "Moderately important",
+          "Very important",
+          "Extremely important"
+        ]
+      },
+      {
+        "question": "How important is communication in a relationship?",
+        "options": [
+          "Not important",
+          "Slightly important",
+          "Moderately important",
+          "Very important",
+          "Extremely important"
+        ]
+      }
+    ]
+  }
+}

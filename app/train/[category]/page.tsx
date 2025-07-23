@@ -4,107 +4,44 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './Train.module.css';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
-import QuestionSlider from './components/QuestionSlider';
 import QuestionOptions from './components/QuestionOptions';
 
-// Mock data for training questions
-const trainingQuestions = {
-  personality: [
-    {
-      id: 1,
-      type: 'slider',
-      question: 'How important is it for your match to be outgoing?',
-      min: 0,
-      max: 10,
-      minLabel: 'Not important',
-      maxLabel: 'Very important',
-    },
-    {
-      id: 2,
-      type: 'options',
-      question: 'Which personality trait do you value most in a potential match?',
-      options: ['Creativity', 'Reliability', 'Ambition', 'Humor', 'Empathy'],
-    },
-    {
-      id: 3,
-      type: 'slider',
-      question: 'How important is it for your match to enjoy social gatherings?',
-      min: 0,
-      max: 10,
-      minLabel: 'Not important',
-      maxLabel: 'Very important',
-    },
-  ],
-  character: [
-    {
-      id: 1,
-      type: 'slider',
-      question: 'How important is honesty in your potential match?',
-      min: 0,
-      max: 10,
-      minLabel: 'Not important',
-      maxLabel: 'Very important',
-    },
-    {
-      id: 2,
-      type: 'options',
-      question: 'Which character trait matters most to you?',
-      options: ['Integrity', 'Loyalty', 'Kindness', 'Patience', 'Courage'],
-    },
-  ],
-  emotional: [
-    {
-      id: 1,
-      type: 'slider',
-      question: 'How important is emotional intelligence in your match?',
-      min: 0,
-      max: 10,
-      minLabel: 'Not important',
-      maxLabel: 'Very important',
-    },
-    {
-      id: 2,
-      type: 'options',
-      question: 'How would you prefer your match to handle conflict?',
-      options: ['Talk it out immediately', 'Take time to process first', 'Seek compromise', 'Focus on solutions', 'Express emotions openly'],
-    },
-  ],
-  values: [
-    {
-      id: 1,
-      type: 'slider',
-      question: 'How important is it that your match shares your core values?',
-      min: 0,
-      max: 10,
-      minLabel: 'Not important',
-      maxLabel: 'Very important',
-    },
-    {
-      id: 2,
-      type: 'options',
-      question: 'Which value is most important to you in a relationship?',
-      options: ['Trust', 'Communication', 'Respect', 'Growth', 'Independence'],
-    },
-    {
-      id: 3,
-      type: 'options',
-      question: 'How important are shared life goals?',
-      options: ['Not important', 'Somewhat important', 'Important', 'Very important', 'Essential'],
-    },
-  ],
-};
+// In a real app, you would fetch this from an API
+// For now, we'll import it directly
+import questionsData from '../../data/questions.json';
 
 export default function TrainPage({ params }: { params: { category: string } }) {
   const router = useRouter();
-  const category = params.category;
+  const category = params.category as keyof typeof questionsData;
+  
+  // Get the category data
+  const categoryData = questionsData[category];
+  
+  // Determine the questionnaire type (first key in the category object)
+  const [questionnaireType, setQuestionnaireType] = useState<string>('');
+  const [questions, setQuestions] = useState<any[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [isComplete, setIsComplete] = useState(false);
 
-  // Get questions for the current category
-  const questions = trainingQuestions[category as keyof typeof trainingQuestions] || [];
-  const currentQuestion = questions[currentQuestionIndex];
-  const totalQuestions = questions.length;
+  useEffect(() => {
+    if (categoryData) {
+      // Get the first key in the category object (e.g., "mbti", "attachment_styles", etc.)
+      const type = Object.keys(categoryData)[0];
+      setQuestionnaireType(type);
+      
+      // Get the questions array
+      let questionsArray;
+      if (type === 'values' && category === 'personality') {
+        // Special case for personality values which has a nested structure
+        questionsArray = categoryData[type].values;
+      } else {
+        questionsArray = categoryData[type];
+      }
+      
+      setQuestions(questionsArray);
+    }
+  }, [category, categoryData]);
 
   // Handle back button
   const handleBack = () => {
@@ -117,7 +54,7 @@ export default function TrainPage({ params }: { params: { category: string } }) 
 
   // Handle next button
   const handleNext = () => {
-    if (currentQuestionIndex < totalQuestions - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setIsComplete(true);
@@ -132,7 +69,7 @@ export default function TrainPage({ params }: { params: { category: string } }) 
   const handleAnswerChange = (value: any) => {
     setAnswers({
       ...answers,
-      [currentQuestion.id]: value,
+      [currentQuestionIndex]: value,
     });
   };
 
@@ -152,9 +89,27 @@ export default function TrainPage({ params }: { params: { category: string } }) 
     }
   };
 
+  // Get questionnaire type name for display
+  const getQuestionnaireTypeName = () => {
+    switch (questionnaireType) {
+      case 'mbti':
+        return 'Myers-Briggs Type Indicator';
+      case 'values':
+        return 'Personal Values';
+      case 'attachment_styles':
+        return 'Attachment Styles';
+      case 'hexaco':
+        return 'HEXACO Personality Inventory';
+      case 'relationship_values':
+        return 'Relationship Values';
+      default:
+        return '';
+    }
+  };
+
   // Check if current question has been answered
   const isCurrentQuestionAnswered = () => {
-    return answers[currentQuestion?.id] !== undefined;
+    return answers[currentQuestionIndex] !== undefined;
   };
 
   if (isComplete) {
@@ -168,7 +123,7 @@ export default function TrainPage({ params }: { params: { category: string } }) 
     );
   }
 
-  if (!currentQuestion) {
+  if (!categoryData || !questionnaireType || questions.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>
@@ -181,42 +136,33 @@ export default function TrainPage({ params }: { params: { category: string } }) 
     );
   }
 
+  const currentQuestion = questions[currentQuestionIndex];
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <button onClick={handleBack} className={styles.backButton}>
           <FaArrowLeft />
         </button>
-        <h1 className={styles.title}>{getCategoryName()} Training</h1>
+        <h1 className={styles.title}>{getCategoryName()}: {getQuestionnaireTypeName()}</h1>
       </div>
 
       <div className={styles.progressBar}>
         <div 
           className={styles.progressFill} 
-          style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+          style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
         ></div>
       </div>
       
       <div className={styles.questionContainer}>
-        <h2 className={styles.questionNumber}>Question {currentQuestionIndex + 1} of {totalQuestions}</h2>
+        <h2 className={styles.questionNumber}>Question {currentQuestionIndex + 1} of {questions.length}</h2>
         <h3 className={styles.questionText}>{currentQuestion.question}</h3>
         
-        {currentQuestion.type === 'slider' ? (
-          <QuestionSlider
-            min={currentQuestion.min}
-            max={currentQuestion.max}
-            minLabel={currentQuestion.minLabel}
-            maxLabel={currentQuestion.maxLabel}
-            value={answers[currentQuestion.id] || Math.floor((currentQuestion.max - currentQuestion.min) / 2)}
-            onChange={handleAnswerChange}
-          />
-        ) : (
-          <QuestionOptions
-            options={currentQuestion.options}
-            selectedOption={answers[currentQuestion.id]}
-            onChange={handleAnswerChange}
-          />
-        )}
+        <QuestionOptions
+          options={currentQuestion.options}
+          selectedOption={answers[currentQuestionIndex]}
+          onChange={handleAnswerChange}
+        />
       </div>
       
       <div className={styles.actionButtons}>
@@ -225,7 +171,7 @@ export default function TrainPage({ params }: { params: { category: string } }) 
           className={styles.nextButton}
           disabled={!isCurrentQuestionAnswered()}
         >
-          {currentQuestionIndex < totalQuestions - 1 ? (
+          {currentQuestionIndex < questions.length - 1 ? (
             <>Next <FaArrowRight className={styles.buttonIcon} /></>
           ) : (
             'Complete'
