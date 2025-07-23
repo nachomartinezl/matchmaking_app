@@ -15,8 +15,8 @@ import Step5_Smoking from './components/Step5_Smoking';
 import Step6_Drinking from './components/Step6_Drinking';
 import Step7_Kids from './components/Step7_Kids';
 import Step8_MaritalStatus from './components/Step8_MaritalStatus';
-import Step9_Profile from './components/Step9_Profile';
-import Step10_Goal from './components/Step10_Goal';
+import Step9_Goal from './components/Step9_Goal';
+import Step10_Profile from './components/Step10_Profile';
 
 // Define the complete structure of our form data
 interface FormData {
@@ -35,9 +35,9 @@ interface FormData {
   drinking: string;
   kids: string;
   maritalStatus: string;
+  goal: string;
   profilePicture: File | null;
   description: string;
-  goal: string;
 }
 
 export default function SignUpPage() {
@@ -64,9 +64,9 @@ export default function SignUpPage() {
     drinking: '',
     kids: '',
     maritalStatus: '',
+    goal: '',
     profilePicture: null,
     description: '',
-    goal: '',
   });
 
   const nextStep = () => setStep((prev) => prev + 1);
@@ -118,9 +118,9 @@ export default function SignUpPage() {
       case 8:
         return <Step8_MaritalStatus formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
       case 9:
-        return <Step9_Profile formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return <Step9_Goal formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
       case 10:
-        return <Step10_Goal formData={formData} updateFormData={updateFormData} handleSubmit={handleSubmit} prevStep={prevStep} isSubmitting={isSubmitting} />;
+        return <Step10_Profile formData={formData} updateFormData={updateFormData} handleSubmit={handleSubmit} prevStep={prevStep} isSubmitting={isSubmitting} />;
       default:
         return <p>Invalid step!</p>;
     }
