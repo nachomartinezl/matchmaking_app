@@ -1,14 +1,42 @@
 // app/dashboard/page.tsx
 
 import Image from 'next/image';
+import Link from 'next/link';
 import styles from './Dashboard.module.css';
 import { FaUser, FaCog, FaSignOutAlt, FaHeart, FaBrain, FaUserAlt, FaUserFriends, FaBalanceScale, FaSmile } from 'react-icons/fa';
 
 // Mock data for your matches - in a real app, this would come from an API
 const matchesData = [
-  { name: 'Lauren', age: 24, imageUrl: 'https://placehold.co/400x400/FFF/333?text=Lauren' },
-  { name: 'Annie', age: 30, imageUrl: 'https://placehold.co/400x400/EEE/333?text=Annie' },
-  { name: 'Luna', age: 29, imageUrl: 'https://placehold.co/400x400/DDD/333?text=Luna' },
+  { 
+    id: 1,
+    name: 'Lauren', 
+    age: 24, 
+    imageUrl: 'https://placehold.co/400x400/FFF/333?text=Lauren',
+    bio: 'Passionate about art, music, and exploring new places. Looking for someone who enjoys deep conversations and spontaneous adventures.',
+    height: '5\'7"',
+    sign: 'Libra',
+    country: 'United States'
+  },
+  { 
+    id: 2,
+    name: 'Annie', 
+    age: 30, 
+    imageUrl: 'https://placehold.co/400x400/EEE/333?text=Annie',
+    bio: 'Coffee enthusiast, book lover, and outdoor adventurer. I value authenticity and am looking for someone with similar interests.',
+    height: '5\'5"',
+    sign: 'Taurus',
+    country: 'Canada'
+  },
+  { 
+    id: 3,
+    name: 'Luna', 
+    age: 29, 
+    imageUrl: 'https://placehold.co/400x400/DDD/333?text=Luna',
+    bio: 'Yoga instructor by day, stargazer by night. Seeking a connection with someone who appreciates mindfulness and the beauty of the universe.',
+    height: '5\'9"',
+    sign: 'Pisces',
+    country: 'Australia'
+  },
 ];
 
 // Mock data for the algorithm training buttons with icons
@@ -68,7 +96,7 @@ export default function DashboardPage() {
         <div className={styles.matchesContainer}>
           <div className={styles.matchesGrid}>
             {matchesData.map((match) => (
-              <div key={match.name} className={styles.matchCard}>
+              <Link href={`/match/${match.id}`} key={match.id} className={styles.matchCard}>
                 <Image
                   src={match.imageUrl}
                   alt={`Profile picture of ${match.name}`}
@@ -77,7 +105,7 @@ export default function DashboardPage() {
                   className={styles.matchImage}
                 />
                 <p className={styles.matchName}>{match.name}, {match.age}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
