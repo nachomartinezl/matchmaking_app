@@ -41,10 +41,10 @@ const matchesData = [
 
 // Mock data for the algorithm training buttons with icons
 const trainingTopics = [
-  { name: 'Personality', icon: <FaUserAlt /> },
-  { name: 'Character', icon: <FaBalanceScale /> },
-  { name: 'Emotional', icon: <FaSmile /> },
-  { name: 'Values', icon: <FaUserFriends /> }
+  { id: 'personality', name: 'Personality', icon: <FaUserAlt /> },
+  { id: 'character', name: 'Character', icon: <FaBalanceScale /> },
+  { id: 'emotional', name: 'Emotional', icon: <FaSmile /> },
+  { id: 'values', name: 'Values', icon: <FaUserFriends /> }
 ];
 
 export default function DashboardPage() {
@@ -120,10 +120,10 @@ export default function DashboardPage() {
         <div className={styles.trainContainer}>
           <div className={styles.trainGrid}>
             {trainingTopics.map((topic) => (
-              <button key={topic.name} className={styles.trainButton}>
+              <Link href={`/train/${topic.id}`} key={topic.name} className={styles.trainButton}>
                 <span className={styles.buttonIcon}>{topic.icon}</span>
                 {topic.name}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
