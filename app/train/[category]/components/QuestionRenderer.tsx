@@ -3,18 +3,19 @@
 import QuestionSlider from './QuestionSlider';
 import QuestionOptions from './QuestionOptions';
 
+interface Scale {
+  options: number[];
+  labels: Record<string, string>;
+}
+
 interface QuestionRendererProps {
   question: any;
   selected: any;
   onChange: (value: any) => void;
+  scale: Scale | null;
 }
 
-export default function QuestionRenderer({
-  question,
-  selected,
-  onChange
-}: QuestionRendererProps) {
-  // Multiple-choice style question
+export default function QuestionRenderer({ question, selected, onChange, scale }: QuestionRendererProps) {
   if (Array.isArray(question.options)) {
     return (
       <QuestionOptions
@@ -25,23 +26,21 @@ export default function QuestionRenderer({
     );
   }
 
-  // Slider style question
-  if (
-    typeof question.min === 'number' &&
-    typeof question.max === 'number'
-  ) {
+  if (scale) {
+    const min = scale.options[0];
+    const max = scale.options[scale.options.length - 1];
+
     return (
       <QuestionSlider
-        min={question.min}
-        max={question.max}
-        minLabel={question.minLabel ?? ''}
-        maxLabel={question.maxLabel ?? ''}
-        value={typeof selected === 'number' ? selected : question.min}
+        min={min}
+        max={max}
+        minLabel={scale.labels[min]}
+        maxLabel={scale.labels[max]}
+        value={selected ?? min}
         onChange={onChange}
       />
     );
   }
 
-  // Fallback if unrecognized
   return null;
 }

@@ -1,49 +1,86 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from './Train.module.css';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import styles from './Train.module.css';
 import QuestionRenderer from './components/QuestionRenderer';
-
-// In a real app, you would fetch this from an API
-// For now, we'll import it directly
 import questionsData from '../../data/questions.json';
 
+const categoryDisplayNames: Record<string, string> = {
+  personality: 'Personality',
+  character: 'Character',
+  emotional: 'Emotional Intelligence',
+  values: 'Values',
+};
+
+const questionnaireTypeNames: Record<string, string> = {
+  mbti: 'Myers-Briggs Type Indicator',
+  schwartz_survey: 'Personal Values',
+  attachment_styles: 'Attachment Styles',
+  hexaco: 'HEXACO Personality Inventory',
+};
+
 export default function TrainPage({ params }: { params: { category: string } }) {
+  const { category } = params;
   const router = useRouter();
-  const category = params.category as keyof typeof questionsData;
 
-  // Get the category data
-  const categoryData = questionsData[category];
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  // Determine the questionnaire type (first key in the category object)
-  const [questionnaireType, setQuestionnaireType] = useState<string>('');
-  const [questions, setQuestions] = useState<any[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [isComplete, setIsComplete] = useState(false);
 
-  useEffect(() => {
-    if (categoryData) {
-      // Get the first key in the category object (e.g., "mbti", "attachment_styles", etc.)
-      const type = Object.keys(categoryData)[0];
-      setQuestionnaireType(type);
-
-      // Get the questions array
-      let questionsArray;
-      if (type === 'values' && category === 'personality') {
-        // Special case for personality values which has a nested structure
-        questionsArray = categoryData[type].values;
-      } else {
-        questionsArray = categoryData[type];
-      }
-
-      setQuestions(questionsArray);
+  const { questionnaireType, questions, scale } = useMemo(() => {
+    const categoryData = questionsData[category as keyof typeof questionsData];
+    if (!categoryData) {
+      return { questionnaireType: '', questions: [], scale: null };
     }
-  }, [category, categoryData]);
 
-  // Handle back button
+    const type = Object.keys(categoryData)[0];
+    const questionnaireData = (categoryData as any)[type];
+
+    if (questionnaireData && Array.isArray(questionnaireData.questions)) {
+      return {
+        questionnaireType: type,
+        questions: questionnaireData.questions,
+        scale: questionnaireData.scale,
+      };
+    }
+
+    if (Array.isArray(questionnaireData)) {
+      return {
+        questionnaireType: type,
+        questions: questionnaireData,
+        scale: null,
+      };
+    }
+
+    return { questionnaireType: '', questions: [], scale: null };
+  }, [category]);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const isCurrentQuestionAnswered = answers[currentQuestionIndex] !== undefined;
+
+  const handleAnswerChange = useCallback((value: any) => {
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [currentQuestionIndex]: value,
+    }));
+  }, [currentQuestionIndex]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+
+    if (scale && answers[currentQuestionIndex] === undefined) {
+      const defaultValue = scale.options[0];
+      handleAnswerChange(defaultValue);
+    }
+  }, [currentQuestionIndex, currentQuestion, answers, handleAnswerChange, scale]);
+
   const handleBack = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
@@ -52,78 +89,31 @@ export default function TrainPage({ params }: { params: { category: string } }) 
     }
   };
 
-  // Handle next button
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setIsComplete(true);
-      // In a real app, you would submit the answers to your backend here
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 2000);
+      setTimeout(() => router.push('/dashboard'), 2000);
     }
   };
 
-  // Handle answer change
-  const handleAnswerChange = (value: any) => {
-    setAnswers({
-      ...answers,
-      [currentQuestionIndex]: value,
-    });
-  };
-
-  // Get category name for display
-  const getCategoryName = () => {
-    switch (category) {
-      case 'personality':
-        return 'Personality';
-      case 'character':
-        return 'Character';
-      case 'emotional':
-        return 'Emotional Intelligence';
-      case 'values':
-        return 'Values';
-      default:
-        return 'Training';
-    }
-  };
-
-  // Get questionnaire type name for display
-  const getQuestionnaireTypeName = () => {
-    switch (questionnaireType) {
-      case 'mbti':
-        return 'Myers-Briggs Type Indicator';
-      case 'values':
-        return 'Personal Values';
-      case 'attachment_styles':
-        return 'Attachment Styles';
-      case 'hexaco':
-        return 'HEXACO Personality Inventory';
-      case 'relationship_values':
-        return 'Relationship Values';
-      default:
-        return '';
-    }
-  };
-
-  // Check if current question has been answered
-  const isCurrentQuestionAnswered = () => {
-    return answers[currentQuestionIndex] !== undefined;
-  };
+  if (!isClient) {
+    return null;
+  }
 
   if (isComplete) {
     return (
       <div className={styles.container}>
         <div className={styles.completionMessage}>
           <h2>Thank you!</h2>
-          <p>Your preferences have been saved and will help improve your matches.</p>
+          <p>Your preferences have been saved.</p>
         </div>
       </div>
     );
   }
 
-  if (!categoryData || !questionnaireType || questions.length === 0) {
+  if (questions.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>
@@ -136,40 +126,42 @@ export default function TrainPage({ params }: { params: { category: string } }) 
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button onClick={handleBack} className={styles.backButton}>
+        <button onClick={handleBack} className={styles.backButton} aria-label="Go back">
           <FaArrowLeft />
         </button>
-        <h1 className={styles.title}>{getCategoryName()}: {getQuestionnaireTypeName()}</h1>
+        <h1 className={styles.title}>
+          {categoryDisplayNames[category] || 'Training'}: {questionnaireTypeNames[questionnaireType] || ''}
+        </h1>
       </div>
 
       <div className={styles.progressBar}>
-        <div 
-          className={styles.progressFill} 
+        <div
+          className={styles.progressFill}
           style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
-        ></div>
+        />
       </div>
-      
+
       <div className={styles.questionContainer}>
         <h2 className={styles.questionNumber}>Question {currentQuestionIndex + 1} of {questions.length}</h2>
-        <h3 className={styles.questionText}>{currentQuestion.question}</h3>
-        
+        <h3 className={styles.questionText}>
+          {currentQuestion.question || currentQuestion}
+        </h3>
         <QuestionRenderer
           question={currentQuestion}
           selected={answers[currentQuestionIndex]}
           onChange={handleAnswerChange}
+          scale={scale}
         />
       </div>
-      
+
       <div className={styles.actionButtons}>
-        <button 
-          onClick={handleNext} 
+        <button
+          onClick={handleNext}
           className={styles.nextButton}
-          disabled={!isCurrentQuestionAnswered()}
+          disabled={!isCurrentQuestionAnswered}
         >
           {currentQuestionIndex < questions.length - 1 ? (
             <>Next <FaArrowRight className={styles.buttonIcon} /></>
