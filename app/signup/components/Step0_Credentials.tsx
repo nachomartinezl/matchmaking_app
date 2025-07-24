@@ -1,6 +1,8 @@
 // app/signup/components/Step0_Credentials.tsx
 'use client';
 
+import StepContainer from './common/StepContainer';
+
 interface StepProps {
   formData: {
     email: string;
@@ -15,13 +17,10 @@ export default function Step0_Credentials({ formData, updateFormData, nextStep }
   const canProceed = isEmailValid(formData.email) && formData.password.length >= 8;
 
   return (
-    // We use a React Fragment <> because no extra div is needed.
-    // Your CSS handles all the margins on the elements themselves.
-    <>
+    <StepContainer>
       <h2>Create Your Account</h2>
       <p>Let's start with the basics to secure your account.</p>
 
-      {/* NO DIV WRAPPER HERE */}
       <label htmlFor="email">Email</label>
       <input
         id="email"
@@ -32,7 +31,6 @@ export default function Step0_Credentials({ formData, updateFormData, nextStep }
         required
       />
 
-      {/* NO DIV WRAPPER HERE */}
       <label htmlFor="password">Password</label>
       <input
         id="password"
@@ -52,6 +50,6 @@ export default function Step0_Credentials({ formData, updateFormData, nextStep }
           Next
         </button>
       </div>
-    </>
+    </StepContainer>
   );
 }

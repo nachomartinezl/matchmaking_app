@@ -1,5 +1,7 @@
 'use client';
 
+import StepContainer from './common/StepContainer';
+
 interface StepProps {
   formData: {
     profilePicture: File | null;
@@ -21,16 +23,16 @@ export default function Step10_Profile({ formData, updateFormData, handleSubmit,
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateFormData({ description: e.target.value });
   };
-  
+
   return (
-    <div className="form-step">
+    <StepContainer>
       <h2>Your Profile</h2>
       <label htmlFor="profilePicture">Upload a picture</label>
-      <input 
-        type="file" 
-        id="profilePicture" 
-        name="profilePicture" 
-        accept="image/*" 
+      <input
+        type="file"
+        id="profilePicture"
+        name="profilePicture"
+        accept="image/*"
         onChange={handleFileChange}
         disabled={isSubmitting}
       />
@@ -38,18 +40,18 @@ export default function Step10_Profile({ formData, updateFormData, handleSubmit,
       {formData.profilePicture && <p>Selected: {formData.profilePicture.name}</p>}
 
       <label htmlFor="description">Short Description</label>
-      <textarea 
-        id="description" 
+      <textarea
+        id="description"
         name="description"
-        value={formData.description} 
-        onChange={handleTextChange} 
+        value={formData.description}
+        onChange={handleTextChange}
         placeholder="Tell us something about yourself..."
         disabled={isSubmitting}
       />
 
       <div className="button-group">
-        <button 
-          onClick={prevStep} 
+        <button
+          onClick={prevStep}
           className="button-secondary"
           disabled={isSubmitting}
         >
@@ -63,6 +65,6 @@ export default function Step10_Profile({ formData, updateFormData, handleSubmit,
           {isSubmitting ? 'Finishing...' : 'Finish Sign Up'}
         </button>
       </div>
-    </div>
+    </StepContainer>
   );
 }

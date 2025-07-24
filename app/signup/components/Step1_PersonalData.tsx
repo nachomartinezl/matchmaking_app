@@ -1,6 +1,8 @@
 // app/signup/components/Step1_PersonalData.tsx
 'use client';
 
+import StepContainer from './common/StepContainer';
+
 interface StepProps {
   formData: {
     name: string;
@@ -22,8 +24,7 @@ export default function Step1_PersonalData({
   const canProceed = formData.name && formData.surname && formData.dob && formData.gender;
 
   return (
-    // Using a Fragment <> because your global CSS handles all spacing.
-    <>
+    <StepContainer>
       <h2>Tell us about yourself</h2>
       <p>This information will be on your public profile.</p>
 
@@ -77,6 +78,6 @@ export default function Step1_PersonalData({
           Next
         </button>
       </div>
-    </>
+    </StepContainer>
   );
 }
