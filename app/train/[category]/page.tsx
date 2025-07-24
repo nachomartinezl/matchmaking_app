@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './Train.module.css';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
-import QuestionOptions from './components/QuestionOptions';
+import QuestionRenderer from './components/QuestionRenderer';
 
 // In a real app, you would fetch this from an API
 // For now, we'll import it directly
@@ -13,10 +13,10 @@ import questionsData from '../../data/questions.json';
 export default function TrainPage({ params }: { params: { category: string } }) {
   const router = useRouter();
   const category = params.category as keyof typeof questionsData;
-  
+
   // Get the category data
   const categoryData = questionsData[category];
-  
+
   // Determine the questionnaire type (first key in the category object)
   const [questionnaireType, setQuestionnaireType] = useState<string>('');
   const [questions, setQuestions] = useState<any[]>([]);
@@ -29,7 +29,7 @@ export default function TrainPage({ params }: { params: { category: string } }) 
       // Get the first key in the category object (e.g., "mbti", "attachment_styles", etc.)
       const type = Object.keys(categoryData)[0];
       setQuestionnaireType(type);
-      
+
       // Get the questions array
       let questionsArray;
       if (type === 'values' && category === 'personality') {
@@ -38,7 +38,7 @@ export default function TrainPage({ params }: { params: { category: string } }) 
       } else {
         questionsArray = categoryData[type];
       }
-      
+
       setQuestions(questionsArray);
     }
   }, [category, categoryData]);
@@ -158,9 +158,9 @@ export default function TrainPage({ params }: { params: { category: string } }) 
         <h2 className={styles.questionNumber}>Question {currentQuestionIndex + 1} of {questions.length}</h2>
         <h3 className={styles.questionText}>{currentQuestion.question}</h3>
         
-        <QuestionOptions
-          options={currentQuestion.options}
-          selectedOption={answers[currentQuestionIndex]}
+        <QuestionRenderer
+          question={currentQuestion}
+          selected={answers[currentQuestionIndex]}
           onChange={handleAnswerChange}
         />
       </div>
