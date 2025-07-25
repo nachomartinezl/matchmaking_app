@@ -105,8 +105,8 @@ export default function MatchPage() {
         <Image
           src={match.imageUrl}
           alt={`Profile picture of ${match.name}`}
-          width={400}
-          height={400}
+          width={200}
+          height={200}
           className={styles.profileImage}
         />
       </div>
