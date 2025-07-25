@@ -1,9 +1,7 @@
-// app/match/[id]/page.tsx
-
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './Match.module.css';
 import { FaArrowLeft, FaHeart, FaTimes } from 'react-icons/fa';
@@ -42,13 +40,14 @@ const matchesData = [
   },
 ];
 
-export default function MatchPage({ params }: { params: { id: string } }) {
+export default function MatchPage() {
   const router = useRouter();
+  const params = useParams();
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationType, setAnimationType] = useState('');
   
-  // Find the match data based on the ID from the URL
-  const matchId = parseInt(params.id);
+  // Parse the ID from the URL
+  const matchId = parseInt(params.id || '', 10);
   const match = matchesData.find(m => m.id === matchId);
   
   if (!match) {
