@@ -38,6 +38,16 @@ const matchesData = [
     sign: 'Pisces',
     country: 'Australia'
   },
+  { 
+    id: 4,
+    name: 'Maya', 
+    age: 27, 
+    imageUrl: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg',
+    bio: 'UX designer who loves street photography, vintage films, and late-night talks under the stars. Looking for depth, humor, and shared adventures.',
+    height: '5\'6"',
+    sign: 'Gemini',
+    country: 'Germany'
+  },
 ];
 
 export default function MatchPage() {
