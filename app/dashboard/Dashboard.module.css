@@ -158,10 +158,8 @@
 .matchesContainer {
   display: flex;
   justify-content: center;
-  width: 100%;
 }
 
-/* Centered grid of cards below the title */
 .matchesGrid {
   display: inline-grid;
   grid-template-columns: repeat(2, 1fr);
