@@ -18,9 +18,12 @@ const PREF_OPTIONS = [
   { value: 'both', label: 'Both' },
 ];
 
-export default function Step4_Preference({ formData, updateFormData, nextStep, prevStep }: StepProps) {
-  const canProceed = formData.preference !== '';
-
+export default function Step4_Preference({
+  formData,
+  updateFormData,
+  nextStep,
+  prevStep,
+}: StepProps) {
   return (
     <StepContainer>
       <h2>Sexual Preference</h2>
@@ -29,7 +32,10 @@ export default function Step4_Preference({ formData, updateFormData, nextStep, p
           <div
             key={value}
             className={`option-item ${formData.preference === value ? 'selected' : ''}`}
-            onClick={() => updateFormData({ preference: value })}
+            onClick={() => {
+              updateFormData({ preference: value });
+              nextStep();
+            }}
           >
             {label}
           </div>
@@ -39,13 +45,6 @@ export default function Step4_Preference({ formData, updateFormData, nextStep, p
       <div className="button-group">
         <button onClick={prevStep} className="button-secondary">
           Back
-        </button>
-        <button
-          onClick={nextStep}
-          className="button-primary"
-          disabled={!canProceed}
-        >
-          Next
         </button>
       </div>
     </StepContainer>

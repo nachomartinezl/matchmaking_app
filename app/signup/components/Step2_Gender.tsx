@@ -20,9 +20,12 @@ const GENDER_OPTIONS = [
   { value: 'prefer-not-to-say', label: 'Prefer not to say' },
 ];
 
-export default function Step2_Gender({ formData, updateFormData, nextStep, prevStep }: StepProps) {
-  const canProceed = formData.gender !== '';
-
+export default function Step2_Gender({
+  formData,
+  updateFormData,
+  nextStep,
+  prevStep,
+}: StepProps) {
   return (
     <StepContainer>
       <h2>Gender</h2>
@@ -31,7 +34,10 @@ export default function Step2_Gender({ formData, updateFormData, nextStep, prevS
           <div
             key={value}
             className={`option-item ${formData.gender === value ? 'selected' : ''}`}
-            onClick={() => updateFormData({ gender: value })}
+            onClick={() => {
+              updateFormData({ gender: value });
+              nextStep();
+            }}
           >
             {label}
           </div>
@@ -41,13 +47,6 @@ export default function Step2_Gender({ formData, updateFormData, nextStep, prevS
       <div className="button-group">
         <button onClick={prevStep} className="button-secondary">
           Back
-        </button>
-        <button
-          onClick={nextStep}
-          className="button-primary"
-          disabled={!canProceed}
-        >
-          Next
         </button>
       </div>
     </StepContainer>
