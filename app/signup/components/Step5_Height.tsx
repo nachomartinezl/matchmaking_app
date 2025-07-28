@@ -2,7 +2,6 @@
 
 import React from 'react';
 import StepContainer from './common/StepContainer';
-import HeightPickerWheel from './common/HeightPickerWheel';
 
 interface StepProps {
   formData: {
@@ -19,13 +18,20 @@ export default function Step5_Height({ formData, updateFormData, nextStep, prevS
 
   return (
     <StepContainer>
-      <h2>Height</h2>
-      <HeightPickerWheel
+      <h2>Height (inches)</h2>
+
+      <input
+        type="range"
+        id="height"
+        name="height"
         min={48}
         max={96}
         value={currentHeight}
-        onChange={(val) => updateFormData({ height: String(val) })}
+        onChange={(e) => updateFormData({ height: e.target.value })}
       />
+      <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+        <span>{currentHeight}"</span>
+      </div>
 
       <div className="button-group">
         <button onClick={prevStep} className="button-secondary">
