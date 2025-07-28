@@ -5,14 +5,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Import ALL step components
 import Step0_Credentials from './components/Step0_Credentials';
 import Step1_PersonalData from './components/Step1_PersonalData';
-import Step2_AboutYou from './components/Step2_AboutYou';
+import Step2_Gender from './components/Step2_Gender';
+import Step3_Country from './components/Step3_Country';
+import Step4_Preference from './components/Step4_Preference';
+import Step5_Height from './components/Step5_Height';
 import OptionStep from './components/common/OptionStep';
-import Step10_Profile from './components/Step10_Profile';
+import Step7_Pets from './components/Step7_Pets';
+import Step12_ProfileGallery from './components/Step12_ProfileGallery';
+import Step13_ShortBio from './components/Step13_ShortBio';
 
-// Define the complete structure of our form data
+// Define full form data, adding gallery array
 interface FormData {
   email: string;
   password: string;
@@ -24,13 +28,14 @@ interface FormData {
   preference: string;
   height: string;
   religion: string;
-  pets: string;
+  pets: string[];
   smoking: string;
   drinking: string;
   kids: string;
   maritalStatus: string;
   goal: string;
   profilePicture: File | null;
+  gallery: File[];
   description: string;
 }
 
@@ -38,7 +43,6 @@ export default function SignUpPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
 
-  // State for loading and error handling during submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,13 +57,14 @@ export default function SignUpPage() {
     preference: '',
     height: '',
     religion: '',
-    pets: '',
+    pets: [],
     smoking: '',
     drinking: '',
     kids: '',
     maritalStatus: '',
     goal: '',
     profilePicture: null,
+    gallery: [],
     description: '',
   });
 
@@ -73,23 +78,17 @@ export default function SignUpPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
-
     try {
-      // In a real app, you would send this data to your API
       console.log('Final Form Data:', formData);
-      // We'll simulate a network request that takes 1.5 seconds
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // On successful submission, redirect to the login page
+      await new Promise((res) => setTimeout(res, 1500));
       router.push('/login');
     } catch (err) {
       setError('Something went wrong during sign up. Please try again.');
       console.error(err);
-      setIsSubmitting(false); // Let the user try again
+      setIsSubmitting(false);
     }
   };
 
-  // Using a switch statement is often cleaner for multi-step forms
   const renderCurrentStep = () => {
     switch (step) {
       case 0:
@@ -97,8 +96,14 @@ export default function SignUpPage() {
       case 1:
         return <Step1_PersonalData formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
       case 2:
-        return <Step2_AboutYou formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return <Step2_Gender formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
       case 3:
+        return <Step3_Country formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 4:
+        return <Step4_Preference formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 5:
+        return <Step5_Height formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 6:
         return (
           <OptionStep
             title="Do you identify with a religion?"
@@ -120,31 +125,9 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 4:
-        return (
-          <OptionStep
-            title="Do you have pets?"
-            options={[
-              { value: 'birds', label: 'Birds' },
-              { value: 'cats', label: 'Cats' },
-              { value: 'dogs', label: 'Dogs' },
-              { value: 'fish', label: 'Fish' },
-              { value: 'hamsters', label: 'Hamsters' },
-              { value: 'rabbits', label: 'Rabbits' },
-              { value: 'snakes', label: 'Snakes' },
-              { value: 'turtles', label: 'Turtles' },
-              { value: 'none', label: 'None' },
-              { value: 'skip', label: 'Skip' },
-            ]}
-            selected={formData.pets}
-            onSelect={(pets) => {
-              updateFormData({ pets });
-              nextStep();
-            }}
-            onBack={prevStep}
-          />
-        );
-      case 5:
+      case 7:
+        return <Step7_Pets formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+      case 8:
         return (
           <OptionStep
             title="Do you smoke?"
@@ -163,7 +146,7 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 6:
+      case 9:
         return (
           <OptionStep
             title="Do you drink?"
@@ -182,18 +165,15 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 7:
+      case 10:
         return (
           <OptionStep
-            title="Do you have kids?"
+            title="Kids Status"
             options={[
-              { value: 'not_yet', label: 'Not yet' },
-              { value: 'childfree', label: 'Childfree' },
-              { value: '1', label: '1' },
-              { value: '2', label: '2' },
-              { value: '3', label: '3' },
-              { value: 'more_than_3', label: 'More than 3' },
-              { value: 'skip', label: 'Skip' },
+              { value: 'i_have', label: 'I have' },
+              { value: 'i_want', label: 'I want to' },
+              { value: 'i_dont_want', label: "I don't want" },
+              { value: 'not_sure', label: 'Not sure' },
             ]}
             selected={formData.kids}
             onSelect={(kids) => {
@@ -203,27 +183,7 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 8:
-        return (
-          <OptionStep
-            title="What is your marital status?"
-            options={[
-              { value: 'single', label: 'Single' },
-              { value: 'married', label: 'Married' },
-              { value: 'in_relationship', label: 'In a relationship' },
-              { value: 'divorced', label: 'Divorced' },
-              { value: 'separated', label: 'Separated' },
-              { value: 'skip', label: 'Skip' },
-            ]}
-            selected={formData.maritalStatus}
-            onSelect={(maritalStatus) => {
-              updateFormData({ maritalStatus });
-              nextStep();
-            }}
-            onBack={prevStep}
-          />
-        );
-      case 9:
+      case 11:
         return (
           <OptionStep
             title="What are you looking for?"
@@ -231,6 +191,7 @@ export default function SignUpPage() {
               { value: 'friends', label: 'Make new friends' },
               { value: 'casual', label: 'Something casual' },
               { value: 'relationship', label: 'A serious relationship' },
+              { value: 'dont_know', label: "I don't know yet" },
             ]}
             selected={formData.goal}
             onSelect={(goal) => {
@@ -240,8 +201,10 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 10:
-        return <Step10_Profile formData={formData} updateFormData={updateFormData} handleSubmit={handleSubmit} prevStep={prevStep} isSubmitting={isSubmitting} />;
+      case 12:
+        return <Step12_ProfileGallery formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} isSubmitting={isSubmitting} />;
+      case 13:
+        return <Step13_ShortBio formData={formData} updateFormData={updateFormData} handleSubmit={handleSubmit} prevStep={prevStep} isSubmitting={isSubmitting} />;
       default:
         return <p>Invalid step!</p>;
     }
@@ -251,7 +214,7 @@ export default function SignUpPage() {
     <div className="form-container">
       <h1>Create Your Profile</h1>
       <p style={{ textAlign: 'center', color: '#a0a0a0', marginBottom: 'var(--space-md)' }}>
-        Step {step + 1} of 11
+        Step {step + 1} of 14
       </p>
 
       {renderCurrentStep()}

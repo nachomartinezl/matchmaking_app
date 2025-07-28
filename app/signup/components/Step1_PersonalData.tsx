@@ -1,4 +1,3 @@
-// app/signup/components/Step1_PersonalData.tsx
 'use client';
 
 import StepContainer from './common/StepContainer';
@@ -8,24 +7,18 @@ interface StepProps {
     name: string;
     surname: string;
     dob: string;
-    gender: string;
   };
   updateFormData: (data: Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
 
-export default function Step1_PersonalData({
-  formData,
-  updateFormData,
-  nextStep,
-  prevStep,
-}: StepProps) {
-  const canProceed = formData.name && formData.surname && formData.dob && formData.gender;
+export default function Step1_PersonalData({ formData, updateFormData, nextStep, prevStep }: StepProps) {
+  const canProceed = formData.name !== '' && formData.surname !== '' && formData.dob !== '';
 
   return (
     <StepContainer>
-      <h2>Tell us about yourself</h2>
+      <h2>Name & Birthdate</h2>
       <p>This information will be on your public profile.</p>
 
       <label htmlFor="name">First Name</label>
@@ -51,20 +44,6 @@ export default function Step1_PersonalData({
         value={formData.dob}
         onChange={(e) => updateFormData({ dob: e.target.value })}
       />
-
-      <label htmlFor="gender">Gender</label>
-      <select
-        id="gender"
-        value={formData.gender}
-        onChange={(e) => updateFormData({ gender: e.target.value })}
-      >
-        <option value="">Select...</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="non-binary">Non-binary</option>
-        <option value="other">Other</option>
-        <option value="prefer-not-to-say">Prefer not to say</option>
-      </select>
 
       <div className="button-group">
         <button onClick={prevStep} className="button-secondary">
