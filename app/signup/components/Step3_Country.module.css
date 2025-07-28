@@ -1,0 +1,23 @@
+:global(.select__control) {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: none;
+}
+
+:global(.select__menu) {
+  background-color: #fff;
+}
+
+:global(.select__option) {
+  color: #333;
+  padding: 0.5rem 1rem;
+}
+
+:global(.select__option--is-focused) {
+  background-color: #f0f0f0;
+}
+
+:global(.select__option--is-selected) {
+  background-color: #ddd;
+  color: #000;
+}

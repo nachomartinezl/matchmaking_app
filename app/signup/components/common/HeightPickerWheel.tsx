@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import MobilePicker from 'react-mobile-picker';
+import React, { useMemo, useState, useEffect } from 'react';
+import ScrollWheel from 'react-scroll-wheel-picker';
 
 interface HeightPickerWheelProps {
   min: number;
@@ -10,28 +10,43 @@ interface HeightPickerWheelProps {
   onChange: (val: number) => void;
 }
 
-export default function HeightPickerWheel({ min, max, value, onChange }: HeightPickerWheelProps) {
+export default function HeightPickerWheel({
+  min,
+  max,
+  value,
+  onChange,
+}: HeightPickerWheelProps) {
   const options = useMemo(() => {
-    const list = [];
+    const arr: string[] = [];
     for (let i = min; i <= max; i++) {
-      list.push(i);
+      arr.push(String(i));
     }
-    return list;
+    return arr;
   }, [min, max]);
 
-  const data = { height: options };
-  const selected = { height: value };
+  const [selectedIndex, setSelectedIndex] = useState(() =>
+    options.indexOf(String(value))
+  );
 
-  const handleChange = (_key: string, val: number) => {
-    onChange(val);
+  useEffect(() => {
+    const idx = options.indexOf(String(value));
+    if (idx >= 0 && idx !== selectedIndex) {
+      setSelectedIndex(idx);
+    }
+  }, [value, options, selectedIndex]);
+
+  const handleSelect = (val: string) => {
+    const num = parseInt(val, 10);
+    onChange(num);
   };
 
   return (
-    <div className="height-picker">
-      <MobilePicker
-        optionGroups={data}
-        valueGroups={selected}
-        onChange={handleChange}
+    <div className="height-picker" style={{ width: '100%', height: '200px' }}>
+      <ScrollWheel
+        data={options}
+        selectedIndex={selectedIndex}
+        onSelect={handleSelect}
+        heightWheelitem={40}
       />
     </div>
   );

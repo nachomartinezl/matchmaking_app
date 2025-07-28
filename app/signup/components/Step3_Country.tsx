@@ -2,8 +2,14 @@
 
 import React, { useMemo } from 'react';
 import StepContainer from './common/StepContainer';
-import Select from 'react-select';
+import Select, { SingleValue } from 'react-select';
 import countryList from 'react-select-country-list';
+import './Step3_Country.module.css';
+
+interface CountryOption {
+  value: string;
+  label: string;
+}
 
 interface StepProps {
   formData: {
@@ -14,10 +20,27 @@ interface StepProps {
   prevStep: () => void;
 }
 
-export default function Step3_Country({ formData, updateFormData, nextStep, prevStep }: StepProps) {
-  const options = useMemo(() => countryList().getData(), []);
-  const selectedOption = options.find(opt => opt.value === formData.country) || null;
-  const canProceed = !!formData.country;
+export default function Step3_Country({
+  formData,
+  updateFormData,
+  nextStep,
+  prevStep,
+}: StepProps) {
+  const options = useMemo<CountryOption[]>(
+    () =>
+      countryList()
+        .getData()
+        .map((c) => ({ value: c.value, label: c.label })),
+    []
+  );
+
+  const selectedOption =
+    options.find((o) => o.value === formData.country) || null;
+  const canProceed = Boolean(formData.country);
+
+  const handleChange = (opt: SingleValue<CountryOption>) => {
+    if (opt) updateFormData({ country: opt.value });
+  };
 
   return (
     <StepContainer>
@@ -25,9 +48,10 @@ export default function Step3_Country({ formData, updateFormData, nextStep, prev
       <Select
         options={options}
         value={selectedOption}
-        onChange={(opt) => updateFormData({ country: (opt as any).value })}
+        onChange={handleChange}
         placeholder="Select your country"
         isSearchable
+        classNamePrefix="select"
       />
 
       <div className="button-group">
