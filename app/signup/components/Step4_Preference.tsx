@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import StepContainer from './common/StepContainer';
 
 interface StepProps {
@@ -11,24 +12,29 @@ interface StepProps {
   prevStep: () => void;
 }
 
+const PREF_OPTIONS = [
+  { value: 'women', label: 'Women' },
+  { value: 'men', label: 'Men' },
+  { value: 'both', label: 'Both' },
+];
+
 export default function Step4_Preference({ formData, updateFormData, nextStep, prevStep }: StepProps) {
   const canProceed = formData.preference !== '';
 
   return (
     <StepContainer>
       <h2>Sexual Preference</h2>
-      <label htmlFor="preference">I am interested in...</label>
-      <select
-        id="preference"
-        name="preference"
-        value={formData.preference}
-        onChange={(e) => updateFormData({ preference: e.target.value })}
-      >
-        <option value="">Select preference</option>
-        <option value="women">Women</option>
-        <option value="men">Men</option>
-        <option value="both">Both</option>
-      </select>
+      <div className="option-list">
+        {PREF_OPTIONS.map(({ value, label }) => (
+          <div
+            key={value}
+            className={`option-item ${formData.preference === value ? 'selected' : ''}`}
+            onClick={() => updateFormData({ preference: value })}
+          >
+            {label}
+          </div>
+        ))}
+      </div>
 
       <div className="button-group">
         <button onClick={prevStep} className="button-secondary">

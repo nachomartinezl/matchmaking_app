@@ -1,6 +1,9 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import StepContainer from './common/StepContainer';
+import Select from 'react-select';
+import countryList from 'react-select-country-list';
 
 interface StepProps {
   formData: {
@@ -12,19 +15,19 @@ interface StepProps {
 }
 
 export default function Step3_Country({ formData, updateFormData, nextStep, prevStep }: StepProps) {
-  const canProceed = formData.country !== '';
+  const options = useMemo(() => countryList().getData(), []);
+  const selectedOption = options.find(opt => opt.value === formData.country) || null;
+  const canProceed = !!formData.country;
 
   return (
     <StepContainer>
       <h2>Country of Origin</h2>
-      <label htmlFor="country">Country of Origin</label>
-      <input
-        type="text"
-        id="country"
-        name="country"
-        value={formData.country}
-        onChange={(e) => updateFormData({ country: e.target.value })}
-        placeholder="e.g., Brazil"
+      <Select
+        options={options}
+        value={selectedOption}
+        onChange={(opt) => updateFormData({ country: (opt as any).value })}
+        placeholder="Select your country"
+        isSearchable
       />
 
       <div className="button-group">

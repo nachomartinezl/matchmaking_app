@@ -1,6 +1,8 @@
 'use client';
 
+import React from 'react';
 import StepContainer from './common/StepContainer';
+import HeightPickerWheel from './common/HeightPickerWheel';
 
 interface StepProps {
   formData: {
@@ -12,19 +14,17 @@ interface StepProps {
 }
 
 export default function Step5_Height({ formData, updateFormData, nextStep, prevStep }: StepProps) {
+  const currentHeight = parseInt(formData.height, 10) || 60;
   const canProceed = formData.height !== '';
 
   return (
     <StepContainer>
       <h2>Height</h2>
-      <label htmlFor="height">Height (in inches)</label>
-      <input
-        type="number"
-        id="height"
-        name="height"
-        value={formData.height}
-        onChange={(e) => updateFormData({ height: e.target.value })}
-        placeholder="e.g., 70"
+      <HeightPickerWheel
+        min={48}
+        max={96}
+        value={currentHeight}
+        onChange={(val) => updateFormData({ height: String(val) })}
       />
 
       <div className="button-group">
