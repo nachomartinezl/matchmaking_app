@@ -1,5 +1,3 @@
-// app/signup/page.tsx
-
 'use client';
 
 import { useState } from 'react';
@@ -16,10 +14,8 @@ import Step7_Pets from './components/Step7_Pets';
 import Step12_ProfileGallery from './components/Step12_ProfileGallery';
 import Step13_ShortBio from './components/Step13_ShortBio';
 
-// Define full form data, adding gallery array
 interface FormData {
   email: string;
-  password: string;
   name: string;
   surname: string;
   dob: string;
@@ -42,13 +38,11 @@ interface FormData {
 export default function SignUpPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     email: '',
-    password: '',
     name: '',
     surname: '',
     dob: '',
@@ -213,13 +207,14 @@ export default function SignUpPage() {
   return (
     <div className="form-container">
       <h1>Create Your Profile</h1>
-      <p style={{ textAlign: 'center', color: '#a0a0a0', marginBottom: 'var(--space-md)' }}>
-        Step {step + 1} of 14
-      </p>
 
       {renderCurrentStep()}
 
-      {error && <p style={{ color: '#ff5555', marginTop: '1rem', textAlign: 'center' }}>{error}</p>}
+      {error && (
+        <p style={{ color: '#ff5555', marginTop: '1rem', textAlign: 'center' }}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }
