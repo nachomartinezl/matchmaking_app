@@ -1,0 +1,172 @@
+/* app/queue/Queue.module.css */
+
+.queueContainer {
+  text-align: center;
+  padding: var(--space-md) 0;
+}
+
+.queueCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: var(--space-lg);
+  margin: var(--space-md) auto;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.queueCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-image: var(--gradient-primary);
+}
+
+.queueCard h2 {
+  font-size: var(--fs-subtitle);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.positionNumber {
+  font-size: clamp(4rem, 15vw, 6rem);
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: var(--space-sm) 0;
+  line-height: 1;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.queueCard p {
+  color: var(--text-secondary);
+  max-width: 300px;
+  margin: var(--space-sm) auto 0;
+}
+
+.shareSection {
+  margin-top: var(--space-lg);
+}
+
+.shareSection h3 {
+  font-size: var(--fs-subtitle);
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.shareSection p {
+  margin-top: 0;
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.shareButtons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-sm);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.shareButton:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.shareButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.shareButton svg {
+  font-size: 1.5rem;
+}
+
+.boostText {
+  font-weight: 700;
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.whatsapp {
+  background-color: #25d366;
+  border-color: #128c7e;
+}
+.whatsapp:hover:not(:disabled) {
+  background-color: #1ebe5b;
+}
+
+.instagram {
+  background: #d6249f;
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  border-color: #d6249f;
+}
+.instagram:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.facebook {
+  background-color: #1877f2;
+  border-color: #0c5fbd;
+}
+.facebook:hover:not(:disabled) {
+  background-color: #166fe5;
+}
+
+.tiktok {
+  background-color: #000000;
+  border: 1px solid #fff;
+  box-shadow: 2px 2px 0 #fe2c55, -2px -2px 0 #25f4ee;
+}
+.tiktok:hover:not(:disabled) {
+  box-shadow: 3px 3px 0 #fe2c55, -3px -3px 0 #25f4ee;
+}
+
+.email {
+  background-color: #7f8c8d;
+  border-color: #606c6d;
+}
+.email:hover:not(:disabled) {
+  background-color: #95a5a6;
+}
