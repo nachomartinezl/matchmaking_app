@@ -14,12 +14,13 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
   return (
     <div
       style={{
-        width: '100%',
+        position: 'relative',
+        width: '50%',
         height: '8px',
         backgroundColor: '#e5e7eb',
         borderRadius: '4px',
         overflow: 'hidden',
-        margin: '1rem 0',
+        margin: '1rem auto',
       }}
     >
       <div
@@ -28,6 +29,20 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
           height: '100%',
           backgroundColor: '#e056fd',
           transition: 'width 0.3s ease',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: `${percent}%`,
+          transform: 'translate(-50%, -50%)',
+          width: '12px',
+          height: '12px',
+          backgroundColor: '#e056fd',
+          border: '2px solid white',
+          borderRadius: '50%',
+          transition: 'left 0.3s ease',
         }}
       />
     </div>
