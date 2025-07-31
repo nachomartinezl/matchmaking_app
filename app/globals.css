@@ -72,13 +72,15 @@ body {
 }
 
 h1 {
+  font-size: clamp(1.8rem, 6vw, 3rem);
   margin: 0 0 var(--space-md);
-  font-size: var(--fs-title);
   font-weight: 700;
   color: #ffffff;
   text-align: center;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   letter-spacing: 0.5px;
+  margin-bottom: 1rem; /* 👈 tighten gap below title */
+  margin-top: 7rem;     /* optional: still some top breathing room */
 }
 
 h2 {
@@ -131,7 +133,7 @@ textarea:focus {
 
 .button-group {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--space-sm);
   justify-content: space-between;
   margin-top: var(--space-md);
@@ -212,12 +214,3 @@ button:disabled {
   border-color: var(--accent);
 }
 
-/* Responsive tweaks */
-@media (max-width: 480px) {
-  .form-container {
-    padding: var(--space-md);
-  }
-  .button-group {
-    flex-direction: column;
-  }
-}

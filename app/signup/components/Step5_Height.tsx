@@ -18,7 +18,7 @@ export default function Step5_Height({ formData, updateFormData, nextStep, prevS
 
   return (
     <StepContainer>
-      <h2>Height (inches)</h2>
+      <h2>Height</h2>
 
       <input
         type="range"

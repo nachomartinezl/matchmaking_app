@@ -17,7 +17,7 @@ export default function Step0_Credentials({ formData, updateFormData, nextStep }
   return (
     <StepContainer>
       <h2>Email</h2>
-      <p>Please enter your email address to get started.</p>
+      <p>Please enter your email address.</p>
 
       <label htmlFor="email">Email</label>
       <input

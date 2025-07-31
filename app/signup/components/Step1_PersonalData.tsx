@@ -23,7 +23,7 @@ export default function Step1_PersonalData({
 
   return (
     <StepContainer>
-      <h2>Name</h2>
+      <h2>What's your name?</h2>
       <p>This information will be on your public profile.</p>
 
       <label htmlFor="name">First Name</label>

@@ -16,6 +16,7 @@ const PREF_OPTIONS = [
   { value: 'women', label: 'Women' },
   { value: 'men', label: 'Men' },
   { value: 'both', label: 'Both' },
+  { value: 'not_sure', label: 'Not sure' },
 ];
 
 export default function Step4_Preference({

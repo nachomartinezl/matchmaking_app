@@ -43,12 +43,6 @@ export default function Step2_Gender({
           </div>
         ))}
       </div>
-
-      <div className="button-group">
-        <button onClick={prevStep} className="button-secondary">
-          Back
-        </button>
-      </div>
     </StepContainer>
   );
 }

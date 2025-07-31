@@ -102,14 +102,14 @@
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--border);
-  width: 60px;
-  height: 60px;
+  width: 48px; /* MODIFIED: was 60px */
+  height: 48px; /* MODIFIED: was 60px */
 }
 
 @media (min-width: 768px) {
   .profilePic {
-    width: 80px;
-    height: 80px;
+    width: 64px; /* MODIFIED: was 80px */
+    height: 64px; /* MODIFIED: was 80px */
   }
   
   .userInfo h1 {
@@ -156,43 +156,38 @@
 
 /* === Matches Section === */
 .matchesContainer {
-  display: flex;
-  justify-content: center;
+  display: grid; /* MODIFIED: Was 'flex'. Using grid is a better way to center the child. */
+  justify-items: center; /* MODIFIED: This centers the .matchesGrid horizontally. */
 }
 
 .matchesGrid {
-  display: inline-grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* MODIFIED: More columns for smaller images */
   gap: 1rem;
+  max-width: 100%; /* Prevents overflow on very small screens */
 }
 
 @media (min-width: 640px) {
   .matchesGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* MODIFIED */
     gap: 1.5rem;
   }
 }
 
 @media (min-width: 768px) {
   .matchesGrid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr); /* MODIFIED */
     gap: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .matchesGrid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(6, 1fr); /* MODIFIED */
+    gap: 1.5rem;
   }
 }
 
-@media (min-width: 1280px) {
-  .matchesGrid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 2rem;
-  }
-}
 
 .matchCard {
   background: transparent;
@@ -232,36 +227,36 @@
 
 /* === Train Algorithm Section === */
 .trainContainer {
-  display: flex;
-  justify-content: center;
+  display: grid; /* MODIFIED: Was 'flex'. Using grid is a better way to center the child. */
+  justify-items: center; /* MODIFIED: This centers the .trainGrid horizontally. */
   width: 100%;
 }
 
 .trainGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* MODIFIED: More columns for smaller buttons */
   gap: 1rem;
   max-width: 100%;
 }
 
 @media (min-width: 640px) {
   .trainGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* MODIFIED */
     gap: 1.5rem;
   }
 }
 
 @media (min-width: 768px) {
   .trainGrid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr); /* MODIFIED */
     gap: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .trainGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(6, 1fr); /* MODIFIED */
+    gap: 1.5rem;
   }
 }
 
@@ -410,4 +405,10 @@
 .statLabel {
   font-size: 0.875rem;
   color: var(--text-secondary);
+}
+
+.centeredGrid {
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
 }

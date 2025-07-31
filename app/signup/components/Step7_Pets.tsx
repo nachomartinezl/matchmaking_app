@@ -21,6 +21,7 @@ const PET_OPTIONS = [
   'Rabbits',
   'Snakes',
   'Turtles',
+  'None'
 ];
 
 export default function Step7_Pets({ formData, updateFormData, nextStep, prevStep }: StepProps) {
