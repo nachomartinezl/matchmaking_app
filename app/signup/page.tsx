@@ -164,6 +164,7 @@ export default function SignUpPage() {
               { value: 'islam', label: 'Islam' },
               { value: 'judaism', label: 'Judaism' },
               { value: 'other', label: 'Other' },
+              { value: 'none', label: 'None' },
               { value: 'skip', label: 'Skip' },
             ]}
             selected={formData.religion}
