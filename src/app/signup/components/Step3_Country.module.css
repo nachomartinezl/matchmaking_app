@@ -1,0 +1,45 @@
+:global(.select__control) {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  box-shadow: none;
+  color: var(--text-primary);
+}
+
+:global(.select__control:hover) {
+  border-color: var(--accent);
+}
+
+:global(.select__single-value) {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+:global(.select__menu) {
+  background-color: var(--bg-card);
+}
+
+:global(.select__menu-list) {
+  background-color: var(--bg-card);
+}
+
+:global(.select__option) {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-card) !important;
+  padding: 0.5rem 1rem;
+}
+
+:global(.select__option--is-focused) {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+:global(.select__option--is-selected) {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+:global(.select__option:hover) {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+}
