@@ -203,11 +203,13 @@ export default function SignUpPage() {
         return <p>Invalid step!</p>;
     }
   };
+  
 
-  return (
+return (
+  <>
+    <h1>Create Your Profile</h1> {/* 👈 Now above everything */}
+
     <div className="form-container">
-      <h1>Create Your Profile</h1>
-
       {renderCurrentStep()}
 
       {error && (
@@ -216,5 +218,6 @@ export default function SignUpPage() {
         </p>
       )}
     </div>
-  );
+  </>
+);
 }
