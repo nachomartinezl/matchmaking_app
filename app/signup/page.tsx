@@ -283,7 +283,7 @@ export default function SignUpPage() {
 
   return (
     <>
-      <h1>Create Your Profile</h1>
+      <h1>{step < 4 ? 'Join us' : 'Create Your Profile'}</h1>
 
       <div className="form-container">
         {renderCurrentStep()}
