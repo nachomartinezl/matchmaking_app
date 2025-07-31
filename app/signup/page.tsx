@@ -15,6 +15,7 @@ import OptionStep from './components/common/OptionStep';
 import Step7_Pets from './components/Step7_Pets';
 import Step12_ProfileGallery from './components/Step12_ProfileGallery';
 import Step13_ShortBio from './components/Step13_ShortBio';
+import ProgressBar from './components/ProgressBar';
 
 interface FormData {
   email: string;
@@ -284,6 +285,7 @@ export default function SignUpPage() {
   return (
     <>
       <h1>{step < 4 ? 'Join us' : 'Create Your Profile'}</h1>
+      <ProgressBar currentStep={step} totalSteps={16} />
 
       <div className="form-container">
         {renderCurrentStep()}
