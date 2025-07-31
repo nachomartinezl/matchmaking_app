@@ -165,7 +165,6 @@ export default function SignUpPage() {
               { value: 'judaism', label: 'Judaism' },
               { value: 'other', label: 'Other' },
               { value: 'none', label: 'None' },
-              { value: 'skip', label: 'Skip' },
             ]}
             selected={formData.religion}
             onSelect={(religion) => {
@@ -173,6 +172,10 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
+            onSkip={() => {
+              updateFormData({ religion: '' });
+              nextStep();
+            }}
           />
         );
       case 9:
@@ -193,7 +196,6 @@ export default function SignUpPage() {
               { value: 'when_drink', label: 'When drink' },
               { value: 'sometimes', label: 'Sometimes' },
               { value: 'never', label: 'Never' },
-              { value: 'skip', label: 'Skip' },
             ]}
             selected={formData.smoking}
             onSelect={(smoking) => {
@@ -201,6 +203,10 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
+            onSkip={() => {
+              updateFormData({ smoking: '' });
+              nextStep();
+            }}
           />
         );
       case 11:
@@ -212,7 +218,6 @@ export default function SignUpPage() {
               { value: 'on_holidays', label: 'On holidays' },
               { value: 'sometimes', label: 'Sometimes' },
               { value: 'never', label: 'Never' },
-              { value: 'skip', label: 'Skip' },
             ]}
             selected={formData.drinking}
             onSelect={(drinking) => {
@@ -220,6 +225,10 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
+            onSkip={() => {
+              updateFormData({ drinking: '' });
+              nextStep();
+            }}
           />
         );
       case 12:
