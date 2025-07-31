@@ -126,7 +126,7 @@ export default function QueuePage() {
         <section className={queueStyles.queueCard}>
           <h2>Your position in the queue:</h2>
           <p className={queueStyles.positionNumber}>{position}</p>
-          <p>Due to high demand, we've created a queue to ensure a smooth experience for everyone. We appreciate your patience!</p>
+          <p>Due to high demand, we've created a queue to ensure the best experience for everyone. We appreciate your patience!</p>
         </section>
 
         {/* Share to Boost Section */}
