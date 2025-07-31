@@ -172,7 +172,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onSkip={() => {
+            onNext={() => {
               updateFormData({ religion: '' });
               nextStep();
             }}
@@ -203,7 +203,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onSkip={() => {
+            onNext={() => {
               updateFormData({ smoking: '' });
               nextStep();
             }}
@@ -225,7 +225,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onSkip={() => {
+            onNext={() => {
               updateFormData({ drinking: '' });
               nextStep();
             }}
@@ -247,6 +247,10 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
+            onNext={() => {
+              updateFormData({ kids: '' });
+              nextStep();
+            }}
           />
         );
       case 13:
@@ -265,6 +269,10 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
+            onNext={() => {
+              updateFormData({ goal: '' });
+              nextStep();
+            }}
           />
         );
       case 14:

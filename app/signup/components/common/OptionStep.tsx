@@ -14,10 +14,10 @@ interface OptionStepProps {
   selected: string;
   onSelect: (value: string) => void;
   onBack: () => void;
-  onSkip?: () => void;
+  onNext: () => void;
 }
 
-export default function OptionStep({ title, options, selected, onSelect, onBack, onSkip }: OptionStepProps) {
+export default function OptionStep({ title, options, selected, onSelect, onBack, onNext }: OptionStepProps) {
   return (
     <StepContainer>
       <h2>{title}</h2>
@@ -36,11 +36,9 @@ export default function OptionStep({ title, options, selected, onSelect, onBack,
         <button onClick={onBack} className="button-secondary">
           Back
         </button>
-        {onSkip && (
-          <button onClick={onSkip} className="button-secondary">
-            Skip
-          </button>
-        )}
+        <button onClick={onNext} className="button-secondary">
+          Next
+        </button>
       </div>
     </StepContainer>
   );
