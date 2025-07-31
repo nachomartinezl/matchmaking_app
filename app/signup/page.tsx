@@ -172,10 +172,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onNext={() => {
-              updateFormData({ religion: '' });
-              nextStep();
-            }}
+            onNext={nextStep}
           />
         );
       case 9:
@@ -203,10 +200,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onNext={() => {
-              updateFormData({ smoking: '' });
-              nextStep();
-            }}
+            onNext={nextStep}
           />
         );
       case 11:
@@ -225,10 +219,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onNext={() => {
-              updateFormData({ drinking: '' });
-              nextStep();
-            }}
+            onNext={nextStep}
           />
         );
       case 12:
@@ -247,10 +238,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onNext={() => {
-              updateFormData({ kids: '' });
-              nextStep();
-            }}
+            onNext={nextStep}
           />
         );
       case 13:
@@ -269,10 +257,7 @@ export default function SignUpPage() {
               nextStep();
             }}
             onBack={prevStep}
-            onNext={() => {
-              updateFormData({ goal: '' });
-              nextStep();
-            }}
+            onNext={nextStep}
           />
         );
       case 14:
