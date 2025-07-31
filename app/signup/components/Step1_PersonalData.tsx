@@ -6,19 +6,24 @@ interface StepProps {
   formData: {
     name: string;
     surname: string;
-    dob: string;
+    dob: string; // still in formData, updated later in StepDOB
   };
   updateFormData: (data: Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
 
-export default function Step1_PersonalData({ formData, updateFormData, nextStep, prevStep }: StepProps) {
-  const canProceed = formData.name !== '' && formData.surname !== '' && formData.dob !== '';
+export default function Step1_PersonalData({
+  formData,
+  updateFormData,
+  nextStep,
+  prevStep,
+}: StepProps) {
+  const canProceed = formData.name.trim() !== '' && formData.surname.trim() !== '';
 
   return (
     <StepContainer>
-      <h2>Name & Birthdate</h2>
+      <h2>Name</h2>
       <p>This information will be on your public profile.</p>
 
       <label htmlFor="name">First Name</label>
@@ -35,14 +40,6 @@ export default function Step1_PersonalData({ formData, updateFormData, nextStep,
         type="text"
         value={formData.surname}
         onChange={(e) => updateFormData({ surname: e.target.value })}
-      />
-
-      <label htmlFor="dob">Date of Birth</label>
-      <input
-        id="dob"
-        type="date"
-        value={formData.dob}
-        onChange={(e) => updateFormData({ dob: e.target.value })}
       />
 
       <div className="button-group">

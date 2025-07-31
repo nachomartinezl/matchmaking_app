@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import Step0_Credentials from './components/Step0_Credentials';
 import Step1_PersonalData from './components/Step1_PersonalData';
+import StepDOB from './components/StepDOB';
+import Step0_Credentials from './components/Step0_Credentials';
+import StepThankYou from './components/StepThankYou';
 import Step2_Gender from './components/Step2_Gender';
 import Step3_Country from './components/Step3_Country';
 import Step4_Preference from './components/Step4_Preference';
@@ -86,18 +88,70 @@ export default function SignUpPage() {
   const renderCurrentStep = () => {
     switch (step) {
       case 0:
-        return <Step0_Credentials formData={formData} updateFormData={updateFormData} nextStep={nextStep} />;
+        return (
+          <Step1_PersonalData
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
       case 1:
-        return <Step1_PersonalData formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return (
+          <StepDOB
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
       case 2:
-        return <Step2_Gender formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return (
+          <Step0_Credentials
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+          />
+        );
       case 3:
-        return <Step3_Country formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return <StepThankYou nextStep={nextStep} />;
       case 4:
-        return <Step4_Preference formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return (
+          <Step2_Gender
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
       case 5:
-        return <Step5_Height formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
+        return (
+          <Step3_Country
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
       case 6:
+        return (
+          <Step4_Preference
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
+      case 7:
+        return (
+          <Step5_Height
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
+      case 8:
         return (
           <OptionStep
             title="Do you identify with a religion?"
@@ -119,9 +173,16 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 7:
-        return <Step7_Pets formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />;
-      case 8:
+      case 9:
+        return (
+          <Step7_Pets
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
+      case 10:
         return (
           <OptionStep
             title="Do you smoke?"
@@ -140,7 +201,7 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 9:
+      case 11:
         return (
           <OptionStep
             title="Do you drink?"
@@ -159,7 +220,7 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 10:
+      case 12:
         return (
           <OptionStep
             title="Kids Status"
@@ -177,7 +238,7 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 11:
+      case 13:
         return (
           <OptionStep
             title="What are you looking for?"
@@ -195,29 +256,44 @@ export default function SignUpPage() {
             onBack={prevStep}
           />
         );
-      case 12:
-        return <Step12_ProfileGallery formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} isSubmitting={isSubmitting} />;
-      case 13:
-        return <Step13_ShortBio formData={formData} updateFormData={updateFormData} handleSubmit={handleSubmit} prevStep={prevStep} isSubmitting={isSubmitting} />;
+      case 14:
+        return (
+          <Step12_ProfileGallery
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            isSubmitting={isSubmitting}
+          />
+        );
+      case 15:
+        return (
+          <Step13_ShortBio
+            formData={formData}
+            updateFormData={updateFormData}
+            handleSubmit={handleSubmit}
+            prevStep={prevStep}
+            isSubmitting={isSubmitting}
+          />
+        );
       default:
         return <p>Invalid step!</p>;
     }
   };
-  
 
-return (
-  <>
-    <h1>Create Your Profile</h1> {/* 👈 Now above everything */}
+  return (
+    <>
+      <h1>Create Your Profile</h1>
 
-    <div className="form-container">
-      {renderCurrentStep()}
+      <div className="form-container">
+        {renderCurrentStep()}
 
-      {error && (
-        <p style={{ color: '#ff5555', marginTop: '1rem', textAlign: 'center' }}>
-          {error}
-        </p>
-      )}
-    </div>
-  </>
-);
+        {error && (
+          <p style={{ color: '#ff5555', marginTop: '1rem', textAlign: 'center' }}>
+            {error}
+          </p>
+        )}
+      </div>
+    </>
+  );
 }
