@@ -26,7 +26,7 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
         style={{
           width: `${percent}%`,
           height: '100%',
-          backgroundColor: '#3b82f6',
+          backgroundColor: '#e056fd',
           transition: 'width 0.3s ease',
         }}
       />
