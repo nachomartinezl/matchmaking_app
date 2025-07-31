@@ -19,7 +19,6 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
         height: '8px',
         backgroundColor: '#e5e7eb',
         borderRadius: '4px',
-        overflow: 'hidden',
         margin: '1rem auto',
       }}
     >
