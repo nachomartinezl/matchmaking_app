@@ -12,12 +12,13 @@ import {
   FaFacebook,
   FaTiktok,
   FaEnvelope,
+  FaLink,
 } from 'react-icons/fa';
 import styles from '../dashboard/Dashboard.module.css';
 import queueStyles from './Queue.module.css';
 
 // Define the type for boosts
-type BoostPlatform = 'whatsapp' | 'instagram' | 'facebook' | 'tiktok' | 'email';
+type BoostPlatform = 'whatsapp' | 'instagram' | 'facebook' | 'tiktok' | 'email' | 'link';
 
 export default function QueuePage() {
   const userName = 'Devan';
@@ -28,6 +29,7 @@ export default function QueuePage() {
     facebook: false,
     tiktok: false,
     email: false,
+    link: false,
   });
 
   useEffect(() => {
@@ -87,6 +89,14 @@ export default function QueuePage() {
       boost: 3,
       style: queueStyles.email,
       handler: () => handleShare(3, 'email'),
+    },
+    {
+      platform: 'link',
+      icon: <FaLink />,
+      text: 'Get a shareable link',
+      boost: 3,
+      style: queueStyles.link,
+      handler: () => handleShare(3, 'link'),
     },
   ] as const; // Use 'as const' for stricter typing on platform names
 

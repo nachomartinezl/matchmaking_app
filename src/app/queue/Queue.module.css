@@ -170,3 +170,11 @@
 .email:hover:not(:disabled) {
   background-color: #95a5a6;
 }
+
+.link {
+  background-color: #3498db;
+  border-color: #2980b9;
+}
+.link:hover:not(:disabled) {
+  background-color: #5dade2;
+}
