@@ -16,7 +16,7 @@ interface StepProps {
   formData: {
     country: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -68,7 +68,7 @@ export default function Step3_Country({
 
   return (
     <StepContainer>
-      <h2>Country of Origin</h2>
+      <h2>Where are you from?</h2>
 
       <Select
         options={options}

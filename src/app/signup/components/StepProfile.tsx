@@ -7,7 +7,7 @@ interface StepProps {
     profilePicture: File | null;
     description: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   handleSubmit: () => void;
   prevStep: () => void;
   isSubmitting: boolean;
@@ -26,7 +26,7 @@ export default function Step10_Profile({ formData, updateFormData, handleSubmit,
 
   return (
     <StepContainer>
-      <h2>Your Profile</h2>
+      <h2>Let's set up your profile</h2>
       <label htmlFor="profilePicture">Upload a picture</label>
       <input
         type="file"

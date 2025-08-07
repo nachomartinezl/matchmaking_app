@@ -7,7 +7,7 @@ interface StepProps {
   formData: {
     gender: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -27,7 +27,7 @@ export default function Step2_Gender({
 }: StepProps) {
   return (
     <StepContainer>
-      <h2>Gender</h2>
+      <h2>How do you identify?</h2>
       <div className="option-list">
         {GENDER_OPTIONS.map(({ value, label }) => (
           <div

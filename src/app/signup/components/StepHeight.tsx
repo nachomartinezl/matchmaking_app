@@ -7,7 +7,7 @@ interface StepProps {
   formData: {
     height: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -18,7 +18,7 @@ export default function Step5_Height({ formData, updateFormData, nextStep, prevS
 
   return (
     <StepContainer>
-      <h2>Height</h2>
+      <h2>How tall are you?</h2>
 
       <input
         type="range"

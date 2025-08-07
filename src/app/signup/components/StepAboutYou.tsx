@@ -8,7 +8,7 @@ interface StepProps {
     preference: string;
     height: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -16,7 +16,7 @@ interface StepProps {
 export default function Step2_AboutYou({ formData, updateFormData, nextStep, prevStep }: StepProps) {
   return (
     <StepContainer>
-      <h2>About You</h2>
+      <h2>Tell us about yourself</h2>
       <label htmlFor="country">Country of Origin</label>
       <input
         type="text"

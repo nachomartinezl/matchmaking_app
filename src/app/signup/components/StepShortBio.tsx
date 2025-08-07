@@ -20,7 +20,7 @@ export default function Step13_ShortBio({ formData, updateFormData, handleSubmit
 
   return (
     <StepContainer>
-      <h2>Short Bio</h2>
+      <h2>Tell us a bit about yourself</h2>
       <label htmlFor="description">Tell us something about yourself...</label>
       <textarea
         id="description"

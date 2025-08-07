@@ -8,7 +8,7 @@ interface StepProps {
     profilePicture: File | null;
     gallery: File[];
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
   isSubmitting: boolean;
@@ -30,7 +30,7 @@ export default function Step12_ProfileGallery({ formData, updateFormData, nextSt
 
   return (
     <StepContainer>
-      <h2>Profile Picture & Gallery</h2>
+      <h2>Show us your best photos</h2>
       <label htmlFor="profilePicture">Upload a picture</label>
       <input
         type="file"

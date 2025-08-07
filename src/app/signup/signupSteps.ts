@@ -60,7 +60,7 @@ export const signupSteps: Step[] = [
     id: 8,
     component: OptionStep,
     props: {
-      title: 'Do you identify with a religion?',
+      title: 'What are your spiritual beliefs?',
       options: [
         { value: 'atheism', label: 'Atheism' },
         { value: 'buddhism', label: 'Buddhism' },
@@ -110,7 +110,7 @@ export const signupSteps: Step[] = [
     id: 12,
     component: OptionStep,
     props: {
-      title: 'Kids Status',
+      title: 'Do you have or want kids?',
       options: [
         { value: 'i_have', label: 'I have' },
         { value: 'i_want', label: 'I want to' },

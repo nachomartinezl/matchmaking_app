@@ -7,7 +7,7 @@ interface StepProps {
   formData: {
     preference: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -27,7 +27,7 @@ export default function Step4_Preference({
 }: StepProps) {
   return (
     <StepContainer>
-      <h2>Sexual Preference</h2>
+      <h2>Who are you interested in?</h2>
       <div className="option-list">
         {PREF_OPTIONS.map(({ value, label }) => (
           <div

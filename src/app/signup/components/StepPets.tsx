@@ -7,7 +7,7 @@ interface StepProps {
   formData: {
     pets: string[];
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -34,7 +34,7 @@ export default function Step7_Pets({ formData, updateFormData, nextStep, prevSte
 
   return (
     <StepContainer>
-      <h2>Pets</h2>
+      <h2>Do you have any pets?</h2>
       <div className="option-list">
         {PET_OPTIONS.map((pet) => (
           <div

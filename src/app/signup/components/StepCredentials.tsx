@@ -6,7 +6,7 @@ interface StepProps {
   formData: {
     email: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
 }
 
@@ -16,7 +16,7 @@ export default function Step0_Credentials({ formData, updateFormData, nextStep }
 
   return (
     <StepContainer>
-      <h2>Email</h2>
+      <h2>What's your email?</h2>
       <p>Please enter your email address.</p>
 
       <label htmlFor="email">Email</label>
