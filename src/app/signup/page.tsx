@@ -3,13 +3,20 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { signupSteps } from './signupSteps';
+import {
+  initialSignupSteps,
+  profileSetupSteps,
+  ThankYouStepComponent,
+} from './signupSteps';
 import ProgressBar from './components/ProgressBar';
 import { FormData, CommonStepProps } from './types';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  const [flow, setFlow] = useState<'initial' | 'thankyou' | 'profile'>(
+    'initial'
+  );
+  const [stepIndex, setStepIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,11 +41,39 @@ export default function SignUpPage() {
     description: '',
   });
 
-  const nextStep = () => setStep((prev) => prev + 1);
-  const prevStep = () => setStep((prev) => prev - 1);
-
   const updateFormData = (newData: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
+  };
+
+  const nextStep = () => {
+    if (flow === 'initial') {
+      if (stepIndex < initialSignupSteps.length - 1) {
+        setStepIndex((prev) => prev + 1);
+      } else {
+        setFlow('thankyou');
+      }
+    } else if (flow === 'thankyou') {
+      setFlow('profile');
+      setStepIndex(0);
+    } else if (flow === 'profile') {
+      if (stepIndex < profileSetupSteps.length - 1) {
+        setStepIndex((prev) => prev + 1);
+      }
+    }
+  };
+
+  const prevStep = () => {
+    if (flow === 'initial') {
+      if (stepIndex > 0) {
+        setStepIndex((prev) => prev - 1);
+      }
+    } else if (flow === 'profile') {
+      if (stepIndex > 0) {
+        setStepIndex((prev) => prev - 1);
+      } else {
+        setFlow('thankyou');
+      }
+    }
   };
 
   const handleSubmit = async () => {
@@ -56,17 +91,24 @@ export default function SignUpPage() {
   };
 
   const renderCurrentStep = () => {
-    // Find the configuration for the current step
-    const currentStepConfig = signupSteps.find((s) => s.id === step);
+    let currentSteps;
+    if (flow === 'initial') {
+      currentSteps = initialSignupSteps;
+    } else if (flow === 'profile') {
+      currentSteps = profileSetupSteps;
+    } else {
+      // flow === 'thankyou'
+      return <ThankYouStepComponent nextStep={nextStep} />;
+    }
 
-    // If no configuration is found, something is wrong
+    const currentStepConfig = currentSteps.find((s) => s.id === stepIndex);
+
     if (!currentStepConfig) {
       return <p>Invalid step!</p>;
     }
 
     const { component: StepComponent, props: stepProps } = currentStepConfig;
 
-    // These are the props that are common to all step components
     const commonProps: CommonStepProps = {
       formData,
       updateFormData,
@@ -76,7 +118,6 @@ export default function SignUpPage() {
       handleSubmit,
     };
 
-    // The OptionStep component has a different props structure
     if (currentStepConfig.component.name === 'OptionStep') {
       return (
         <StepComponent
@@ -91,20 +132,50 @@ export default function SignUpPage() {
       );
     }
 
-    // Render the step component with the common props
     return <StepComponent {...commonProps} />;
+  };
+
+  const getProgressBarProps = () => {
+    if (flow === 'initial') {
+      return {
+        currentStep: stepIndex,
+        totalSteps: initialSignupSteps.length,
+      };
+    }
+    if (flow === 'thankyou') {
+      return {
+        currentStep: initialSignupSteps.length,
+        totalSteps: initialSignupSteps.length,
+      };
+    }
+    // flow === 'profile'
+    return {
+      currentStep: stepIndex,
+      totalSteps: profileSetupSteps.length,
+    };
+  };
+
+  const { currentStep, totalSteps } = getProgressBarProps();
+
+  const getTitle = () => {
+    if (flow === 'initial' || flow === 'thankyou') {
+      return 'Join us';
+    }
+    return 'Create Your Profile';
   };
 
   return (
     <>
-      <h1>{step < 4 ? 'Join us' : 'Create Your Profile'}</h1>
-      <ProgressBar currentStep={step} totalSteps={16} />
+      <h1>{getTitle()}</h1>
+      <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
       <div className="form-container">
         {renderCurrentStep()}
 
         {error && (
-          <p style={{ color: '#ff5555', marginTop: '1rem', textAlign: 'center' }}>
+          <p
+            style={{ color: '#ff5555', marginTop: '1rem', textAlign: 'center' }}
+          >
             {error}
           </p>
         )}

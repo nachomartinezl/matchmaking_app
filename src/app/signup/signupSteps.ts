@@ -23,7 +23,7 @@ interface Step {
   };
 }
 
-export const signupSteps: Step[] = [
+export const initialSignupSteps: Step[] = [
   {
     id: 0,
     component: StepPersonalData,
@@ -36,28 +36,29 @@ export const signupSteps: Step[] = [
     id: 2,
     component: StepCredentials,
   },
+];
+
+export const ThankYouStepComponent = StepThankYou;
+
+export const profileSetupSteps: Step[] = [
   {
-    id: 3,
-    component: StepThankYou,
-  },
-  {
-    id: 4,
+    id: 0,
     component: StepGender,
   },
   {
-    id: 5,
+    id: 1,
     component: StepCountry,
   },
   {
-    id: 6,
+    id: 2,
     component: StepPreference,
   },
   {
-    id: 7,
+    id: 3,
     component: StepHeight,
   },
   {
-    id: 8,
+    id: 4,
     component: OptionStep,
     props: {
       title: 'What are your spiritual beliefs?',
@@ -75,11 +76,11 @@ export const signupSteps: Step[] = [
     },
   },
   {
-    id: 9,
+    id: 5,
     component: StepPets,
   },
   {
-    id: 10,
+    id: 6,
     component: OptionStep,
     props: {
       title: 'Do you smoke?',
@@ -93,7 +94,7 @@ export const signupSteps: Step[] = [
     },
   },
   {
-    id: 11,
+    id: 7,
     component: OptionStep,
     props: {
       title: 'Do you drink?',
@@ -107,7 +108,7 @@ export const signupSteps: Step[] = [
     },
   },
   {
-    id: 12,
+    id: 8,
     component: OptionStep,
     props: {
       title: 'Do you have or want kids?',
@@ -121,7 +122,7 @@ export const signupSteps: Step[] = [
     },
   },
   {
-    id: 13,
+    id: 9,
     component: OptionStep,
     props: {
       title: 'What are you looking for?',
@@ -135,11 +136,11 @@ export const signupSteps: Step[] = [
     },
   },
   {
-    id: 14,
+    id: 10,
     component: StepProfileGallery,
   },
   {
-    id: 15,
+    id: 11,
     component: StepShortBio,
   },
 ];
