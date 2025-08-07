@@ -7,7 +7,7 @@ interface StepProps {
     profilePicture: File | null;
     description: string;
   };
-  updateFormData: ( Partial<StepProps['formData']>) => void;
+  updateFormData: (data: Partial<StepProps['formData']>) => void;
   handleSubmit: () => void;
   prevStep: () => void;
   isSubmitting: boolean;

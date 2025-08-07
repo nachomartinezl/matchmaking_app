@@ -6,7 +6,7 @@ interface StepDOBProps {
   formData: {
     dob: string;
   };
-  updateFormData: ( Partial<StepDOBProps['formData']>) => void;
+  updateFormData: (data: Partial<StepDOBProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -22,9 +22,6 @@ export default function StepDOB({
   return (
     <StepContainer>
       <h2>When's your birthday?</h2>
-      <p>Please enter your date of birth.</p>
-
-      <label htmlFor="dob">Date of Birth</label>
       <input
         id="dob"
         type="date"

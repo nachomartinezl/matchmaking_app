@@ -7,7 +7,7 @@ interface StepProps {
   formData: {
     preference: string;
   };
-  updateFormData: ( Partial<StepProps['formData']>) => void;
+  updateFormData: (data: Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }

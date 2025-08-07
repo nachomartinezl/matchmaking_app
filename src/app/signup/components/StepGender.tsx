@@ -7,7 +7,7 @@ interface StepProps {
   formData: {
     gender: string;
   };
-  updateFormData: ( Partial<StepProps['formData']>) => void;
+  updateFormData: (data: Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -17,7 +17,6 @@ const GENDER_OPTIONS = [
   { value: 'female', label: 'Female' },
   { value: 'non-binary', label: 'Non-binary' },
   { value: 'other', label: 'Other' },
-  { value: 'prefer-not-to-say', label: 'Prefer not to say' },
 ];
 
 export default function Step2_Gender({
