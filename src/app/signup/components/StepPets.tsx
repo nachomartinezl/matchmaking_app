@@ -7,7 +7,7 @@ interface StepProps {
   formData: {
     pets: string[];
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -26,10 +26,25 @@ const PET_OPTIONS = [
 
 export default function Step7_Pets({ formData, updateFormData, nextStep, prevStep }: StepProps) {
   const togglePet = (pet: string) => {
-    const pets = formData.pets.includes(pet)
-      ? formData.pets.filter((p) => p !== pet)
-      : [...formData.pets, pet];
-    updateFormData({ pets });
+    const currentPets = formData.pets;
+
+    if (pet === 'None') {
+      // If 'None' is clicked, either select only 'None' or clear selection.
+      const newPets = currentPets.includes('None') ? [] : ['None'];
+      updateFormData({ pets: newPets });
+      return;
+    }
+
+    // If another pet is clicked:
+    // 1. Remove 'None' if it's there.
+    // 2. Toggle the clicked pet.
+    const petsWithoutNone = currentPets.filter((p) => p !== 'None');
+
+    const newPets = petsWithoutNone.includes(pet)
+      ? petsWithoutNone.filter((p) => p !== pet) // deselect
+      : [...petsWithoutNone, pet]; // select
+
+    updateFormData({ pets: newPets });
   };
 
   return (
