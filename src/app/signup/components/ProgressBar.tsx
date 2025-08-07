@@ -15,11 +15,11 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
     <div
       style={{
         position: 'relative',
-        width: '50%',
+        width: '100%',
         height: '8px',
         backgroundColor: '#e5e7eb',
         borderRadius: '4px',
-        margin: '1rem auto',
+        margin: '0 0 2rem 0',
       }}
     >
       <div

@@ -168,14 +168,12 @@ export default function SignUpPage() {
 
   return (
     <>
-      {flow !== 'comingsoon' && (
-        <>
-          <h1>{getTitle()}</h1>
-          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-        </>
-      )}
+      {flow !== 'comingsoon' && <h1>{getTitle()}</h1>}
 
       <div className="form-container">
+        {flow !== 'comingsoon' && (
+          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+        )}
         {renderCurrentStep()}
 
         {error && (
