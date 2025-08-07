@@ -31,7 +31,7 @@ export default function Step12_ProfileGallery({ formData, updateFormData, nextSt
   return (
     <StepContainer>
       <h2>Show us your best photos</h2>
-      <label htmlFor="profilePicture">Upload a picture</label>
+      <label htmlFor="profilePicture">Profile picture</label>
       <input
         type="file"
         id="profilePicture"
@@ -42,7 +42,7 @@ export default function Step12_ProfileGallery({ formData, updateFormData, nextSt
       />
       {formData.profilePicture && <p>Selected: {formData.profilePicture.name}</p>}
 
-      <label htmlFor="gallery">Upload Gallery (up to 5 images)</label>
+      <label htmlFor="gallery">More pics you want to show off</label>
       <input
         type="file"
         id="gallery"
