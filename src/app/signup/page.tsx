@@ -10,12 +10,13 @@ import {
 } from './signupSteps';
 import ProgressBar from './components/ProgressBar';
 import { FormData, CommonStepProps } from './types';
+import StepComingSoon from './components/StepComingSoon';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [flow, setFlow] = useState<'initial' | 'thankyou' | 'profile'>(
-    'initial'
-  );
+  const [flow, setFlow] = useState<
+    'initial' | 'thankyou' | 'profile' | 'comingsoon'
+  >('initial');
   const [stepIndex, setStepIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,26 +82,27 @@ export default function SignUpPage() {
     setError(null);
     try {
       console.log('Final Form Data:', formData);
+      // Simulate API call
       await new Promise((res) => setTimeout(res, 1500));
-      router.push('/login');
+      setFlow('comingsoon');
     } catch (err) {
       setError('Something went wrong during sign up. Please try again.');
       console.error(err);
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   const renderCurrentStep = () => {
-    let currentSteps;
-    if (flow === 'initial') {
-      currentSteps = initialSignupSteps;
-    } else if (flow === 'profile') {
-      currentSteps = profileSetupSteps;
-    } else {
-      // flow === 'thankyou'
+    if (flow === 'comingsoon') {
+      return <StepComingSoon />;
+    }
+    if (flow === 'thankyou') {
       return <ThankYouStepComponent nextStep={nextStep} />;
     }
 
+    const currentSteps =
+      flow === 'initial' ? initialSignupSteps : profileSetupSteps;
     const currentStepConfig = currentSteps.find((s) => s.id === stepIndex);
 
     if (!currentStepConfig) {
@@ -166,8 +168,12 @@ export default function SignUpPage() {
 
   return (
     <>
-      <h1>{getTitle()}</h1>
-      <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+      {flow !== 'comingsoon' && (
+        <>
+          <h1>{getTitle()}</h1>
+          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+        </>
+      )}
 
       <div className="form-container">
         {renderCurrentStep()}
