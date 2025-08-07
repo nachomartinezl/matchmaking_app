@@ -8,8 +8,8 @@ interface ProgressBarProps {
 }
 
 export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
-  // show progress as (currentStep + 1) of total
-  const percent = ((currentStep + 1) / totalSteps) * 100;
+  // show progress as currentStep of total
+  const percent = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
 
   return (
     <div
