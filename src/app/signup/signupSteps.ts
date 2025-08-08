@@ -130,7 +130,7 @@ export const profileSetupSteps: Step[] = [
         { value: 'friends', label: 'Make new friends' },
         { value: 'casual', label: 'Something casual' },
         { value: 'relationship', label: 'A serious relationship' },
-        { value: 'dont_know', label: "I don't know yet" },
+        { value: 'not_sure', label: "I don't know yet" },
       ],
       field: 'goal',
     },

@@ -15,7 +15,7 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
   return (
     <div
       style={{
-        maxWidth: '500px',
+        maxWidth: '600px',
         width: '90%',
         margin: '1rem auto 2rem auto',
       }}
