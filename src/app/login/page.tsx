@@ -16,14 +16,8 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Here you would handle the actual login logic (e.g., API call)
-    console.log('Logging in with:', { email, password });
-
-    // Simulate API call
-    setTimeout(() => {
-      // Instead of alert, send user to the queue screen
-      router.push('/queue');
-    }, 1000);
+    // TODO: handle the actual login logic (e.g., API call)
+    router.push('/queue');
   };
 
   return (

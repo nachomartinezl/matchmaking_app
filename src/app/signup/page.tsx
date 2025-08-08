@@ -35,7 +35,6 @@ export default function SignUpPage() {
     gender: "",
     country: "",
     preference: "",
-    height: "",
     height_feet: undefined,
     height_inches: undefined,
     religion: "",
