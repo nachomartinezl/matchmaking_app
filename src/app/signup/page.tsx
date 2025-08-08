@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { saveProgress, loadProgress, clearProgress } from "@/lib/progress";
 
 import {
   initialSignupSteps,
@@ -24,6 +25,7 @@ export default function SignUpPage() {
   const [profileId, setProfileId] = useState<string | null>(null);
 
   const pollRef = useRef<number | null>(null);
+  const saveTimer = useRef<number | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -47,28 +49,89 @@ export default function SignUpPage() {
     description: "",
   });
 
-  // Load profile_id from localStorage
+  const canPersist = Boolean(profileId);
+
+  // --- Bootstrap: load saved id & form, then validate the id against backend
   useEffect(() => {
     const savedId = localStorage.getItem("profile_id");
-    if (savedId) setProfileId(savedId);
+    const saved = loadProgress();
+
+    if (saved?.formData) {
+      setFormData((prev) => ({ ...prev, ...saved.formData }));
+    }
+
+    if (!savedId) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profiles/${savedId}`);
+        if (!res.ok) {
+          // If the profile is gone (e.g., DB wiped), clean up client state.
+          localStorage.removeItem("profile_id");
+          clearProgress();
+          if (res.status === 404) {
+            setProfileId(null);
+            setFlow("initial");
+          }
+          return;
+        }
+
+        const profile = await res.json();
+        if (cancelled) return;
+
+        setProfileId(savedId);
+
+        if (!profile.email_verified) {
+          setFlow("verify_wait");
+          return;
+        }
+
+        // verified → restore saved step in profile flow if present
+        if (saved?.profile_id === savedId && saved.flow === "profile") {
+          setFlow("profile");
+          setStepIndex(Math.min(saved.stepIndex ?? 0, profileSetupSteps.length - 1));
+        } else {
+          setFlow("thankyou");
+        }
+      } catch {
+        // Network/CORS/etc: don’t crash the app; user can just start again
+        // (if you want, you could show a toast here)
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Poll while waiting for verification
+  // --- Poll backend while waiting for verification
   useEffect(() => {
     if (flow !== "verify_wait" || !profileId) return;
 
     const poll = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profiles/${profileId}`);
+        if (res.status === 404) {
+          // Profile disappeared → reset
+          if (pollRef.current) window.clearInterval(pollRef.current);
+          localStorage.removeItem("profile_id");
+          clearProgress();
+          setProfileId(null);
+          setFlow("initial");
+          return;
+        }
         if (!res.ok) throw new Error("Failed to fetch profile");
+
         const data = await res.json();
         if (data.email_verified === true) {
           if (pollRef.current) window.clearInterval(pollRef.current);
-          // ✅ AFTER verification, show the original Thank You screen
           setFlow("thankyou");
         }
       } catch (err) {
-        console.error("Polling error:", err);
+        // soft-fail; try again next tick
+        // console.error("Polling error:", err);
       }
     };
 
@@ -79,6 +142,31 @@ export default function SignUpPage() {
     };
   }, [flow, profileId]);
 
+  // --- Debounced persistence (only after we have a profile id)
+  useEffect(() => {
+    if (!canPersist) return;
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+
+    saveTimer.current = window.setTimeout(() => {
+      saveProgress({
+        profile_id: profileId!,
+        flow:
+          flow === "profile"
+            ? "profile"
+            : flow === "thankyou"
+            ? "thankyou"
+            : "verify_wait",
+        stepIndex,
+        formData,
+        savedAt: Date.now(),
+      });
+    }, 300);
+
+    return () => {
+      if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    };
+  }, [formData, stepIndex, flow, canPersist, profileId]);
+
   const updateFormData = (newData: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
   };
@@ -88,11 +176,10 @@ export default function SignUpPage() {
       if (stepIndex < initialSignupSteps.length - 1) {
         setStepIndex((prev) => prev + 1);
       } else {
-        // On finishing initial steps → create profile & start verification wait
+        // finishing initial → create profile and begin verification wait
         handleSubmit(false, true);
       }
     } else if (flow === "thankyou") {
-      // User clicks Start on the Thank You screen
       setFlow("profile");
       setStepIndex(0);
     } else if (flow === "profile") {
@@ -107,7 +194,6 @@ export default function SignUpPage() {
       if (stepIndex > 0) setStepIndex((prev) => prev - 1);
     } else if (flow === "profile") {
       if (stepIndex > 0) setStepIndex((prev) => prev - 1);
-      // no back from profile → thankyou per your original behavior
     }
   };
 
@@ -128,7 +214,7 @@ export default function SignUpPage() {
         : undefined,
     smoking: formData.smoking || undefined,
     drinking: formData.drinking || undefined,
-    kids: formData.kids === "i_want" ? "i_want_to" : formData.kids || undefined,
+    kids: formData.kids || undefined, // backend enums already match
     goal: formData.goal || undefined,
     description: formData.description || undefined,
     profile_picture_url: formData.profilePicture || undefined,
@@ -162,7 +248,7 @@ export default function SignUpPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || "Signup failed");
       }
 
@@ -172,9 +258,19 @@ export default function SignUpPage() {
         const newId = data.id;
         setProfileId(newId);
         localStorage.setItem("profile_id", newId);
-        // ➜ enter verification waiting screen
+
+        saveProgress({
+          profile_id: newId,
+          flow: "verify_wait",
+          stepIndex,
+          formData,
+          savedAt: Date.now(),
+        });
+
         setFlow("verify_wait");
       } else if (isFinal) {
+        clearProgress();
+        localStorage.removeItem("profile_id");
         setFlow("comingsoon");
       }
     } catch (err) {
@@ -194,6 +290,20 @@ export default function SignUpPage() {
       <div style={{ display: "flex", justifyContent: "center", margin: "1rem 0" }}>
         <div className="spinner" />
       </div>
+      <p style={{ fontSize: 14 }}>
+        Didn’t get it? Check spam or{" "}
+        <span
+          className="link-accent"
+          onClick={() => {
+            // TODO: call a /profiles/{id}/resend endpoint once you add it.
+            router.refresh();
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          resend
+        </span>
+        .
+      </p>
     </StepContainer>
   );
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import StepContainer from './common/StepContainer';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -28,25 +28,56 @@ export default function Step12_ProfileGallery({
   const [uploadState, setUploadState] = useState<UploadState>('idle');
   const [error, setError] = useState<string | null>(null);
 
+  // ---- PREVIEW URLS (no upload yet) ----
+  const profilePreview = useMemo(
+    () => (formData.profilePicture ? URL.createObjectURL(formData.profilePicture) : null),
+    [formData.profilePicture]
+  );
+
+  const galleryPreviews = useMemo(
+    () => formData.gallery.map((f) => URL.createObjectURL(f)),
+    [formData.gallery]
+  );
+
+  // Cleanup Object URLs to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (profilePreview) URL.revokeObjectURL(profilePreview);
+      galleryPreviews.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, [profilePreview, galleryPreviews]);
+
   useEffect(() => {
     const savedId = localStorage.getItem('profile_id');
     if (savedId) setProfileId(savedId);
   }, []);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if (e.target.files?.[0]) {
       updateFormData({ profilePicture: e.target.files[0] });
     }
   };
 
   const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files).slice(0, 5);
-      updateFormData({ gallery: files });
-    }
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    const current = formData.gallery || [];
+    // cap to 6 total
+    const next = [...current, ...files].slice(0, 6);
+    updateFormData({ gallery: next });
   };
 
-  // Tiny helper to prevent weird filenames
+  const removeProfile = () => {
+    updateFormData({ profilePicture: null });
+  };
+
+  const removeFromGallery = (idx: number) => {
+    const next = [...formData.gallery];
+    next.splice(idx, 1);
+    updateFormData({ gallery: next });
+  };
+
+  // ========== Your existing “upload on Next” logic stays the same ==========
   const safeName = (name: string) =>
     name.replace(/[^a-zA-Z0-9.\-_]/g, '_').toLowerCase();
 
@@ -112,9 +143,9 @@ export default function Step12_ProfileGallery({
         profileUrl = await uploadFile('profile-pictures', path, p);
       }
 
-      // 2) Upload gallery (max 6 in DB constraint; we already limit to 5 here)
+      // 2) Upload gallery (cap at 6)
       const galleryUrls: string[] = [];
-      for (const file of formData.gallery) {
+      for (const file of formData.gallery.slice(0, 6)) {
         const path = `${profileId}/${Date.now()}-${safeName(file.name)}`;
         const url = await uploadFile('profile-gallery', path, file);
         galleryUrls.push(url);
@@ -142,35 +173,138 @@ export default function Step12_ProfileGallery({
     <StepContainer>
       <h2>Show us your best photos</h2>
 
-      <label htmlFor="profilePicture">Profile picture</label>
-      <input
-        type="file"
-        id="profilePicture"
-        name="profilePicture"
-        accept="image/*"
-        onChange={handleProfileChange}
-        disabled={busy}
-      />
-      {formData.profilePicture && <p>Selected: {formData.profilePicture.name}</p>}
+      {/* PROFILE PICTURE PICKER + PREVIEW */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="profilePicture">Profile picture</label>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <label className="button-secondary" style={{ cursor: 'pointer', margin: 0 }}>
+            Choose file
+            <input
+              type="file"
+              id="profilePicture"
+              name="profilePicture"
+              accept="image/*"
+              onChange={handleProfileChange}
+              disabled={busy}
+              style={{ display: 'none' }}
+            />
+          </label>
 
-      <label htmlFor="gallery">More pics you want to show off</label>
-      <input
-        type="file"
-        id="gallery"
-        name="gallery"
-        accept="image/*"
-        multiple
-        onChange={handleGalleryChange}
-        disabled={busy}
-      />
-      {formData.gallery.length > 0 && (
-        <ul>
-          {formData.gallery.map((file, idx) => (
-            <li key={idx}>{file.name}</li>
-          ))}
-        </ul>
-      )}
+          {profilePreview ? (
+            <div
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-sm)',
+                position: 'relative',
+              }}
+            >
+              <img
+                src={profilePreview}
+                alt="Profile preview"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <button
+                className="icon-button"
+                onClick={removeProfile}
+                type="button"
+                style={{
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  background: '#222',
+                  border: '1px solid var(--border)',
+                }}
+                disabled={busy}
+                aria-label="Remove profile picture"
+                title="Remove"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <span style={{ color: 'var(--text-secondary)' }}>No picture selected</span>
+          )}
+        </div>
+      </div>
 
+      {/* GALLERY PICKER + PREVIEWS GRID */}
+      <div style={{ marginTop: '1.25rem' }}>
+        <label htmlFor="gallery">More pics you want to show off</label>
+
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <label className="button-secondary" style={{ cursor: 'pointer', margin: 0 }}>
+            Add images
+            <input
+              type="file"
+              id="gallery"
+              name="gallery"
+              accept="image/*"
+              multiple
+              onChange={handleGalleryChange}
+              disabled={busy}
+              style={{ display: 'none' }}
+            />
+          </label>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+            Up to 6 images
+          </span>
+        </div>
+
+        {galleryPreviews.length > 0 && (
+          <div
+            style={{
+              marginTop: '1rem',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+              gap: '0.75rem',
+            }}
+          >
+            {galleryPreviews.map((src, idx) => (
+              <div
+                key={src}
+                style={{
+                  position: 'relative',
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden',
+                  background: 'var(--input-bg)',
+                  border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow-sm)',
+                  height: 110,
+                }}
+              >
+                <img
+                  src={src}
+                  alt={`Gallery ${idx + 1}`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <button
+                  className="icon-button"
+                  onClick={() => removeFromGallery(idx)}
+                  type="button"
+                  style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: 6,
+                    background: '#222',
+                    border: '1px solid var(--border)',
+                  }}
+                  disabled={busy}
+                  aria-label={`Remove image ${idx + 1}`}
+                  title="Remove"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* STATUS + ERRORS */}
       {uploadState === 'uploading' && (
         <p style={{ color: 'var(--text-secondary)' }}>Uploading images…</p>
       )}
@@ -181,7 +315,7 @@ export default function Step12_ProfileGallery({
         <p style={{ color: '#ff5555', marginTop: '0.5rem' }}>{error}</p>
       )}
 
-      <div className="button-group">
+      <div className="button-group" style={{ marginTop: '1.25rem' }}>
         <button onClick={prevStep} className="button-secondary" disabled={busy}>
           Back
         </button>

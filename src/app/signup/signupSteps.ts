@@ -107,20 +107,20 @@ export const profileSetupSteps: Step[] = [
       field: 'drinking',
     },
   },
-  {
-    id: 8,
-    component: OptionStep,
-    props: {
-      title: 'Do you have or want kids?',
-      options: [
-        { value: 'i_have', label: 'I have' },
-        { value: 'i_want', label: 'I want to' },
-        { value: 'i_dont_want', label: "I don't want" },
-        { value: 'not_sure', label: 'Not sure' },
-      ],
-      field: 'kids',
-    },
+{
+  id: 8,
+  component: OptionStep,
+  props: {
+    title: 'Do you have or want kids?',
+    options: [
+      { value: 'i_have', label: 'I have' },
+      { value: 'i_want', label: 'I want to' },           // we map to i_want_to in buildPayload
+      { value: 'i_do_not_want', label: "I don't want" },   // we map to i_do_not_want in buildPayload
+      { value: 'not_sure', label: 'Not sure' },
+    ],
+    field: 'kids',
   },
+},
   {
     id: 9,
     component: OptionStep,
