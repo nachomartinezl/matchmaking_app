@@ -21,7 +21,8 @@ import queueStyles from './Queue.module.css';
 type BoostPlatform = 'whatsapp' | 'instagram' | 'facebook' | 'tiktok' | 'email' | 'link';
 
 export default function QueuePage() {
-  const userName = 'Devan';
+  // TODO: Fetch user's name from session or profile
+  const userName = 'there';
   const [position, setPosition] = useState<number>(0);
   const [boostsUsed, setBoostsUsed] = useState({
     whatsapp: false,
@@ -33,7 +34,8 @@ export default function QueuePage() {
   });
 
   useEffect(() => {
-    // Assign a random queue position between 100 and 1000
+    // TODO: Fetch user's actual queue position from a backend service.
+    // For now, we'll assign a random queue position between 100 and 1000
     const initialPos = Math.floor(Math.random() * 900) + 100;
     setPosition(initialPos);
   }, []);

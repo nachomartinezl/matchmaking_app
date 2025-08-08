@@ -6,9 +6,8 @@ export interface FormData {
   gender: string;
   country: string;
   preference: string;
-  height: string;            // keep if you’re still using it somewhere
-  height_feet?: number;      // NEW
-  height_inches?: number;    // NEW
+  height_feet?: number;
+  height_inches?: number;
   religion: string;
   pets: string[];            // NOTE: backend expects a single enum; we’ll pick first
   smoking: string;
