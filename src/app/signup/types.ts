@@ -15,8 +15,8 @@ export interface FormData {
   drinking: string;
   kids: string;              // normalize to backend enums later
   goal: string;
-  profilePicture: File | null;
-  gallery: string[];         // if you upload and store URLs; if still File[] convert to URLs first
+  profilePicture: string | null;
+  gallery: string[];         
   description: string;
 }
 
