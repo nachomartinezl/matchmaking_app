@@ -1,0 +1,128 @@
+:root{
+  --ink:#101010;
+  --muted:#5b5b5b;
+  --brand:#b40016;      /* kicker red */
+  --pill:#ffe987;       /* yellow step pill */
+  --ring:#111;
+}
+
+.wrap{
+  background:#fff;
+  color:var(--ink);
+  padding: clamp(32px,6vw,72px) 16px;
+}
+.inner{
+  max-width:1100px;
+  margin:0 auto;
+}
+
+.kicker{
+  color:var(--brand);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-size:13px;
+  margin:0 0 6px 0;
+}
+.title{
+  margin:0 0 24px 0;
+  font-weight:800;
+  font-size: clamp(28px,5vw,44px);
+}
+
+/* Alternating rows */
+.row{
+  position:relative;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px,4vw,40px);
+  align-items:start;
+  padding: clamp(18px,3vw,28px) 0;
+}
+.row + .row{ margin-top: clamp(12px,3vw,32px); }
+
+.left .media{ order:1; }
+.left .copy { order:2; }
+.right .media{ order:2; justify-self:end; }
+.right .copy { order:1; }
+
+/* Media blocks */
+.media{ position:relative; min-height:74px; }
+
+.stepPill{
+  display:inline-block;
+  background: var(--pill);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color:#000;
+  box-shadow: 0 1px 0 #0002 inset;
+  border:1px solid #000;
+}
+
+/* Single avatar (step 1) */
+.avaSolo{
+  position:relative;
+  width:56px; height:56px;
+  border-radius:50%;
+  overflow:hidden;
+  border:2px solid var(--ring);
+  margin-top:10px;
+}
+
+/* Avatar stack (step 2,3) */
+.avaStack{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  margin-top:10px;
+}
+.ava{
+  position:relative;
+  width:48px; height:48px;
+  border-radius:50%;
+  overflow:hidden;
+  border:2px solid var(--ring);
+}
+.ava img{ object-fit:cover; }
+
+/* Copy */
+.copy{ max-width:560px; }
+.h3{
+  margin: 0 0 8px 0;
+  font-size: clamp(20px,3.2vw,26px);
+  line-height:1.25;
+  font-weight:700;
+}
+.desc{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:15px;
+}
+
+/* Decorative arrows between rows */
+.arrow{
+  position:absolute;
+  width:48px; height:auto;
+  opacity:.85;
+  pointer-events:none;
+}
+.arrow1{
+  right: 24%;
+  top: 64%;
+  transform: rotate(12deg);
+}
+.arrow2{
+  left: 42%;
+  top: 62%;
+  transform: rotate(192deg) scaleX(-1);
+}
+
+/* Responsive */
+@media (max-width: 900px){
+  .row{ grid-template-columns: 1fr; }
+  .right .media, .right .copy,
+  .left .media, .left .copy{ order:unset; justify-self:start; }
+  .arrow{ display:none; }
+}

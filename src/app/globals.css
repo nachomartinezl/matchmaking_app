@@ -260,7 +260,7 @@ button:disabled {
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top: 4px solid #ff5555; /* match your accent color */
+  border-top: 4px solid #e056fd; /* match your accent color */
   border-radius: 50%;
   width: 36px;
   height: 36px;
