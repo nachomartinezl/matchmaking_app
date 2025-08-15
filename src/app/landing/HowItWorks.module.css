@@ -1,128 +1,119 @@
 :root{
   --ink:#101010;
   --muted:#5b5b5b;
-  --brand:#b40016;      /* kicker red */
-  --pill:#ffe987;       /* yellow step pill */
+  --brand:#b40016;
+  --pill:#ffe987;
   --ring:#111;
+  --shadow:0 6px 20px rgba(0,0,0,.08);
+  --dot:#21c35e;
 }
 
-.wrap{
-  background:#fff;
-  color:var(--ink);
-  padding: clamp(32px,6vw,72px) 16px;
-}
-.inner{
-  max-width:1100px;
-  margin:0 auto;
-}
+/* section */
+.wrap{ background:#fff; color:var(--ink); padding:clamp(32px,6vw,72px) 16px; }
+.inner{ max-width:1100px; margin:0 auto; position:relative; }
 
 .kicker{
-  color:var(--brand);
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  font-size:13px;
-  margin:0 0 6px 0;
+  color:var(--brand); letter-spacing:.16em; text-transform:uppercase;
+  font-size:13px; margin:0 0 6px 0; text-align:left;
 }
 .title{
-  margin:0 0 24px 0;
-  font-weight:800;
-  font-size: clamp(28px,5vw,44px);
+  margin:0 0 28px 0; font-weight:800; font-size:clamp(28px,5vw,44px);
+  color:var(--ink); text-align:left;
 }
 
-/* Alternating rows */
+/* --- GRID: two columns for the ENTIRE section --- */
 .row{
   position:relative;
   display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(16px,4vw,40px);
+  grid-template-columns: 1fr 1fr;   /* left / right column */
+  column-gap: clamp(24px,4vw,56px);
   align-items:start;
-  padding: clamp(18px,3vw,28px) 0;
+  padding: clamp(10px,2.2vw,18px) 0;
 }
-.row + .row{ margin-top: clamp(12px,3vw,32px); }
+.row + .row{ margin-top: clamp(12px,5vw,48px); }
 
-.left .media{ order:1; }
-.left .copy { order:2; }
-.right .media{ order:2; justify-self:end; }
-.right .copy { order:1; }
+/* Place media + copy per row to match Figma */
+.row:nth-of-type(1) .media,
+.row:nth-of-type(1) .copy{ grid-column: 2; } /* Step 1 → right column */
+.row:nth-of-type(2) .media,
+.row:nth-of-type(2) .copy{ grid-column: 1; } /* Step 2 → left column  */
+.row:nth-of-type(3) .media,
+.row:nth-of-type(3) .copy{ grid-column: 2; } /* Step 3 → right column */
 
-/* Media blocks */
-.media{ position:relative; min-height:74px; }
+.row .copy{ justify-self:start; text-align:left; max-width:560px; }
 
+/* media blocks */
+.media{ position:relative; min-height:78px; justify-self:start; }
 .stepPill{
-  display:inline-block;
-  background: var(--pill);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color:#000;
-  box-shadow: 0 1px 0 #0002 inset;
-  border:1px solid #000;
+  display:inline-block; background:var(--pill); border-radius:999px;
+  padding:6px 12px; font-size:13px; font-weight:600; color:#000;
+  border:1px solid #000; box-shadow: inset 0 1px 0 #0002;
 }
 
-/* Single avatar (step 1) */
+/* avatars */
 .avaSolo{
-  position:relative;
-  width:56px; height:56px;
-  border-radius:50%;
-  overflow:hidden;
-  border:2px solid var(--ring);
-  margin-top:10px;
+  display: block;
+  position:relative; width:60px; height:60px; margin-top:10px;
+  border-radius:50%; overflow:hidden; border:2px solid var(--ring); box-shadow:var(--shadow);
 }
-
-/* Avatar stack (step 2,3) */
-.avaStack{
-  display:flex;
-  align-items:center;
-  gap: 12px;
-  margin-top:10px;
-}
+.avaStack{ position:relative; margin-top:10px; display:flex; align-items:center; }
 .ava{
-  position:relative;
-  width:48px; height:48px;
-  border-radius:50%;
-  overflow:hidden;
-  border:2px solid var(--ring);
+  position:relative; width:52px; height:52px; border-radius:50%;
+  overflow:hidden; border:2px solid var(--ring); box-shadow:var(--shadow);
 }
-.ava img{ object-fit:cover; }
+.ava + .ava{ margin-left:-16px; }
+.z1{ z-index:1; } .z2{ z-index:2; } .z3{ z-index:3; }
 
-/* Copy */
-.copy{ max-width:560px; }
+/* status dot for step 3 */
+.hasStatus{ position:relative; }
+.statusDot{
+  position:absolute; right:-2px; bottom:-2px; width:12px; height:12px;
+  border-radius:50%; background:var(--dot); border:2px solid var(--ring);
+}
+
+/* overlay icon badges */
+.badge{
+  display: block; /* FIX: Added to make Next/Image with fill work */
+  position:absolute; width:28px; height:28px; border-radius:999px;
+  background:#fff; border:2px solid var(--ring); box-shadow:var(--shadow);
+  overflow: hidden;
+}
+.plus{    right:-8px; bottom:-8px; }  /* Step 1 on solo avatar */
+.heart{   left:42px;  top:12px;  }    /* Step 2 between first two avatars */
+.message{ left:36px;  top:8px;   }    /* Step 3 above pair */
+
+/* text */
 .h3{
-  margin: 0 0 8px 0;
-  font-size: clamp(20px,3.2vw,26px);
-  line-height:1.25;
-  font-weight:700;
+  margin:0 0 8px 0; font-size:clamp(20px,3.2vw,26px);
+  line-height:1.25; font-weight:700;
 }
 .desc{
-  margin:0;
-  color:var(--muted);
-  line-height:1.7;
-  font-size:15px;
+  margin:0; color:var(--muted); line-height:1.7; font-size:15px; max-width:44ch;
 }
 
-/* Decorative arrows between rows */
+/* decorative arrows between rows (percentages tuned for your screenshot) */
 .arrow{
-  position:absolute;
-  width:48px; height:auto;
-  opacity:.85;
-  pointer-events:none;
+  position:absolute; width:48px; height:auto; opacity:.9; pointer-events:none;
 }
-.arrow1{
-  right: 24%;
-  top: 64%;
-  transform: rotate(12deg);
+.arrow1{ /* between Step 1 (right) and Step 2 (left) */
+  left: 50%;
+  top: 33%;
+  transform: translate(-50%,-50%) rotate(-40deg);
 }
-.arrow2{
-  left: 42%;
-  top: 62%;
-  transform: rotate(192deg) scaleX(-1);
+.arrow2{ /* between Step 2 and Step 3 */
+  left: 50%;
+  top: 70%;
+  transform: translate(-50%,-50%) scaleX(-1) rotate(-45deg);
 }
 
-/* Responsive */
+/* responsive */
 @media (max-width: 900px){
-  .row{ grid-template-columns: 1fr; }
-  .right .media, .right .copy,
-  .left .media, .left .copy{ order:unset; justify-self:start; }
+  .row{ grid-template-columns:1fr; row-gap:12px; }
+  .row:nth-of-type(1) .media,
+  .row:nth-of-type(1) .copy,
+  .row:nth-of-type(2) .media,
+  .row:nth-of-type(2) .copy,
+  .row:nth-of-type(3) .media,
+  .row:nth-of-type(3) .copy{ grid-column: 1; }
   .arrow{ display:none; }
 }
