@@ -4,8 +4,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MatchMaker | Find Your Connection',
-  description: 'A modern matchmaking app to find friends, dates, or relationships.',
+  title: 'Connect | Find Your Connection',
+  description: 'A human-first dating platform designed for real connection, not just surface swipes.',
 };
 
 export default function RootLayout({

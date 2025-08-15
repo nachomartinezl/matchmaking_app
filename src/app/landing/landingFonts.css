@@ -1,0 +1,16 @@
+/* Inter by default inside landing wrapper */
+.landing-fonts {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Mozilla Headline only for headings in landing */
+.landing-fonts h1,
+.landing-fonts h2,
+.landing-fonts h3,
+.landing-fonts h4,
+.landing-fonts h5,
+.landing-fonts h6,
+.landing-fonts .heading {
+  font-family: 'Mozilla Headline', sans-serif;
+  font-weight: 500;
+}

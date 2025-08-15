@@ -1,7 +1,46 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import styles from "./Footer.module.css";
+
+function SocialIcon({ keyName, label }: { keyName: string; label: string }) {
+  const slug = useMemo(
+    () =>
+      (
+        {
+          facebook: "facebook",
+          instagram: "instagram",
+          x: "x",
+          youtube: "youtube",
+          tiktok: "tiktok",
+          linkedin: "linkedin", // this one will use fallback if CDN 404s
+        } as Record<string, string>
+      )[keyName] || keyName,
+    [keyName]
+  );
+
+  const cdn = `https://cdn.simpleicons.org/${slug}/ffffff`;
+  const fallback = `/landing/footer/icons/${keyName}.png`; // place your PNGs here
+
+  const [src, setSrc] = useState<string>(cdn);
+
+  return (
+    <img
+      src={src}
+      alt={label}
+      className={styles.socialIcon}
+      width={18}
+      height={18}
+      decoding="async"
+      referrerPolicy="no-referrer"
+      onError={() => {
+        if (src !== fallback) setSrc(fallback);
+      }}
+    />
+  );
+}
 
 export default function Footer() {
   const socials = [
@@ -10,7 +49,7 @@ export default function Footer() {
     { key: "x", label: "X (Twitter)", href: "#" },
     { key: "youtube", label: "YouTube", href: "#" },
     { key: "tiktok", label: "TikTok", href: "#" },
-    { key: "linkedin", label: "LinkedIn", href: "#" },
+    { key: "linkedin", label: "LinkedIn", href: "#" }, // will fall back to PNG
   ];
 
   return (
@@ -18,8 +57,19 @@ export default function Footer() {
       {/* CTA card */}
       <section className={styles.cta}>
         <div className={styles.ctaCard}>
-          <span className={`${styles.cornerHeart} ${styles.left}`} aria-hidden />
-          <span className={`${styles.cornerHeart} ${styles.right}`} aria-hidden />
+          <img
+            src="/landing/footer/two_hearts.png"
+            alt=""
+            aria-hidden
+            className={`${styles.cornerImg} ${styles.left}`}
+          />
+          <img
+            src="/landing/footer/two_hearts_2.png"
+            alt=""
+            aria-hidden
+            className={`${styles.cornerImg} ${styles.right}`}
+          />
+
           <p className={styles.kicker}>READY TO CONNECT?</p>
           <h3 className={styles.ctaTitle}>
             Join The People Finding Something Real.
@@ -33,18 +83,24 @@ export default function Footer() {
       {/* brand + socials */}
       <div className={styles.brandBlock}>
         <div className={styles.brand}>
-          <span className={styles.heart} aria-hidden />
-          <span className={styles.brandName}>Connect</span>
+          <Image
+            src="/landing/logo_white.png"
+            alt="Connect logo"
+            width={140}
+            height={40}
+            priority
+          />
         </div>
 
         <ul className={styles.socials} aria-label="social links">
           {socials.map((s) => (
             <li key={s.key}>
-              <Link href={s.href} aria-label={s.label} className={styles.socialBtn}>
-                {/* super-lightweight inline icons (letters as fallback) */}
-                <span className={styles.icon} data-k={s.key} aria-hidden>
-                  {s.key[0].toUpperCase()}
-                </span>
+              <Link
+                href={s.href}
+                aria-label={s.label}
+                className={styles.socialBtn}
+              >
+                <SocialIcon keyName={s.key} label={s.label} />
               </Link>
             </li>
           ))}

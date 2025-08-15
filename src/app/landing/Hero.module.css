@@ -1,5 +1,5 @@
 :root{
-  --yellow:#FFE459; /* tweak to match your Figma */
+  --yellow:#FFEE58; /* tweak to match your Figma */
   --black:#0a0a0a;
   --text:#101010;
   --muted:#555;
@@ -10,15 +10,18 @@
   --md:768px;
 }
 
+/* ===== WRAP / BG ===== */
 .wrap{
-  background: var(--yellow);
-  min-height: 100dvh;
+  /* desktop/tablet: more white on the right to balance media card */
+  background: linear-gradient(90deg, var(--yellow) 0%, #fff 60%);
+  /* min-height: 100dvh;  removed to kill the big bottom gap */
   position: relative;
   overflow: hidden;
-  padding: 28px clamp(16px, 4vw, 48px) 56px;
+  /* wider side margins + tighter bottom */
+  padding: 28px clamp(32px, 6vw, 96px) 24px;
 }
 
-/* floating CTA top-right */
+/* ===== TOP CTA ===== */
 .topCta{
   position: absolute;
   top: 24px;
@@ -32,7 +35,7 @@
   font-weight: 600;
 }
 
-/* brand */
+/* ===== BRAND ===== */
 .header{
   display:flex;
   justify-content:flex-start;
@@ -40,6 +43,7 @@
   margin-bottom: clamp(24px, 4vw, 48px);
 }
 .brand{ display:flex; align-items:center; gap:10px; }
+.brand img { display:block; height:auto; }
 .brandName{ font-weight:700; font-size:18px; color:var(--text); letter-spacing:.2px; }
 .heart{
   width:20px; height:20px; display:inline-block;
@@ -49,15 +53,13 @@
   position: relative;
 }
 .heart::before, .heart::after{
-  content:"";
-  position:absolute;
-  width:20px; height:20px; border-radius:50%;
-  background: inherit;
+  content:""; position:absolute;
+  width:20px; height:20px; border-radius:50%; background:inherit;
 }
 .heart::before{ top:-10px; left:0; }
 .heart::after{ left:10px; top:0; }
 
-/* hero layout */
+/* ===== HERO LAYOUT ===== */
 .hero{
   display:grid;
   grid-template-columns: 1.1fr 1fr;
@@ -68,22 +70,24 @@
   .hero{ grid-template-columns: 1fr; }
 }
 
-/* copy */
+/* ===== COPY ===== */
 .copy{ max-width: 780px; }
 .h1{
   font-size: clamp(36px, 5.6vw, 72px);
   line-height: 1.05;
   letter-spacing: -0.02em;
-  font-weight: 800;
+  font-weight: 500; /* reduced from 800 */
   color: var(--text);
   margin: 0 0 18px 0;
+  text-align: left;
 }
 .sub{
-  color: var(--muted);
+  color: var(--black); /* black, not grey */
   font-size: clamp(16px, 1.8vw, 20px);
   line-height: 1.6;
   max-width: 58ch;
   margin: 0 0 28px 0;
+  text-align: left;
 }
 .ctas{ display:flex; gap:12px; align-items:center; }
 .primary{
@@ -101,11 +105,8 @@
   box-shadow: 0 7px 0 var(--pink);
 }
 
-/* media card */
-.media{
-  position: relative;
-  min-height: 380px;
-}
+/* ===== MEDIA CARD ===== */
+.media{ position: relative; min-height: 380px; }
 .card{
   position: relative;
   height: clamp(300px, 44vw, 520px);
@@ -117,21 +118,63 @@
 }
 .cardImg{ object-fit: cover; }
 
-/* little heart badges hugging the card */
-.heartBadge{
-  position:absolute;
-  width:26px; height:26px;
-  background: radial-gradient(circle at 30% 30%, #ff6b81 35%, #e63c5c 36%);
-  transform: rotate(-45deg);
-  border-radius:6px;
-  z-index:2;
+/* decorative hearts replaced with PNGs */
+.heartImg {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  z-index: 2;
 }
-.heartBadge::before, .heartBadge::after{
-  content:"";
-  position:absolute; width:26px; height:26px; border-radius:50%; background:inherit;
-}
-.heartBadge::before{ top:-13px; left:0; }
-.heartBadge::after{ left:13px; top:0; }
 
-.leftBadge{ left:-12px; top: 48%; }
-.rightBadge{ right:-12px; top: -14px; }
+/* tuned to Figma positioning */
+.leftBadge {
+  left: -18px;         /* horizontally overlaps card edge */
+  top: 75%;            /* vertically centered */
+  transform: translateY(-50%);
+  rotate: -45deg; /* matches heart rotation */
+}
+
+.rightBadge {
+  right: -18px;        /* horizontally overlaps card edge */
+  top: 10%;          /* sits above card top edge */
+}
+
+/* ===== RESPONSIVE TUNING ===== */
+/* tablets */
+@media (max-width: 1024px){
+  .wrap{
+    /* more yellow coverage behind stacked copy; slightly tighter sides */
+    background: linear-gradient(90deg, var(--yellow) 0%, #fff 75%);
+    padding: 24px clamp(28px, 6vw, 56px) 20px; /* tighter bottom */
+  }
+  .copy{ max-width: 680px; }
+  .topCta{ top: 20px; }
+}
+
+/* phones */
+@media (max-width: 768px){
+  .wrap{
+    /* keep yellow stronger under text on small screens */
+    background: linear-gradient(90deg, var(--yellow) 0%, #fff 85%);
+    padding: 22px clamp(20px, 6vw, 32px) 20px; /* tighter bottom */
+  }
+  .h1{ font-size: clamp(30px, 8vw, 44px); }
+  .sub{ font-size: clamp(15px, 4vw, 18px); }
+  .media{ min-height: 320px; }
+  .card{ height: clamp(260px, 60vw, 420px); }
+  .topCta{ right: clamp(12px, 4vw, 24px); }
+}
+
+/* small phones */
+@media (max-width: 420px){
+  .wrap{
+    padding: 18px 16px 16px; /* was 36px */
+    background: linear-gradient(90deg, var(--yellow) 0%, #fff 92%);
+  }
+  .topCta{ top: 14px; right: 14px; padding: 10px 16px; }
+  .h1{ letter-spacing: -0.015em; }
+  .sub{ line-height: 1.55; }
+  .leftBadge{ left:-10px; top: 50%; }
+  .rightBadge{ right:-10px; top: -10px; }
+}

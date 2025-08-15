@@ -47,7 +47,7 @@ body {
   background: var(--bg-page);
   color: var(--text-primary);
   line-height: 1.6;
-  padding: var(--space-md);
+  padding: 0
 }
 
 #__next {
