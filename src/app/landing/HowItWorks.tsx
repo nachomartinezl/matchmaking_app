@@ -15,8 +15,10 @@ export default function HowItWorks() {
           <div className={styles.media}>
             <span className={styles.stepPill}>Step 1</span>
 
-            <span className={styles.avaSolo}>
-              <Image src="/landing/howitworks/avatars/ava1.png" alt="" fill />
+            <span className={styles.avaSoloWrapper}>
+              <span className={styles.avaSolo}>
+                <Image src="/landing/howitworks/avatars/ava1.png" alt="" fill />
+              </span>
               <span className={`${styles.badge} ${styles.plus}`}>
                 <Image src="/landing/howitworks/icons/plus.png" alt="" fill />
               </span>
