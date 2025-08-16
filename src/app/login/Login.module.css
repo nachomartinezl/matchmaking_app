@@ -1,0 +1,14 @@
+.buttonGroup {
+  flex-direction: column;
+  margin-top: var(--space-md);
+}
+
+.signupLink {
+  margin-top: var(--space-md);
+}
+
+.error {
+  color: var(--accent);
+  margin-bottom: var(--space-md);
+  text-align: center;
+}

@@ -9,6 +9,7 @@ import {
   profileSetupSteps,
   ThankYouStepComponent,
 } from "./signupSteps";
+import { startProfile, patchProfile, completeProfile } from "@/lib/api";
 import ProgressBar from "./components/ProgressBar";
 import { FormData, CommonStepProps } from "./types";
 import StepComingSoon from "./components/StepComingSoon";
@@ -196,84 +197,77 @@ export default function SignUpPage() {
     }
   };
 
-  const buildPayload = () => ({
-    email: formData.email || undefined,
-    first_name: formData.name || undefined,
-    last_name: formData.surname || undefined,
-    dob: formData.dob || undefined,
-    gender: formData.gender || undefined,
-    country: formData.country?.toUpperCase() || undefined,
-    preference: formData.preference || undefined,
-    height_feet: formData.height_feet ?? undefined,
-    height_inches: formData.height_inches ?? undefined,
-    religion: formData.religion || undefined,
-    pets:
+  const buildPayload = () => {
+    const payload: Record<string, any> = {};
+    // A helper to safely add properties if they exist
+    const add = (key: string, value: any) => {
+      if (value !== "" && value !== undefined && value !== null) {
+        payload[key] = value;
+      }
+    };
+
+    add("email", formData.email);
+    add("first_name", formData.name);
+    add("last_name", formData.surname);
+    add("dob", formData.dob);
+    add("gender", formData.gender);
+    add("country", formData.country?.toUpperCase());
+    add("preference", formData.preference);
+    add("height_feet", formData.height_feet);
+    add("height_inches", formData.height_inches);
+    add("religion", formData.religion);
+    // Note: The backend seems to only support a single pet.
+    add(
+      "pets",
       Array.isArray(formData.pets) && formData.pets.length > 0
         ? formData.pets[0].toLowerCase()
-        : undefined,
-    smoking: formData.smoking || undefined,
-    drinking: formData.drinking || undefined,
-    kids: formData.kids || undefined, // backend enums already match
-    goal: formData.goal || undefined,
-    description: formData.description || undefined,
-    profile_picture_url: formData.profilePicture || undefined,
-    gallery_urls: formData.gallery || undefined,
-  });
+        : undefined
+    );
+    add("smoking", formData.smoking);
+    add("drinking", formData.drinking);
+    add("kids", formData.kids);
+    add("goal", formData.goal);
+    add("description", formData.description);
+    add("profile_picture_url", formData.profilePicture);
+    add("gallery_urls", formData.gallery);
+
+    return payload;
+  };
 
   const handleSubmit = async (isFinal = false, isInitialCreate = false) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const payload = buildPayload();
-
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/profiles`;
-      let method: "POST" | "PATCH" = "POST";
-
-      if (profileId && !isInitialCreate) {
-        if (isFinal) {
-          url = `${url}/${profileId}/complete`;
-          method = "POST";
-        } else {
-          url = `${url}/${profileId}`;
-          method = "PATCH";
-        }
-      }
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || "Signup failed");
-      }
-
-      const data = await res.json();
-
       if (isInitialCreate) {
-        const newId = data.id;
-        setProfileId(newId);
-        localStorage.setItem("profile_id", newId);
-
+        const { id } = await startProfile({
+          first_name: formData.name,
+          last_name: formData.surname,
+          dob: formData.dob,
+          email: formData.email,
+        });
+        setProfileId(id);
+        localStorage.setItem("profile_id", id);
         saveProgress({
-          profile_id: newId,
+          profile_id: id,
           flow: "verify_wait",
           stepIndex,
           formData,
           savedAt: Date.now(),
         });
-
         setFlow("verify_wait");
-      } else if (isFinal) {
-        clearProgress();
-        localStorage.removeItem("profile_id");
-        setFlow("comingsoon");
+      } else if (profileId) {
+        if (isFinal) {
+          await completeProfile(profileId);
+          clearProgress();
+          localStorage.removeItem("profile_id");
+          setFlow("comingsoon");
+        } else {
+          await patchProfile(buildPayload());
+        }
       }
-    } catch (err) {
-      setError("Something went wrong during sign up. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred. Please try again.");
       console.error(err);
     } finally {
       setIsSubmitting(false);

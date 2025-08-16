@@ -1,23 +1,38 @@
 // app/login/page.tsx
 
+// app/login/page.tsx
+
 'use client';
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabaseClient';
+import styles from './Login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    // TODO: handle the actual login logic (e.g., API call)
-    router.push('/queue');
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
+      setIsLoading(false);
+    } else {
+      router.push('/queue');
+    }
   };
 
   return (
@@ -52,10 +67,9 @@ export default function LoginPage() {
           />
         </div>
 
-        <div
-          className="button-group"
-          style={{ flexDirection: 'column', marginTop: 'var(--space-md)' }}
-        >
+        {error && <p className={styles.error}>{error}</p>}
+
+        <div className={`button-group ${styles.buttonGroup}`}>
           <button
             type="submit"
             className="button-primary"
@@ -66,7 +80,7 @@ export default function LoginPage() {
         </div>
       </form>
 
-      <p style={{ marginTop: 'var(--space-md)' }}>
+      <p className={styles.signupLink}>
         Don&apos;t have an account?{' '}
         <Link href="/signup" className="link-accent">
           Sign Up

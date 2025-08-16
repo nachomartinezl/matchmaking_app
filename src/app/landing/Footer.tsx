@@ -5,29 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./Footer.module.css";
 
-function SocialIcon({ keyName, label }: { keyName: string; label: string }) {
-  const slug = useMemo(
-    () =>
-      (
-        {
-          facebook: "facebook",
-          instagram: "instagram",
-          x: "x",
-          youtube: "youtube",
-          tiktok: "tiktok",
-          linkedin: "linkedin", // this one will use fallback if CDN 404s
-        } as Record<string, string>
-      )[keyName] || keyName,
-    [keyName]
-  );
-
-  const cdn = `https://cdn.simpleicons.org/${slug}/ffffff`;
-  const fallback = `/landing/footer/icons/${keyName}.png`; // place your PNGs here
-
-  const [src, setSrc] = useState<string>(cdn);
+function SocialIcon({ icon, label }: { icon: string; label: string }) {
+  const [src, setSrc] = useState(`https://cdn.simpleicons.org/${icon}/ffffff`);
+  const fallback = `/landing/footer/icons/${icon}.png`;
 
   return (
-    <img
+    <Image
       src={src}
       alt={label}
       className={styles.socialIcon}
@@ -36,7 +19,9 @@ function SocialIcon({ keyName, label }: { keyName: string; label: string }) {
       decoding="async"
       referrerPolicy="no-referrer"
       onError={() => {
-        if (src !== fallback) setSrc(fallback);
+        if (src !== fallback) {
+          setSrc(fallback);
+        }
       }}
     />
   );
@@ -44,12 +29,12 @@ function SocialIcon({ keyName, label }: { keyName: string; label: string }) {
 
 export default function Footer() {
   const socials = [
-    { key: "facebook", label: "Facebook", href: "#" },
-    { key: "instagram", label: "Instagram", href: "#" },
-    { key: "x", label: "X (Twitter)", href: "#" },
-    { key: "youtube", label: "YouTube", href: "#" },
-    { key: "tiktok", label: "TikTok", href: "#" },
-    { key: "linkedin", label: "LinkedIn", href: "#" }, // will fall back to PNG
+    { icon: "facebook", label: "Facebook", href: "#" },
+    { icon: "instagram", label: "Instagram", href: "#" },
+    { icon: "x", label: "X (Twitter)", href: "#" },
+    { icon: "youtube", label: "YouTube", href: "#" },
+    { icon: "tiktok", label: "TikTok", href: "#" },
+    { icon: "linkedin", label: "LinkedIn", href: "#" }, // will fall back to PNG
   ];
 
   return (
@@ -94,13 +79,13 @@ export default function Footer() {
 
         <ul className={styles.socials} aria-label="social links">
           {socials.map((s) => (
-            <li key={s.key}>
+            <li key={s.icon}>
               <Link
                 href={s.href}
                 aria-label={s.label}
                 className={styles.socialBtn}
               >
-                <SocialIcon keyName={s.key} label={s.label} />
+                <SocialIcon icon={s.icon} label={s.label} />
               </Link>
             </li>
           ))}
