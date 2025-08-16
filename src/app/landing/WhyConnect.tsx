@@ -6,17 +6,17 @@ import styles from "./WhyConnect.module.css";
 export default function WhyConnect() {
   const items = [
     {
-      icon: "/landing/icons/chat.png",
+      icon: "/landing/whyconnect/icons/chat.png",
       title: "Build Real Connection",
       desc: "Not Just Swipes — Thoughtful, Human-First Matching.",
     },
     {
-      icon: "/landing/icons/hand.png",
+      icon: "/landing/whyconnect/icons/hand.png",
       title: "Inclusive By Design",
       desc: "Gluten-Free? Neurodivergent? Tired Of Filters? You’re Welcome Here.",
     },
     {
-      icon: "/landing/icons/shield.png",
+      icon: "/landing/whyconnect/icons/shield.png",
       title: "Safer Space",
       desc: "You Set The Pace. Mutual Respect Is Built-In From The Start.",
     },

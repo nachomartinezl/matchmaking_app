@@ -11,7 +11,7 @@
 .wrap{
   position: relative;
   background:#fff;
-  padding: 0 16px 64px; /* bottom spacing under cards */
+  padding: 0 0 64px; /* bottom spacing under cards */
 }
 
 /* dark band + headings */
@@ -84,7 +84,7 @@
 }
 .cardDesc{
   margin:0;
-  color: var(--muted);
+  color: var(--ink);
   font-size: 15px;
   line-height: 1.6;
   text-align: left;
@@ -97,4 +97,11 @@
 @media (max-width: 640px){
   .band{ padding: 44px 16px 100px; }
   .cards{ grid-template-columns: 1fr; margin-top: -72px; }
+}
+
+/* Nudge the 2nd card down a bit (desktop only) */
+@media (min-width: 981px){
+  .card:nth-child(2){
+    top: 12px;           /* tweak: 8–20px as needed */
+  }
 }

@@ -141,12 +141,6 @@
   border:1px solid #000;
 }
 .icon{ font-size:14px; line-height:1; }
-.icon[data-k="facebook"]::before{ content:"f"; }
-.icon[data-k="instagram"]::before{ content:"◐"; }
-.icon[data-k="x"]::before{ content:"X"; }
-.icon[data-k="youtube"]::before{ content:"▶"; }
-.icon[data-k="tiktok"]::before{ content:"♫"; }
-.icon[data-k="linkedin"]::before{ content:"in"; }
 
 /* divider + legal */
 .rule{

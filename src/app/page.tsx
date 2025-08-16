@@ -16,7 +16,6 @@ export default function Page() {
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Mozilla+Headline:wght@200..700&display=swap"
         rel="stylesheet"
       />
-
       {/* Scoped font styles for landing */}
       <div className="landing-fonts">
         <Hero />
