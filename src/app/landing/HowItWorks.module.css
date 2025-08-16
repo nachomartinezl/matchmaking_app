@@ -136,4 +136,8 @@
   .row:nth-of-type(3) .media,
   .row:nth-of-type(3) .copy{ grid-column: 1; }
   .arrow{ display:none; }
+  .wrap{
+    padding: 18px 16px 16px; /* was 36px */
+    padding-bottom: 120px; /* more space for footer */
+  }
 }

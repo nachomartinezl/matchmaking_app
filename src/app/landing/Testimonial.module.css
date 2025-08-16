@@ -126,6 +126,10 @@
 
 /* responsive tweaks */
 @media (max-width: 768px){
+  .wrap{
+    padding: 18px 16px 16px; /* was 36px */
+  }
+
   .inner {
     display: block; /* On mobile, stack elements vertically */
   }

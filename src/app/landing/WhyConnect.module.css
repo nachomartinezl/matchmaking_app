@@ -92,7 +92,7 @@
 
 /* responsive */
 @media (max-width: 980px){
-  .cards{ grid-template-columns: 1fr 1fr; }
+  .cards{ grid-template-columns: 1fr 1fr; padding: 0 16px; }
 }
 @media (max-width: 640px){
   .band{ padding: 44px 16px 100px; }

@@ -5,7 +5,33 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./Footer.module.css";
 
-function SocialIcon({ keyName, label }: { keyName: string; label: string }) {
+// Updated SocialIcon component
+function SocialIcon({
+  keyName,
+  label,
+  forceLocal,
+}: {
+  keyName: string;
+  label: string;
+  forceLocal?: boolean; // Accept the optional prop
+}) {
+  const fallback = `/landing/footer/icons/${keyName}.png`;
+
+  // If forceLocal is true, render the local image immediately.
+  if (forceLocal) {
+    return (
+      <img
+        src={fallback}
+        alt={label}
+        className={styles.socialIcon}
+        width={18}
+        height={18}
+        decoding="async"
+      />
+    );
+  }
+
+  // The original logic remains for all other icons.
   const slug = useMemo(
     () =>
       (
@@ -15,15 +41,12 @@ function SocialIcon({ keyName, label }: { keyName: string; label: string }) {
           x: "x",
           youtube: "youtube",
           tiktok: "tiktok",
-          linkedin: "linkedin", // this one will use fallback if CDN 404s
         } as Record<string, string>
       )[keyName] || keyName,
     [keyName]
   );
 
   const cdn = `https://cdn.simpleicons.org/${slug}/ffffff`;
-  const fallback = `/landing/footer/icons/${keyName}.png`; // place your PNGs here
-
   const [src, setSrc] = useState<string>(cdn);
 
   return (
@@ -43,13 +66,14 @@ function SocialIcon({ keyName, label }: { keyName: string; label: string }) {
 }
 
 export default function Footer() {
+  // Updated socials array with the new property
   const socials = [
     { key: "facebook", label: "Facebook", href: "#" },
     { key: "instagram", label: "Instagram", href: "#" },
     { key: "x", label: "X (Twitter)", href: "#" },
     { key: "youtube", label: "YouTube", href: "#" },
     { key: "tiktok", label: "TikTok", href: "#" },
-    { key: "linkedin", label: "LinkedIn", href: "#" }, // will fall back to PNG
+    { key: "linkedin", label: "LinkedIn", href: "#", forceLocal: true }, // Force local PNG for this icon
   ];
 
   return (
@@ -100,7 +124,12 @@ export default function Footer() {
                 aria-label={s.label}
                 className={styles.socialBtn}
               >
-                <SocialIcon keyName={s.key} label={s.label} />
+                {/* Pass the new prop down to the component */}
+                <SocialIcon
+                  keyName={s.key}
+                  label={s.label}
+                  forceLocal={s.forceLocal}
+                />
               </Link>
             </li>
           ))}

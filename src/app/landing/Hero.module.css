@@ -171,7 +171,8 @@
   .sub{ font-size: clamp(15px, 4vw, 18px); }
   .media{ min-height: 320px; }
   .card{ height: clamp(260px, 60vw, 420px); }
-  .topCta{ right: clamp(12px, 4vw, 24px); }
+  .topCta{ right: clamp(12px, 4vw, 24px); display:none;}
+  .hero{ margin-top: 50px; }
 }
 
 /* small phones */
@@ -180,7 +181,7 @@
     padding: 18px 16px 16px; /* was 36px */
     background: linear-gradient(90deg, var(--yellow) 0%, #fff 92%);
   }
-  .topCta{ top: 14px; right: 14px; padding: 10px 16px; }
+  .topCta{ top: 14px; right: 14px; padding: 10px 16px; display: none;}
   .h1{ letter-spacing: -0.015em; }
   .sub{ line-height: 1.55; }
   .leftBadge{ left:-10px; top: 50%; }
