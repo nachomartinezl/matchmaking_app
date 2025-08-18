@@ -9,9 +9,6 @@ export default function Hero() {
     <main className={styles.wrap}>
       <div className={styles.inner}>
         <header className={styles.header}>
-          <a className={styles.topCta} href="/signup">
-            Sign Up Now
-          </a>
           <div className={styles.brand}>
             <Image
               src="/landing/logo.png"
