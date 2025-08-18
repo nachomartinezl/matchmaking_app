@@ -17,7 +17,7 @@ export default function Testimonial() {
           <div className={styles.header}>
             <div className={styles.avatar}>
               <Image
-                src="/landing/testimonial.png"
+                src="/landing/testimonial/testimonial.png"
                 alt="Lena & Jordan"
                 fill
                 sizes="64px"
@@ -38,15 +38,6 @@ export default function Testimonial() {
               className={styles.bigQuote}
             />
           </div>
-
-          <ul className={styles.pager} aria-label="testimonial navigation">
-            <li className={styles.dot} />
-            <li className={`${styles.dot} ${styles.active}`} />
-            <li className={styles.dot} />
-            <li className={styles.dot} />
-            <li className={styles.dot} />
-          </ul>
-
           <p className={styles.disclaimer}>
             These testimonials are illustrative only. Not real user experiences.
           </p>
