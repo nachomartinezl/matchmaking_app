@@ -13,7 +13,7 @@
 /* ===== WRAP / BG ===== */
 .wrap{
   /* desktop/tablet: more white on the right to balance media card */
-  background: linear-gradient(90deg, var(--yellow) 0%, #fff 60%);
+  background: linear-gradient(90deg, var(--yellow) 0%, #fff 90%);
   /* min-height: 100dvh;  removed to kill the big bottom gap */
   position: relative;
   overflow: hidden;
@@ -86,9 +86,10 @@
   letter-spacing: -0.02em;
   font-weight: 500; /* reduced from 800 */
   color: var(--text);
-  margin: 0 0 18px 0;
+  margin: 0 0 20px 0;
   text-align: left;
 }
+
 .sub{
   color: var(--black); /* black, not grey */
   font-size: clamp(16px, 1.8vw, 25px);

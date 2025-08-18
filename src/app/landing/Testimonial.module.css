@@ -32,8 +32,7 @@
 
 .kicker{
   /* Position the kicker in the first column, aligned to its right edge */
-  grid-column: 1 / 2;
-  justify-self: end;
+  grid-column: 2 / 3;
   padding-top: 16px; /* Visually align with the top of the avatar */
   font-size: 13px;
   margin: 0;
@@ -41,6 +40,7 @@
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--brand);
+  text-align: left;
 }
 
 .header{
@@ -63,8 +63,9 @@
 }
 
 .name{
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text);
+  font-weight: 500;
 }
 
 .quoteWrap{
@@ -152,6 +153,7 @@
   }
   .avatar{ width:48px; height:48px; }
   .quoteWrap{ padding-right: 80px; }
+  .ctas{ margin-top:16px; margin-bottom: 16px;}
 }
 
 /* container that holds the quote + big marks */
@@ -170,4 +172,24 @@
   display: block;
   pointer-events: none;
   user-select: none;
+}
+
+.ctas{
+  grid-column: 2 / 3;     /* same column as the text */
+  justify-self: start;    /* align left with avatar/kicker */
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+
+.primary{
+  background: var(--black);
+  color: #fff;
+  padding: 14px 22px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 10px 0 var(--pink);
+  transition: transform .06s ease, box-shadow .06s ease;
 }

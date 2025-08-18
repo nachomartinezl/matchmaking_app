@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import styles from "./WhyConnect.module.css";
+import Link from "next/link";
 
 export default function WhyConnect() {
   const items = [
@@ -26,7 +27,9 @@ export default function WhyConnect() {
     <section className={styles.wrap} aria-labelledby="why-heading">
       <div className={styles.band}>
         <p className={styles.kicker}>WHAT MAKES US DIFFERENT</p>
-        <h2 id="why-heading" className={styles.title}>Why Connect?</h2>
+        <h2 id="why-heading" className={styles.title}>
+          Why Connect?
+        </h2>
       </div>
 
       <div className={styles.cards}>
@@ -45,6 +48,11 @@ export default function WhyConnect() {
             <p className={styles.cardDesc}>{it.desc}</p>
           </article>
         ))}
+      </div>
+      <div className={styles.ctas}>
+        <Link href="/signup" className={styles.primary}>
+          Sign Up Now
+        </Link>
       </div>
     </section>
   );

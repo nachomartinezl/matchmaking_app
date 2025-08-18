@@ -23,11 +23,7 @@ export default function Hero() {
         <section className={styles.hero}>
           <div className={styles.copy}>
             <h1 className={styles.h1}>
-              Connect With Someone
-              <br />
-              Who Truly Gets
-              <br />
-              You.
+              Connect With Someone Who Truly Gets You.
             </h1>
             <p className={styles.sub}>
               A human-first dating platform designed for real connection, not

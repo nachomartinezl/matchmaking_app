@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import styles from "./Testimonial.module.css";
+import Link from "next/link";
 
 export default function Testimonial() {
   return (
@@ -42,6 +43,11 @@ export default function Testimonial() {
             These testimonials are illustrative only. Not real user experiences.
           </p>
         </div>
+        <div className={styles.ctas}>
+        <Link href="/signup" className={styles.primary}>
+          Sign Up Now
+        </Link>
+      </div>
       </div>
     </section>
   );
