@@ -6,8 +6,7 @@ import { patchProfile } from "@/lib/api";
 
 interface StepProps {
   formData: { pets: string[] };
-  updateFormData: (data: Partial<StepProps["formData"]>) => void
-;
+  updateFormData: ( Partial<StepProps["formData"]>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }

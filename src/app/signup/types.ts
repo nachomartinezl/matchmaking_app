@@ -9,13 +9,13 @@ export interface FormData {
   height_feet?: number;
   height_inches?: number;
   religion: string;
-  pets: string[];            // NOTE: backend expects a single enum; we’ll pick first
+  pets: string[];
   smoking: string;
   drinking: string;
-  kids: string;              // normalize to backend enums later
+  kids: string; // normalize to backend enums later
   goal: string;
-  profilePicture: string | null;
-  gallery: string[];         
+  profilePicture: File | null;
+  gallery: File[];
   description: string;
 }
 
