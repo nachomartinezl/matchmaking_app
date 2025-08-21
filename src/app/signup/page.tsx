@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { saveProgress, loadProgress, clearProgress } from "@/lib/progress";
+import { startProfile, patchProfile, completeProfile } from "@/lib/api";
 
 import {
   initialSignupSteps,
@@ -216,8 +217,12 @@ export default function SignUpPage() {
     kids: formData.kids || undefined, // backend enums already match
     goal: formData.goal || undefined,
     description: formData.description || undefined,
-    profile_picture_url: formData.profilePicture || undefined,
-    gallery_urls: formData.gallery || undefined,
+    // TODO: Implement file upload logic.
+    // The backend expects URLs for profile_picture_url and gallery_urls.
+    // The current formData contains File objects, which need to be uploaded
+    // to a storage service (e.g., S3) to get a URL before sending.
+    // profile_picture_url: uploadedProfilePicUrl,
+    // gallery_urls: uploadedGalleryUrls,
   });
 
   const handleSubmit = async (isFinal = false, isInitialCreate = false) => {
@@ -225,55 +230,34 @@ export default function SignUpPage() {
     setError(null);
 
     try {
-      const payload = buildPayload();
-
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/profiles`;
-      let method: "POST" | "PATCH" = "POST";
-
-      if (profileId && !isInitialCreate) {
-        if (isFinal) {
-          url = `${url}/${profileId}/complete`;
-          method = "POST";
-        } else {
-          url = `${url}/${profileId}`;
-          method = "PATCH";
-        }
-      }
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || "Signup failed");
-      }
-
-      const data = await res.json();
-
       if (isInitialCreate) {
+        const { name, surname, dob, email, gender, country } = formData;
+        const data = await startProfile({
+          first_name: name,
+          last_name: surname,
+          dob,
+          email,
+          gender,
+          country: country?.toUpperCase(),
+        });
         const newId = data.id;
         setProfileId(newId);
         localStorage.setItem("profile_id", newId);
-
-        saveProgress({
-          profile_id: newId,
-          flow: "verify_wait",
-          stepIndex,
-          formData,
-          savedAt: Date.now(),
-        });
-
         setFlow("verify_wait");
-      } else if (isFinal) {
-        clearProgress();
-        localStorage.removeItem("profile_id");
-        setFlow("comingsoon");
+      } else if (profileId) {
+        const payload = buildPayload();
+        await patchProfile(payload);
+
+        if (isFinal) {
+          await completeProfile(profileId);
+          clearProgress();
+          localStorage.removeItem("profile_id");
+          setFlow("comingsoon");
+        }
       }
     } catch (err) {
-      setError("Something went wrong during sign up. Please try again.");
+      const message = err instanceof Error ? err.message : "An unknown error occurred.";
+      setError(message || "Something went wrong during sign up. Please try again.");
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -316,13 +300,16 @@ export default function SignUpPage() {
     if (!currentStepConfig) return <p>Invalid step!</p>;
 
     const { component: StepComponent, props: stepProps } = currentStepConfig;
+
+    const isLastStep = flow === "profile" && stepIndex === profileSetupSteps.length - 1;
+
     const commonProps: CommonStepProps = {
       formData,
       updateFormData,
       nextStep,
       prevStep,
       isSubmitting,
-      handleSubmit: (isFinal: boolean) => handleSubmit(isFinal),
+      handleSubmit: () => handleSubmit(isLastStep),
     };
 
     if (currentStepConfig.component.name === "OptionStep") {

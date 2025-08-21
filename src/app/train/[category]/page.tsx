@@ -7,6 +7,7 @@ import styles from './Train.module.css';
 import QuestionRenderer from './components/QuestionRenderer';
 import questionsData from '../../data/questions.json';
 import { AllQuestionnaires } from '../types';
+import { submitQuestionnaire } from '@/lib/api';
 
 const categoryDisplayNames: Record<string, string> = {
   personality: 'Personality',
@@ -34,6 +35,8 @@ export default function TrainPage({ params }: { params: { category: string } }) 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string | number>>({});
   const [isComplete, setIsComplete] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { questionnaireType, questions, scale } = useMemo(() => {
     const typedQuestionsData = questionsData as AllQuestionnaires;
@@ -91,12 +94,24 @@ export default function TrainPage({ params }: { params: { category: string } }) 
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setIsComplete(true);
-      setTimeout(() => router.push('/dashboard'), 2000);
+      setIsSubmitting(true);
+      setError(null);
+      try {
+        await submitQuestionnaire({
+          questionnaire_type: questionnaireType,
+          answers: answers,
+        });
+        setIsComplete(true);
+        setTimeout(() => router.push('/dashboard'), 2000);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to submit answers.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -163,14 +178,19 @@ export default function TrainPage({ params }: { params: { category: string } }) 
         <button
           onClick={handleNext}
           className={styles.nextButton}
-          disabled={!isCurrentQuestionAnswered}
+          disabled={!isCurrentQuestionAnswered || isSubmitting}
         >
-          {currentQuestionIndex < questions.length - 1 ? (
+          {isSubmitting
+            ? 'Submitting...'
+            : currentQuestionIndex < questions.length - 1
+            ? (
             <>Next <FaArrowRight className={styles.buttonIcon} /></>
-          ) : (
-            'Complete'
-          )}
+              )
+            : (
+                'Complete'
+              )}
         </button>
+        {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
       </div>
     </div>
   );

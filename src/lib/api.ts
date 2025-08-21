@@ -5,8 +5,10 @@ const API = process.env.NEXT_PUBLIC_API_URL!;
 export async function startProfile(payload: {
   first_name: string;
   last_name: string;
-  dob: string;       // YYYY-MM-DD
+  dob: string; // YYYY-MM-DD
   email: string;
+  gender?: string;
+  country?: string;
 }): Promise<{ id: UUID }> {
   const r = await fetch(`${API}/profiles`, {
     method: "POST",
@@ -38,4 +40,20 @@ export async function completeProfile(id: UUID) {
   return r.json(); // ProfileOut
 }
 
-
+export async function submitQuestionnaire(payload: {
+  questionnaire_type: string;
+  answers: Record<number, string | number>;
+}) {
+  const profileId = localStorage.getItem("profile_id");
+  if (!profileId) throw new Error("Missing profile id");
+  const res = await fetch(`${API}/profiles/${profileId}/questionnaire`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to submit questionnaire");
+  }
+  return res.json();
+}
