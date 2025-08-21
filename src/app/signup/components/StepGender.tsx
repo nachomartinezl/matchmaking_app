@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import StepContainer from './common/StepContainer';
@@ -8,7 +8,7 @@ interface StepProps {
   formData: {
     gender: string;
   };
-  updateFormData: ( Partial<StepProps['formData']>) => void;
+  updateFormData: (data: Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -69,3 +69,4 @@ export default function Step2_Gender({
     </StepContainer>
   );
 }
+

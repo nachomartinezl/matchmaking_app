@@ -33,7 +33,7 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
           style={{
             width: `${percent}%`,
             height: '100%',
-            background: 'linear-gradient(90deg, #e056fd, #a96ff7)',
+            background: 'linear-gradient(90deg, #ff4d6d, #a96ff7)',
             borderRadius: '999px',
             boxShadow: '0 0 8px rgba(224, 86, 253, 0.4)',
             transition: 'width 0.4s ease',
@@ -47,7 +47,7 @@ export default function ProgressBar({ currentStep, totalSteps }: ProgressBarProp
             transform: 'translate(-50%, -50%)',
             width: '18px',
             height: '18px',
-            background: 'linear-gradient(135deg, #e056fd, #a96ff7)',
+            background: 'linear-gradient(135deg, #ff4d6d, #a96ff7)',
             border: '2px solid white',
             borderRadius: '50%',
             boxShadow: '0 0 6px rgba(224, 86, 253, 0.5)',

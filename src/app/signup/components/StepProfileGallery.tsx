@@ -1,15 +1,14 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import StepContainer from "./common/StepContainer";
 import { uploadFile, patchProfile } from "@/lib/api";
 
 // turn anything into a usable <img src>
-const toSrc = (f: any): string | null => {
-  if (f instanceof Blob) return URL.createObjectURL(f); // File/Blob -> blob:
-  if (typeof f === "string") return f; // already a URL
-  if (f && typeof f.url === "string") return f.url; // { url: "..." }
-  return null; // junk -> skip
+const toSrc = (f: File | Blob | string): string | null => {
+  if (f instanceof Blob) return URL.createObjectURL(f);
+  if (typeof f === "string") return f;
+  return null;
 };
 
 interface StepProps {
@@ -17,7 +16,7 @@ interface StepProps {
     profilePicture: File | null;
     gallery: File[];
   };
-  updateFormData: ( Partial<StepProps["formData"]>) => void;
+  updateFormData: (data: Partial<StepProps["formData"]>) => void;
   nextStep: () => void;
   prevStep: () => void;
   isSubmitting: boolean;
@@ -70,11 +69,14 @@ export default function Step12_ProfileGallery({
   };
 
   const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const files = Array.from(e.target.files);
-    const current = formData.gallery || [];
-    // cap to 6 total
-    const next = [...current, ...files].slice(0, 6);
+    const selected = Array.from(e.target.files ?? []);
+    if (!selected.length) return;
+
+    const current = Array.isArray(formData.gallery) ? formData.gallery : [];
+    const next = [...current, ...selected]
+      .filter((f) => (f?.type || "").startsWith("image/"))
+      .slice(0, 6);
+
     updateFormData({ gallery: next });
   };
 
@@ -88,12 +90,48 @@ export default function Step12_ProfileGallery({
     updateFormData({ gallery: next });
   };
 
-  const safeName = (name: string) =>
-    name.replace(/[^a-zA-Z0-9.\-_]/g, "_").toLowerCase();
+  // replaces: const safeName = (name: string) => ...
+  function safeName(
+    input?: { name?: string; type?: string } | string | Blob | null
+  ): string {
+    if (!input) return `upload_${Date.now()}.png`;
+
+    // If it's a string, sanitize it as a filename
+    if (typeof input === "string") {
+      return (
+        input
+          .normalize?.("NFKD")
+          .replace(/[^\w.\-]+/g, "_")
+          .slice(0, 100) || `upload_${Date.now()}.png`
+      );
+    }
+
+    // Try to read .name (File has it; Blob may not)
+    const maybeName = (input as any).name;
+    const mime = (input as any).type || "";
+    const ext = mime?.includes("/") ? mime.split("/")[1] : "png";
+
+    const base =
+      typeof maybeName === "string" && maybeName.trim()
+        ? maybeName
+        : `upload_${Date.now()}.${ext || "png"}`;
+
+    return base
+      .normalize?.("NFKD")
+      .replace(/[^\w.\-]+/g, "_")
+      .slice(0, 100);
+  }
 
   const handleSaveAndNext = async () => {
+    if (busy) return;
+    if (
+      !formData.profilePicture &&
+      (!formData.gallery || formData.gallery.length === 0)
+    ) {
+      setError("Please add at least one image");
+      return;
+    }
     setError(null);
-
     try {
       if (!profileId) {
         setError("Missing profile id. Please go back and restart signup.");
@@ -102,33 +140,52 @@ export default function Step12_ProfileGallery({
 
       setUploadState("uploading");
 
-      // 1) Upload profile picture
+      // --- normalize profile picture ---
+      const p = formData.profilePicture;
+      const profileIsFile = p && typeof (p as any).name === "string";
       let profileUrl: string | null = null;
-      if (formData.profilePicture) {
-        const p = formData.profilePicture;
-        const path = `${profileId}/${Date.now()}-${safeName(p.name)}`;
-        profileUrl = await uploadFile("profile-pictures", path, p);
+      if (p) {
+        const file = profileIsFile
+          ? (p as File)
+          : new File([p as Blob], safeName(p), {
+              type: (p as any).type || "image/png",
+            });
+        const path = `${profileId}/${Date.now()}-${safeName(file)}`;
+        profileUrl = await uploadFile("profile-pictures", path, file);
       }
 
-      // 2) Upload gallery (cap at 6)
+      // --- normalize gallery (cap to 6, only images) ---
+      const rawGallery = Array.isArray(formData.gallery)
+        ? formData.gallery
+        : [];
+      const galleryFiles = rawGallery
+        .filter(Boolean)
+        .map((g, i) =>
+          typeof (g as any).name === "string"
+            ? (g as File)
+            : new File([g as Blob], safeName(g), {
+                type: (g as any).type || "image/png",
+              })
+        )
+        .filter((f) => (f.type || "").startsWith("image/"))
+        .slice(0, 6);
+
       const galleryUrls: string[] = [];
-      for (const file of formData.gallery.slice(0, 6)) {
-        const path = `${profileId}/${Date.now()}-${safeName(file.name)}`;
+      for (let i = 0; i < galleryFiles.length; i++) {
+        const file = galleryFiles[i];
+        const path = `${profileId}/${Date.now()}_${i}-${safeName(file)}`;
         const url = await uploadFile("profile-gallery", path, file);
         galleryUrls.push(url);
       }
 
       setUploadState("saving");
 
-      // 3) Persist URLs in DB
       await patchProfile({
         profile_picture_url: profileUrl || undefined,
         gallery_urls: galleryUrls.length ? galleryUrls : undefined,
       });
 
       setUploadState("done");
-
-      // 4) Advance
       nextStep();
     } catch (e: any) {
       console.error(e);
@@ -196,7 +253,7 @@ export default function Step12_ProfileGallery({
                 aria-label="Remove profile picture"
                 title="Remove"
               >
-                ✕
+                âœ•
               </button>
             </div>
           ) : (
@@ -282,7 +339,7 @@ export default function Step12_ProfileGallery({
                   aria-label={`Remove image ${idx + 1}`}
                   title="Remove"
                 >
-                  ✕
+                  x
                 </button>
               </div>
             ))}
@@ -291,11 +348,16 @@ export default function Step12_ProfileGallery({
       </div>
 
       {/* STATUS + ERRORS */}
-      {uploadState === "uploading" && (
-        <p style={{ color: "var(--text-secondary)" }}>Uploading images…</p>
-      )}
-      {uploadState === "saving" && (
-        <p style={{ color: "var(--text-secondary)" }}>Saving URLs…</p>
+      {(uploadState === "uploading" || uploadState === "saving") && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "1rem 0",
+          }}
+        >
+          <div className="spinner" />
+        </div>
       )}
       {error && (
         <p style={{ color: "#ff5555", marginTop: "0.5rem" }}>{error}</p>
@@ -310,7 +372,7 @@ export default function Step12_ProfileGallery({
           className="button-primary"
           disabled={busy}
         >
-          {busy ? "Working…" : "Next"}
+          {busy ? "Working¦" : "Next"}
         </button>
       </div>
     </StepContainer>

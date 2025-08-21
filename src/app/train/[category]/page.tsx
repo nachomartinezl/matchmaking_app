@@ -6,7 +6,7 @@ import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import styles from './Train.module.css';
 import QuestionRenderer from './components/QuestionRenderer';
 import questionsData from '../../data/questions.json';
-import { AllQuestionnaires } from '../types';
+import { AllQuestionnaires, Question } from '../types';
 import { submitQuestionnaire } from '@/lib/api';
 
 const categoryDisplayNames: Record<string, string> = {
@@ -101,9 +101,32 @@ export default function TrainPage({ params }: { params: { category: string } }) 
       setIsSubmitting(true);
       setError(null);
       try {
+        const responses: number[] = [];
+        for (let i = 0; i < questions.length; i++) {
+          const answer = answers[i];
+          const question = questions[i];
+
+          if (typeof answer === 'number') {
+            responses.push(answer);
+          } else if (typeof answer === 'string') {
+            const q = question as Extract<Question, { options?: string[] }>;
+            if (q.options) {
+              const index = q.options.indexOf(answer);
+              if (index !== -1) {
+                responses.push(index);
+              } else {
+                throw new Error(`Invalid answer "${answer}" for question ${i}`);
+              }
+            }
+          } else {
+             // Handle unanswered questions if necessary, though button is disabled
+             throw new Error(`Question ${i} is unanswered.`);
+          }
+        }
+
         await submitQuestionnaire({
-          questionnaire_type: questionnaireType,
-          answers: answers,
+          questionnaire: questionnaireType,
+          responses: responses,
         });
         setIsComplete(true);
         setTimeout(() => router.push('/dashboard'), 2000);
@@ -164,7 +187,7 @@ export default function TrainPage({ params }: { params: { category: string } }) 
       <div className={styles.questionContainer}>
         <h2 className={styles.questionNumber}>Question {currentQuestionIndex + 1} of {questions.length}</h2>
         <h3 className={styles.questionText}>
-          {currentQuestion.question || currentQuestion}
+          {typeof currentQuestion === 'object' && currentQuestion.question ? currentQuestion.question : currentQuestion}
         </h3>
         <QuestionRenderer
           question={currentQuestion}

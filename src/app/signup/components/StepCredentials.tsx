@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import StepContainer from "./common/StepContainer";
 
@@ -6,7 +6,7 @@ interface StepProps {
   formData: {
     email: string;
   };
-  updateFormData: ( Partial<StepProps["formData"]>) => void;
+  updateFormData: (data: Partial<StepProps["formData"]>) => void;
   nextStep: () => void;
   isSubmitting: boolean;
 }
@@ -49,9 +49,10 @@ export default function Step0_Credentials({
           className="button-primary"
           disabled={!canProceed || isSubmitting}
         >
-          {isSubmitting ? "Creating account…" : "Next"}
+          {isSubmitting ? "Creating account" : "Next"}
         </button>
       </div>
     </StepContainer>
   );
 }
+

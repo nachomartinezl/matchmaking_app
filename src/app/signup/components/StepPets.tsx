@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import StepContainer from "./common/StepContainer";
@@ -6,7 +6,7 @@ import { patchProfile } from "@/lib/api";
 
 interface StepProps {
   formData: { pets: string[] };
-  updateFormData: ( Partial<StepProps["formData"]>) => void;
+  updateFormData: (data: Partial<StepProps["formData"]>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -106,3 +106,4 @@ export default function Step7_Pets({
     </StepContainer>
   );
 }
+
