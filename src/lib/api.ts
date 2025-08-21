@@ -41,8 +41,8 @@ export async function completeProfile(id: UUID) {
 }
 
 export async function submitQuestionnaire(payload: {
-  questionnaire_type: string;
-  answers: Record<number, string | number>;
+  questionnaire: string;
+  responses: number[];
 }) {
   const profileId = localStorage.getItem("profile_id");
   if (!profileId) throw new Error("Missing profile id");

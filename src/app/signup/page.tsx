@@ -202,20 +202,20 @@ export default function SignUpPage() {
     first_name: formData.name || undefined,
     last_name: formData.surname || undefined,
     dob: formData.dob || undefined,
-    gender: formData.gender || undefined,
+    gender: formData.gender ? formData.gender.toLowerCase() : undefined,
     country: formData.country?.toUpperCase() || undefined,
-    preference: formData.preference || undefined,
+    preference: formData.preference ? formData.preference.toLowerCase() : undefined,
     height_feet: formData.height_feet ?? undefined,
     height_inches: formData.height_inches ?? undefined,
-    religion: formData.religion || undefined,
+    religion: formData.religion ? formData.religion.toLowerCase() : undefined,
     pets:
       Array.isArray(formData.pets) && formData.pets.length > 0
-        ? formData.pets[0].toLowerCase()
+        ? formData.pets.map((p) => p.toLowerCase())
         : undefined,
-    smoking: formData.smoking || undefined,
-    drinking: formData.drinking || undefined,
+    smoking: formData.smoking ? formData.smoking.toLowerCase() : undefined,
+    drinking: formData.drinking ? formData.drinking.toLowerCase() : undefined,
     kids: formData.kids || undefined, // backend enums already match
-    goal: formData.goal || undefined,
+    goal: formData.goal ? formData.goal.toLowerCase() : undefined,
     description: formData.description || undefined,
     // TODO: Implement file upload logic.
     // The backend expects URLs for profile_picture_url and gallery_urls.
@@ -237,7 +237,7 @@ export default function SignUpPage() {
           last_name: surname,
           dob,
           email,
-          gender,
+          gender: gender ? gender.toLowerCase() : undefined,
           country: country?.toUpperCase(),
         });
         const newId = data.id;
