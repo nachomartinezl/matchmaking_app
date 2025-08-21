@@ -250,6 +250,7 @@ export default function SignUpPage() {
           await completeProfile(profileId);
           clearProgress();
           localStorage.removeItem("profile_id");
+          setProfileId(null);
           setFlow("comingsoon");
         }
       }
