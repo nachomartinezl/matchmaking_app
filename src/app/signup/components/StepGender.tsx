@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import StepContainer from './common/StepContainer';
+import { patchProfile } from '@/lib/api';
 
 interface StepProps {
   formData: {
     gender: string;
   };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
+  updateFormData: ( Partial<StepProps['formData']>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -28,30 +29,16 @@ export default function Step2_Gender({
   const [err, setErr] = useState<string | null>(null);
 
   const handleSelect = async (value: string) => {
+    if (loading) return;
     setErr(null);
     setLoading(true);
 
     try {
-      const profileId = localStorage.getItem('profile_id');
-      if (!profileId) throw new Error('Profile not found. Please start over.');
-
-      // Update form locally
+      // Update form locally first for responsiveness
       updateFormData({ gender: value });
 
       // Send patch to backend
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/profiles/${profileId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ gender: value }),
-        }
-      );
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || 'Failed to update gender');
-      }
+      await patchProfile({ gender: value });
 
       // Move to next step only if backend update succeeded
       nextStep();
@@ -73,7 +60,7 @@ export default function Step2_Gender({
             className={`option-item ${
               formData.gender === value ? 'selected' : ''
             } ${loading ? 'disabled' : ''}`}
-            onClick={() => !loading && handleSelect(value)}
+            onClick={() => handleSelect(value)}
           >
             {label}
           </div>

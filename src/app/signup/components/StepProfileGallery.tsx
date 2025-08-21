@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import StepContainer from "./common/StepContainer";
-import { supabase } from "@/lib/supabaseClient";
+import { uploadFile, patchProfile } from "@/lib/api";
 
 // turn anything into a usable <img src>
 const toSrc = (f: any): string | null => {
@@ -17,7 +17,7 @@ interface StepProps {
     profilePicture: File | null;
     gallery: File[];
   };
-  updateFormData: (data: Partial<StepProps["formData"]>) => void;
+  updateFormData: ( Partial<StepProps["formData"]>) => void;
   nextStep: () => void;
   prevStep: () => void;
   isSubmitting: boolean;
@@ -88,52 +88,8 @@ export default function Step12_ProfileGallery({
     updateFormData({ gallery: next });
   };
 
-  // ========== Your existing “upload on Next” logic stays the same ==========
   const safeName = (name: string) =>
     name.replace(/[^a-zA-Z0-9.\-_]/g, "_").toLowerCase();
-
-  const getPublicUrl = (bucket: string, path: string) => {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    return data.publicUrl;
-  };
-
-  const uploadFile = async (
-    bucket: "profile-pictures" | "profile-gallery",
-    path: string,
-    file: File
-  ) => {
-    const { error } = await supabase.storage.from(bucket).upload(path, file, {
-      upsert: true,
-      cacheControl: "3600",
-    });
-    if (error) throw error;
-    return getPublicUrl(bucket, path);
-  };
-
-  const saveToBackend = async (
-    profile_picture_url: string | null,
-    gallery_urls: string[]
-  ) => {
-    if (!profileId) throw new Error("Missing profile_id");
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/profiles/${profileId}`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          profile_picture_url: profile_picture_url || undefined,
-          gallery_urls: gallery_urls.length ? gallery_urls : undefined,
-        }),
-      }
-    );
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.detail || "Failed to save image URLs");
-    }
-    return res.json();
-  };
 
   const handleSaveAndNext = async () => {
     setError(null);
@@ -165,7 +121,10 @@ export default function Step12_ProfileGallery({
       setUploadState("saving");
 
       // 3) Persist URLs in DB
-      await saveToBackend(profileUrl, galleryUrls);
+      await patchProfile({
+        profile_picture_url: profileUrl || undefined,
+        gallery_urls: galleryUrls.length ? galleryUrls : undefined,
+      });
 
       setUploadState("done");
 

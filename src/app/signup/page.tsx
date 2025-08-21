@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { saveProgress, loadProgress, clearProgress } from "@/lib/progress";
-import { startProfile, patchProfile, completeProfile } from "@/lib/api";
+import { startProfile, patchProfile, completeProfile, getProfile } from "@/lib/api";
 
 import {
   initialSignupSteps,
@@ -112,8 +112,8 @@ export default function SignUpPage() {
 
     const poll = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profiles/${profileId}`);
-        if (res.status === 404) {
+        const profile = await getProfile(profileId);
+        if (profile === null) {
           // Profile disappeared → reset
           if (pollRef.current) window.clearInterval(pollRef.current);
           localStorage.removeItem("profile_id");
@@ -122,10 +122,8 @@ export default function SignUpPage() {
           setFlow("initial");
           return;
         }
-        if (!res.ok) throw new Error("Failed to fetch profile");
 
-        const data = await res.json();
-        if (data.email_verified === true) {
+        if (profile.email_verified === true) {
           if (pollRef.current) window.clearInterval(pollRef.current);
           setFlow("thankyou");
         }

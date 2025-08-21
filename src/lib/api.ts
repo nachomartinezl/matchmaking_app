@@ -1,6 +1,18 @@
 // src/lib/api.ts
+import { supabase } from "./supabaseClient";
+
 export type UUID = string;
 const API = process.env.NEXT_PUBLIC_API_URL!;
+
+export async function getProfile(id: UUID) {
+  const res = await fetch(`${API}/profiles/${id}`);
+  if (!res.ok) {
+    // Special case for polling: 404 means profile was deleted, not an error state.
+    if (res.status === 404) return null;
+    throw new Error("Failed to fetch profile");
+  }
+  return res.json();
+}
 
 export async function startProfile(payload: {
   first_name: string;
@@ -15,7 +27,10 @@ export async function startProfile(payload: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!r.ok) throw await r.json().catch(() => new Error("Failed to start profile"));
+  if (!r.ok) {
+    const errorData = await r.json().catch(() => ({ detail: "Failed to start profile" }));
+    throw new Error(errorData.detail);
+  }
   return r.json();
 }
 
@@ -56,4 +71,20 @@ export async function submitQuestionnaire(payload: {
     throw new Error(data.detail || "Failed to submit questionnaire");
   }
   return res.json();
+}
+
+// Centralized Supabase file upload
+export async function uploadFile(
+  bucket: "profile-pictures" | "profile-gallery",
+  path: string,
+  file: File
+): Promise<string> {
+  const { error } = await supabase.storage.from(bucket).upload(path, file, {
+    upsert: true,
+    cacheControl: "3600",
+  });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
 }
