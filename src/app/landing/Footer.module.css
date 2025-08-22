@@ -1,4 +1,5 @@
-:root{
+/* whole footer */
+.wrap{
   --ink:#0e0e0e;
   --paper:#fff;
   --muted:#b7b7b7;
@@ -9,10 +10,6 @@
   --radius:22px;
   --shadow:0 16px 40px rgba(0,0,0,.25);
   --heartSize: 80px; /* adjust the corner art size */
-}
-
-/* whole footer */
-.wrap{
   background:#141414;
   color:#eee;
   /* ⬇️ add top padding; keep bottom the same */

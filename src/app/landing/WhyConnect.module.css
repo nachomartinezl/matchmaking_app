@@ -1,14 +1,11 @@
-:root{
+/* section wrapper */
+.wrap{
   --ink:#0f0f0f;
   --muted:#5a5a5a;
   --kicker: #FF5A5F;   /* deep red */
   --cardStroke:#111;
   --radius:18px;
   --shadow:0 12px 26px rgba(0,0,0,.06);
-}
-
-/* section wrapper */
-.wrap{
   position: relative;
   background:#fff;
   padding: 0 0 64px; /* bottom spacing under cards */
