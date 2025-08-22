@@ -1,4 +1,5 @@
-:root{
+/* section */
+.wrap{
   --ink:#101010;
   --muted:#5b5b5b;
   --brand:#b40016;
@@ -6,10 +7,6 @@
   --ring:#111;
   --shadow:0 6px 20px rgba(0,0,0,.08);
   --dot:#21c35e;
-}
-
-/* section */
-.wrap{
   background:#fff;
   color:var(--ink);
   padding: clamp(32px,6vw,72px) 0;

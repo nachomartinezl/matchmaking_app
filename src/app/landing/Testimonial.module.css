@@ -1,13 +1,10 @@
-:root{
+.wrap{
   --text:#111;
   --muted:#5a5a5a;
   --brand:#8F0004;      /* kicker color (deep red) */
   --accent:#FF5A5F;     /* active pager red */
   --softYellow:#fff2a6; /* big closing quotes */
   --radius:14px;
-}
-
-.wrap{
   background:#fff;
   color:var(--text);
   padding: clamp(32px, 6vw, 80px) 0; /* no side padding */

@@ -6,7 +6,7 @@ import Select, { components, SingleValue, OptionProps, SingleValueProps, ActionM
 import countryList from 'react-select-country-list';
 import ReactCountryFlag from 'react-country-flag';
 import { patchProfile } from '@/lib/api';
-import './Step3_Country.module.css';
+import styles from './Step3_Country.module.css';
 
 interface CountryOption { value: string; label: string; }
 interface StepProps {
@@ -72,15 +72,17 @@ export default function Step3_Country({ formData, updateFormData, nextStep, prev
       <h2>Where are you from?</h2>
       {err && <p style={{ color: 'red' }}>{err}</p>}
 
-      <Select
-        options={options}
-        value={selectedOption}
-        onChange={handleChange}
-        placeholder="Select your country"
-        isSearchable
-        classNamePrefix="select"
-        components={{ Option, SingleValue: SingleValueComponent }}
-      />
+      <div className={styles.countrySelect}>
+        <Select
+          options={options}
+          value={selectedOption}
+          onChange={handleChange}
+          placeholder="Select your country"
+          isSearchable
+          classNamePrefix="select"
+          components={{ Option, SingleValue: SingleValueComponent }}
+        />
+      </div>
 
       <div className="button-group">
         <button onClick={prevStep} className="button-secondary">Back</button>

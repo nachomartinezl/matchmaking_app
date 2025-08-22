@@ -1,0 +1,8 @@
+.buttonGroup {
+  flex-direction: column;
+  margin-top: var(--space-md);
+}
+
+.signupText {
+  margin-top: var(--space-md);
+}

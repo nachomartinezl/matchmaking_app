@@ -5,6 +5,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -52,10 +53,7 @@ export default function LoginPage() {
           />
         </div>
 
-        <div
-          className="button-group"
-          style={{ flexDirection: 'column', marginTop: 'var(--space-md)' }}
-        >
+        <div className={`button-group ${styles.buttonGroup}`}>
           <button
             type="submit"
             className="button-primary"
@@ -66,7 +64,7 @@ export default function LoginPage() {
         </div>
       </form>
 
-      <p style={{ marginTop: 'var(--space-md)' }}>
+      <p className={styles.signupText}>
         Don&apos;t have an account?{' '}
         <Link href="/signup" className="link-accent">
           Sign Up

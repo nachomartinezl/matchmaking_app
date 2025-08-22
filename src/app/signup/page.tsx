@@ -15,6 +15,7 @@ import { FormData, CommonStepProps } from "./types";
 import StepComingSoon from "./components/StepComingSoon";
 import StepContainer from "./components/common/StepContainer";
 import OptionStep from "./components/common/OptionStep";
+import styles from './SignUpPage.module.css';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -259,21 +260,20 @@ export default function SignUpPage() {
   const WaitingForVerification = () => (
     <StepContainer>
       <h2>Check your email to verify</h2>
-      <p style={{ textAlign: "center", maxWidth: 420, margin: "0.5rem auto" }}>
+      <p className={styles.verificationText}>
         We’ve sent you a verification link. Click it to continue.
       </p>
-      <div style={{ display: "flex", justifyContent: "center", margin: "1rem 0" }}>
+      <div className={styles.spinnerContainer}>
         <div className="spinner" />
       </div>
-      <p style={{ fontSize: 14 }}>
+      <p className={styles.resendText}>
         Didn’t get it? Check spam or{" "}
         <span
-          className="link-accent"
+          className={`link-accent ${styles.resendLink}`}
           onClick={() => {
             // TODO: call a /profiles/{id}/resend endpoint once you add it.
             router.refresh();
           }}
-          style={{ cursor: "pointer" }}
         >
           resend
         </span>
@@ -354,7 +354,7 @@ export default function SignUpPage() {
       <div className="form-container">
         {renderCurrentStep()}
         {error && (
-          <p style={{ color: "#ff5555", marginTop: "1rem", textAlign: "center" }}>
+          <p className={styles.errorText}>
             {error}
           </p>
         )}
