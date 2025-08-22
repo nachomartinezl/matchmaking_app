@@ -20,18 +20,19 @@ interface StepProps {
   nextStep: () => void;
   prevStep: () => void;
   isSubmitting: boolean;
+  profileId: string | null; // Correctly typed prop
 }
 
 type UploadState = "idle" | "uploading" | "saving" | "done";
 
-export default function Step12_ProfileGallery({
+export default function StepProfileGallery({
   formData,
   updateFormData,
   nextStep,
   prevStep,
   isSubmitting,
+  profileId,
 }: StepProps) {
-  const [profileId, setProfileId] = useState<string | null>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -56,11 +57,6 @@ export default function Step12_ProfileGallery({
         .forEach((u) => URL.revokeObjectURL(u));
     };
   }, [profilePreview, galleryPreviews]);
-
-  useEffect(() => {
-    const savedId = localStorage.getItem("profile_id");
-    if (savedId) setProfileId(savedId);
-  }, []);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -170,13 +166,12 @@ export default function Step12_ProfileGallery({
         .filter((f) => (f.type || "").startsWith("image/"))
         .slice(0, 6);
 
-      const galleryUrls: string[] = [];
-      for (let i = 0; i < galleryFiles.length; i++) {
-        const file = galleryFiles[i];
-        const path = `${profileId}/${Date.now()}_${i}-${safeName(file)}`;
-        const url = await uploadFile("profile-gallery", path, file);
-        galleryUrls.push(url);
-      }
+      const uploadPromises = galleryFiles.map((file, i) => {
+      const path = `${profileId}/${Date.now()}_${i}-${safeName(file)}`;
+      return uploadFile("profile-gallery", path, file);
+      });
+
+      const galleryUrls = await Promise.all(uploadPromises);
 
       setUploadState("saving");
 

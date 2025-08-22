@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import StepContainer from './common/StepContainer';
-import Select, { components, SingleValue, OptionProps, SingleValueProps } from 'react-select';
+import Select, { components, SingleValue, OptionProps, SingleValueProps, ActionMeta, MultiValue } from 'react-select';
 import countryList from 'react-select-country-list';
 import ReactCountryFlag from 'react-country-flag';
 import { patchProfile } from '@/lib/api';
@@ -42,8 +42,15 @@ export default function Step3_Country({ formData, updateFormData, nextStep, prev
   const selectedOption = options.find((o) => o.value === formData.country) || null;
   const canProceed = Boolean(formData.country);
 
-  const handleChange = (opt: SingleValue<CountryOption>) => {
-    if (opt) updateFormData({ country: opt.value });
+  const handleChange = (newValue: SingleValue<CountryOption> | MultiValue<CountryOption>) => {
+     if (newValue && !Array.isArray(newValue)) {
+      // At this point, TypeScript knows newValue is of type CountryOption | null
+      const selectedValue = (newValue as CountryOption).value;
+      updateFormData({ country: selectedValue });
+    } else if (newValue === null) {
+      // Handle the case where the user clears the selection
+      updateFormData({ country: '' });
+    }
   };
 
   const handleNext = async () => {

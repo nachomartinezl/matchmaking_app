@@ -14,15 +14,6 @@ interface OptionStepProps {
   field: string; // <- add this so we know what to patch
 }
 
-function normalize(field: string, value: string) {
-  if (field === 'kids') {
-    if (value === 'i_want') return 'i_want_to';
-    if (value === 'i_dont_want') return 'i_do_not_want';
-  }
-  // goal already matches: 'friends' | 'casual' | 'relationship' | 'not_sure'
-  return value;
-}
-
 export default function OptionStep({ title, options, selected, onSelect, onBack, field }: OptionStepProps) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -32,11 +23,8 @@ export default function OptionStep({ title, options, selected, onSelect, onBack,
     setErr(null);
     setLoading(true);
     try {
-      const normalized = normalize(field, value);
-      onSelect(normalized);
-      await patchProfile({ [field]: normalized });
-      // parent flow will call nextStep() after onSelect if you set it up that way,
-      // or you can pass nextStep in and call it here.
+      onSelect(value);
+      await patchProfile({ [field]: value });
     } catch (e: any) {
       setErr(e.message || 'Failed to save');
     } finally {
@@ -50,11 +38,10 @@ export default function OptionStep({ title, options, selected, onSelect, onBack,
       {err && <p style={{ color: 'red' }}>{err}</p>}
       <div className="option-list">
         {options.map(({ value, label }) => {
-          const normalized = normalize(field, value);
           return (
             <div
               key={value}
-              className={`option-item ${selected === normalized ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+              className={`option-item ${selected === value ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
               onClick={() => handleClick(value)}
             >
               {label}

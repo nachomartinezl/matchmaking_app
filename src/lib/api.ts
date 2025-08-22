@@ -19,8 +19,6 @@ export async function startProfile(payload: {
   last_name: string;
   dob: string; // YYYY-MM-DD
   email: string;
-  gender?: string;
-  country?: string;
 }): Promise<{ id: UUID }> {
   const r = await fetch(`${API}/profiles`, {
     method: "POST",

@@ -14,6 +14,7 @@ import ProgressBar from "./components/ProgressBar";
 import { FormData, CommonStepProps } from "./types";
 import StepComingSoon from "./components/StepComingSoon";
 import StepContainer from "./components/common/StepContainer";
+import OptionStep from "./components/common/OptionStep";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -212,15 +213,9 @@ export default function SignUpPage() {
         : undefined,
     smoking: formData.smoking ? formData.smoking.toLowerCase() : undefined,
     drinking: formData.drinking ? formData.drinking.toLowerCase() : undefined,
-    kids: formData.kids || undefined, // backend enums already match
+    kids: formData.kids || undefined,
     goal: formData.goal ? formData.goal.toLowerCase() : undefined,
     description: formData.description || undefined,
-    // TODO: Implement file upload logic.
-    // The backend expects URLs for profile_picture_url and gallery_urls.
-    // The current formData contains File objects, which need to be uploaded
-    // to a storage service (e.g., S3) to get a URL before sending.
-    // profile_picture_url: uploadedProfilePicUrl,
-    // gallery_urls: uploadedGalleryUrls,
   });
 
   const handleSubmit = async (isFinal = false, isInitialCreate = false) => {
@@ -229,14 +224,12 @@ export default function SignUpPage() {
 
     try {
       if (isInitialCreate) {
-        const { name, surname, dob, email, gender, country } = formData;
+        const { name, surname, dob, email} = formData;
         const data = await startProfile({
           first_name: name,
           last_name: surname,
           dob,
           email,
-          gender: gender ? gender.toLowerCase() : undefined,
-          country: country?.toUpperCase(),
         });
         const newId = data.id;
         setProfileId(newId);
@@ -309,9 +302,16 @@ export default function SignUpPage() {
       prevStep,
       isSubmitting,
       handleSubmit: () => handleSubmit(isLastStep),
+      profileId,
     };
 
-    if (currentStepConfig.component.name === "OptionStep") {
+    if (currentStepConfig.component.name === OptionStep.name) {
+      // This check satisfies TypeScript and prevents runtime errors.
+      if (!stepProps) {
+        console.error("Configuration error: OptionStep is missing props for step ID:", currentStepConfig.id);
+        return <p>Error: Step is misconfigured.</p>;
+      }
+      
       return (
         <StepComponent
           {...stepProps}

@@ -26,4 +26,5 @@ export interface CommonStepProps {
   prevStep: () => void;
   isSubmitting: boolean;
   handleSubmit: () => void;
+  profileId: string | null;
 }
