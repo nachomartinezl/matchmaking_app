@@ -1,5 +1,6 @@
 // src/lib/api.ts
 import { supabase } from "./supabaseClient";
+import { ApiError } from './errors';
 
 export type UUID = string;
 const API = process.env.NEXT_PUBLIC_API_URL!;
@@ -20,16 +21,16 @@ export async function startProfile(payload: {
   dob: string; // YYYY-MM-DD
   email: string;
 }): Promise<{ id: UUID }> {
-  const r = await fetch(`${API}/profiles`, {
+  const res = await fetch(`${API}/profiles`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!r.ok) {
-    const errorData = await r.json().catch(() => ({ detail: "Failed to start profile" }));
-    throw new Error(errorData.detail);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ detail: "Failed to start profile" }));
+    throw new ApiError(errorData.detail, res.status, errorData);
   }
-  return r.json();
+  return res.json();
 }
 
 export async function patchProfile(update: Record<string, unknown>) {
@@ -41,16 +42,18 @@ export async function patchProfile(update: Record<string, unknown>) {
     body: JSON.stringify(update),
   });
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.detail || "Failed to update profile");
+    const errorData = await res.json().catch(() => ({ detail: "Failed to update profile" }));
+    throw new ApiError(errorData.detail, res.status, errorData);
   }
   return res.json();
 }
 
 export async function completeProfile(id: UUID) {
-  const r = await fetch(`${API}/profiles/${id}/complete`, { method: "POST" });
-  if (!r.ok) throw await r.json().catch(() => new Error("Failed to complete profile"));
-  return r.json(); // ProfileOut
+  const res = await fetch(`${API}/profiles/${id}/complete`, { method: "POST" });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ detail: "Failed to complete profile" }));
+    throw new ApiError(errorData.detail, res.status, errorData);
+  } // ProfileOut
 }
 
 export async function submitQuestionnaire(payload: {
@@ -65,8 +68,8 @@ export async function submitQuestionnaire(payload: {
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.detail || "Failed to submit questionnaire");
+    const errorData = await res.json().catch(() => ({ detail: "Failed to submit questionnaire" }));
+    throw new ApiError(errorData.detail, res.status, errorData);
   }
   return res.json();
 }
