@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { saveProgress, loadProgress, clearProgress } from "@/lib/progress";
-import { startProfile, patchProfile, completeProfile, getProfile } from "@/lib/api";
+import { startProfile, patchProfile, completeProfile, getProfile, resendVerificationEmail } from "@/lib/api";
 
 import {
   initialSignupSteps,
@@ -18,14 +17,13 @@ import OptionStep from "./components/common/OptionStep";
 import styles from './SignUpPage.module.css';
 
 export default function SignUpPage() {
-  const router = useRouter();
-
   type Flow = "initial" | "verify_wait" | "thankyou" | "profile" | "comingsoon";
   const [flow, setFlow] = useState<Flow>("initial");
   const [stepIndex, setStepIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent">("idle");
 
   const pollRef = useRef<number | null>(null);
   const saveTimer = useRef<number | null>(null);
@@ -68,20 +66,17 @@ export default function SignUpPage() {
 
     (async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profiles/${savedId}`);
-        if (!res.ok) {
-          // If the profile is gone (e.g., DB wiped), clean up client state.
+        const profile = await getProfile(savedId);
+        if (cancelled) return;
+
+        if (profile === null) {
+          // Profile not found, treat as a fresh start.
           localStorage.removeItem("profile_id");
           clearProgress();
-          if (res.status === 404) {
-            setProfileId(null);
-            setFlow("initial");
-          }
+          setProfileId(null);
+          setFlow("initial");
           return;
         }
-
-        const profile = await res.json();
-        if (cancelled) return;
 
         setProfileId(savedId);
 
@@ -97,9 +92,10 @@ export default function SignUpPage() {
         } else {
           setFlow("thankyou");
         }
-      } catch {
+      } catch (err) {
         // Network/CORS/etc: don’t crash the app; user can just start again
-        // (if you want, you could show a toast here)
+        const message = err instanceof Error ? err.message : "An unknown error occurred.";
+        setError(message || "Failed to load your session. Please try refreshing the page.");
       }
     })();
 
@@ -129,7 +125,7 @@ export default function SignUpPage() {
           if (pollRef.current) window.clearInterval(pollRef.current);
           setFlow("thankyou");
         }
-      } catch (err) {
+      } catch {
         // soft-fail; try again next tick
         // console.error("Polling error:", err);
       }
@@ -257,30 +253,44 @@ export default function SignUpPage() {
     }
   };
 
-  const WaitingForVerification = () => (
-    <StepContainer>
-      <h2>Check your email to verify</h2>
-      <p className={styles.verificationText}>
-        We’ve sent you a verification link. Click it to continue.
-      </p>
-      <div className={styles.spinnerContainer}>
-        <div className="spinner" />
-      </div>
-      <p className={styles.resendText}>
-        Didn’t get it? Check spam or{" "}
-        <span
-          className={`link-accent ${styles.resendLink}`}
-          onClick={() => {
-            // TODO: call a /profiles/{id}/resend endpoint once you add it.
-            router.refresh();
-          }}
-        >
-          resend
-        </span>
-        .
-      </p>
-    </StepContainer>
-  );
+  const WaitingForVerification = () => {
+    const handleResend = async () => {
+      if (resendStatus !== "idle" || !profileId) return;
+
+      setResendStatus("sending");
+      try {
+        await resendVerificationEmail(profileId);
+        setResendStatus("sent");
+        setTimeout(() => setResendStatus("idle"), 3000); // Reset after 3s
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "An unknown error occurred.";
+        setError(message || "Failed to resend verification email.");
+        setResendStatus("idle");
+      }
+    };
+
+    return (
+      <StepContainer>
+        <h2>Check your email to verify</h2>
+        <p className={styles.verificationText}>
+          We’ve sent you a verification link. Click it to continue.
+        </p>
+        <div className={styles.spinnerContainer}>
+          <div className="spinner" />
+        </div>
+        <p className={styles.resendText}>
+          Didn’t get it? Check spam or{" "}
+          <span
+            className={`link-accent ${styles.resendLink} ${resendStatus !== "idle" ? styles.disabled : ""}`}
+            onClick={handleResend}
+          >
+            {resendStatus === "sending" ? "Sending..." : resendStatus === "sent" ? "Sent!" : "resend"}
+          </span>
+          .
+        </p>
+      </StepContainer>
+    );
+  };
 
   const renderCurrentStep = () => {
     if (flow === "comingsoon") return <StepComingSoon />;

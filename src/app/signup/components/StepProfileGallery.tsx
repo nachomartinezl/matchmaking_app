@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import StepContainer from "./common/StepContainer";
 import { uploadFile, patchProfile } from "@/lib/api";
 
@@ -87,8 +88,9 @@ export default function StepProfileGallery({
   };
 
   // replaces: const safeName = (name: string) => ...
+  type SafeNameInput = { name?: string; type?: string } | string | Blob | null;
   function safeName(
-    input?: { name?: string; type?: string } | string | Blob | null
+    input?: SafeNameInput,
   ): string {
     if (!input) return `upload_${Date.now()}.png`;
 
@@ -103,8 +105,8 @@ export default function StepProfileGallery({
     }
 
     // Try to read .name (File has it; Blob may not)
-    const maybeName = (input as any).name;
-    const mime = (input as any).type || "";
+    const maybeName = (input as File).name;
+    const mime = (input as Blob).type || "";
     const ext = mime?.includes("/") ? mime.split("/")[1] : "png";
 
     const base =
@@ -138,13 +140,13 @@ export default function StepProfileGallery({
 
       // --- normalize profile picture ---
       const p = formData.profilePicture;
-      const profileIsFile = p && typeof (p as any).name === "string";
+      const profileIsFile = p && typeof (p as File).name === "string";
       let profileUrl: string | null = null;
       if (p) {
         const file = profileIsFile
           ? (p as File)
           : new File([p as Blob], safeName(p), {
-              type: (p as any).type || "image/png",
+              type: (p as Blob).type || "image/png",
             });
         const path = `${profileId}/${Date.now()}-${safeName(file)}`;
         profileUrl = await uploadFile("profile-pictures", path, file);
@@ -156,11 +158,11 @@ export default function StepProfileGallery({
         : [];
       const galleryFiles = rawGallery
         .filter(Boolean)
-        .map((g, i) =>
-          typeof (g as any).name === "string"
+        .map((g) =>
+          typeof (g as File).name === "string"
             ? (g as File)
             : new File([g as Blob], safeName(g), {
-                type: (g as any).type || "image/png",
+                type: (g as Blob).type || "image/png",
               })
         )
         .filter((f) => (f.type || "").startsWith("image/"))
@@ -182,9 +184,12 @@ export default function StepProfileGallery({
 
       setUploadState("done");
       nextStep();
-    } catch (e: any) {
-      console.error(e);
-      setError(e?.message || "Upload failed");
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError("Upload failed");
+      }
       setUploadState("idle");
     }
   };
@@ -228,9 +233,11 @@ export default function StepProfileGallery({
                 position: "relative",
               }}
             >
-              <img
+              <Image
                 src={profilePreview}
                 alt="Profile preview"
+                width={72}
+                height={72}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
               <button
@@ -314,9 +321,11 @@ export default function StepProfileGallery({
                   height: 110,
                 }}
               >
-                <img
+                <Image
                   src={src}
                   alt={`Gallery ${idx + 1}`}
+                  width={110}
+                  height={110}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
                 <button

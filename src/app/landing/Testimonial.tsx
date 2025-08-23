@@ -32,11 +32,13 @@ export default function Testimonial() {
               We Met On Connect Without Any Filters, No Pressure. Just Two
               People Being Real. And Now, We’re Together.
             </blockquote>
-            <img
+            <Image
               src="/landing/testimonial/quotes.svg"
               alt=""
               aria-hidden
               className={styles.bigQuote}
+              width={50}
+              height={50}
             />
           </div>
           <p className={styles.disclaimer}>

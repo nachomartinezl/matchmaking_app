@@ -32,8 +32,12 @@ export default function Step5_Height({ formData, updateFormData, nextStep, prevS
     try {
       await patchProfile({ height_feet: feet, height_inches: inches });
       nextStep();
-    } catch (e: any) {
-      setErr(e.message || 'Failed to save height');
+    } catch (e) {
+      if (e instanceof Error) {
+        setErr(e.message);
+      } else {
+        setErr('Failed to save height');
+      }
     } finally {
       setLoading(false);
     }

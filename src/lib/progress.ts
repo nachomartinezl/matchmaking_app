@@ -1,11 +1,13 @@
 // src/lib/progress.ts
 const KEY = "signup_progress_v1";
 
+import { FormData } from "@/app/signup/types";
+
 export type SavedProgress = {
   profile_id: string;
   flow: "verify_wait" | "thankyou" | "profile";
   stepIndex: number;
-  formData: Record<string, any>;
+  formData: Partial<FormData>;
   savedAt: number;
 };
 

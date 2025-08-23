@@ -6,32 +6,9 @@ import Image from "next/image";
 import styles from "./Footer.module.css";
 
 // Updated SocialIcon component
-function SocialIcon({
-  keyName,
-  label,
-  forceLocal,
-}: {
-  keyName: string;
-  label: string;
-  forceLocal?: boolean; // Accept the optional prop
-}) {
+function CdnSocialIcon({ keyName, label }: { keyName: string; label: string }) {
   const fallback = `/landing/footer/icons/${keyName}.png`;
 
-  // If forceLocal is true, render the local image immediately.
-  if (forceLocal) {
-    return (
-      <img
-        src={fallback}
-        alt={label}
-        className={styles.socialIcon}
-        width={18}
-        height={18}
-        decoding="async"
-      />
-    );
-  }
-
-  // The original logic remains for all other icons.
   const slug = useMemo(
     () =>
       (
@@ -50,7 +27,7 @@ function SocialIcon({
   const [src, setSrc] = useState<string>(cdn);
 
   return (
-    <img
+    <Image
       src={src}
       alt={label}
       className={styles.socialIcon}
@@ -63,6 +40,33 @@ function SocialIcon({
       }}
     />
   );
+}
+
+function SocialIcon({
+  keyName,
+  label,
+  forceLocal,
+}: {
+  keyName: string;
+  label: string;
+  forceLocal?: boolean;
+}) {
+  const fallback = `/landing/footer/icons/${keyName}.png`;
+
+  if (forceLocal) {
+    return (
+      <Image
+        src={fallback}
+        alt={label}
+        className={styles.socialIcon}
+        width={18}
+        height={18}
+        decoding="async"
+      />
+    );
+  }
+
+  return <CdnSocialIcon keyName={keyName} label={label} />;
 }
 
 export default function Footer() {
@@ -81,17 +85,21 @@ export default function Footer() {
       {/* CTA card */}
       <section className={styles.cta}>
         <div className={styles.ctaCard}>
-          <img
+          <Image
             src="/landing/footer/two_hearts.png"
             alt=""
             aria-hidden
             className={`${styles.cornerImg} ${styles.left}`}
+            width={100}
+            height={100}
           />
-          <img
+          <Image
             src="/landing/footer/two_hearts_2.png"
             alt=""
             aria-hidden
             className={`${styles.cornerImg} ${styles.right}`}
+            width={100}
+            height={100}
           />
 
           <p className={styles.kicker}>READY TO CONNECT?</p>

@@ -45,7 +45,7 @@ export default function Step7_Pets({
     } else {
       // If another pet is clicked:
       // 1. remove 'none' if it was selected
-      let currentPets = selectedPets.filter((p) => p !== "none");
+      const currentPets = selectedPets.filter((p) => p !== "none");
 
       // 2. toggle the new pet
       if (currentPets.includes(pet)) {
@@ -65,8 +65,12 @@ export default function Step7_Pets({
       // Send the array of pets to the backend
       await patchProfile({ pets: selectedPets });
       nextStep();
-    } catch (e: any) {
-      setErr(e.message || "Failed to save pets");
+    } catch (e) {
+      if (e instanceof Error) {
+        setErr(e.message);
+      } else {
+        setErr("Failed to save pets");
+      }
     } finally {
       setLoading(false);
     }

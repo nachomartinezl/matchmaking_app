@@ -21,7 +21,7 @@ export default function StepDOB({
 
   return (
     <StepContainer>
-      <h2>When's your birthday?</h2>
+      <h2>When&apos;s your birthday?</h2>
       <input
         id="dob"
         type="date"

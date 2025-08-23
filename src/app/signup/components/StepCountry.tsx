@@ -42,13 +42,10 @@ export default function Step3_Country({ formData, updateFormData, nextStep, prev
   const selectedOption = options.find((o) => o.value === formData.country) || null;
   const canProceed = Boolean(formData.country);
 
-  const handleChange = (newValue: SingleValue<CountryOption> | MultiValue<CountryOption>) => {
-     if (newValue && !Array.isArray(newValue)) {
-      // At this point, TypeScript knows newValue is of type CountryOption | null
-      const selectedValue = (newValue as CountryOption).value;
-      updateFormData({ country: selectedValue });
-    } else if (newValue === null) {
-      // Handle the case where the user clears the selection
+  const handleChange = (newValue: SingleValue<CountryOption> | MultiValue<CountryOption>, actionMeta: ActionMeta<CountryOption>) => {
+    if (newValue && !Array.isArray(newValue)) {
+      updateFormData({ country: (newValue as CountryOption).value });
+    } else {
       updateFormData({ country: '' });
     }
   };
@@ -60,8 +57,12 @@ export default function Step3_Country({ formData, updateFormData, nextStep, prev
     try {
       await patchProfile({ country: formData.country.toUpperCase() });
       nextStep();
-    } catch (e: any) {
-      setErr(e.message || 'Failed to save country');
+    } catch (e) {
+      if (e instanceof Error) {
+        setErr(e.message);
+      } else {
+        setErr('Failed to save country');
+      }
     } finally {
       setLoading(false);
     }

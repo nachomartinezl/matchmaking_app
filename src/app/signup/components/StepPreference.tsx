@@ -29,8 +29,12 @@ export default function Step4_Preference({ formData, updateFormData, nextStep, p
       updateFormData({ preference: value });
       await patchProfile({ preference: value });
       nextStep();
-    } catch (e: any) {
-      setErr(e.message || 'Failed to save preference');
+    } catch (e) {
+      if (e instanceof Error) {
+        setErr(e.message);
+      } else {
+        setErr('Failed to save preference');
+      }
     } finally {
       setLoading(false);
     }

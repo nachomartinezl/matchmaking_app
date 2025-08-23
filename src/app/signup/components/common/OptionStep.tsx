@@ -25,8 +25,12 @@ export default function OptionStep({ title, options, selected, onSelect, onBack,
     try {
       onSelect(value);
       await patchProfile({ [field]: value });
-    } catch (e: any) {
-      setErr(e.message || 'Failed to save');
+    } catch (e) {
+      if (e instanceof Error) {
+        setErr(e.message);
+      } else {
+        setErr('Failed to save');
+      }
     } finally {
       setLoading(false);
     }

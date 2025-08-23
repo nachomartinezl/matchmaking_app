@@ -18,6 +18,11 @@
   cursor: pointer;
 }
 
+.resendLink.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .errorText {
   color: #ff5555;
   margin-top: 1rem;

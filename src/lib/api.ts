@@ -56,6 +56,14 @@ export async function completeProfile(id: UUID) {
   } // ProfileOut
 }
 
+export async function resendVerificationEmail(id: UUID) {
+  const res = await fetch(`${API}/profiles/${id}/resend`, { method: "POST" });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ detail: "Failed to resend verification email" }));
+    throw new ApiError(errorData.detail, res.status, errorData);
+  }
+}
+
 export async function submitQuestionnaire(payload: {
   questionnaire: string;
   responses: number[];

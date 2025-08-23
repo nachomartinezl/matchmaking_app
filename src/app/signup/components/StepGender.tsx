@@ -42,8 +42,12 @@ export default function Step2_Gender({
 
       // Move to next step only if backend update succeeded
       nextStep();
-    } catch (e: any) {
-      setErr(e.message || 'Something went wrong.');
+    } catch (e) {
+      if (e instanceof Error) {
+        setErr(e.message);
+      } else {
+        setErr('Something went wrong.');
+      }
     } finally {
       setLoading(false);
     }
