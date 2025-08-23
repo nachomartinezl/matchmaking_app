@@ -1,32 +1,50 @@
 'use client';
 
+import { useState } from 'react';
 import StepContainer from './StepContainer';
 import { patchProfile } from '@/lib/api';
-import { useState } from 'react';
+import { FormData } from '../../types';
 
-interface Option { value: string; label: string; }
-interface OptionStepProps {
-  title: string;
-  options: Option[];
-  selected: string;
-  onSelect: (value: string) => void; // still updates local form state
-  onBack: () => void;
-  field: string; // <- add this so we know what to patch
+
+interface Option<V> {
+  value: V;
+  label: string;
 }
 
-export default function OptionStep({ title, options, selected, onSelect, onBack, field }: OptionStepProps) {
+interface OptionStepProps<K extends keyof FormData> {
+  title: string;
+  options: Option<NonNullable<FormData[K]>>[]; // Use NonNullable to ensure value is not undefined
+  field: K;
+  selected: FormData[K] | undefined;
+  updateFormData: (data: Partial<Pick<FormData, K>>) => void;
+  nextStep: () => void;
+  onBack: () => void;
+}
+
+export default function OptionStep<K extends keyof FormData, V>({
+  title,
+  options,
+  field,
+  selected,
+  updateFormData,
+  nextStep,
+  onBack,
+}: OptionStepProps<K>) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const handleClick = async (value: string) => {
+   const handleClick = async (value: FormData[K]) => {
     if (loading) return;
     setErr(null);
     setLoading(true);
     try {
-      onSelect(value);
+      // TypeScript can now prove that the `value` is the correct type for the `field`.
+      // No `as` cast is needed.
+      updateFormData({ [field]: value } as any);
       await patchProfile({ [field]: value });
+      nextStep();
     } catch (e: any) {
-      setErr(e.message || 'Failed to save');
+      setErr(e.message || 'Failed to save selection');
     } finally {
       setLoading(false);
     }
@@ -35,22 +53,22 @@ export default function OptionStep({ title, options, selected, onSelect, onBack,
   return (
     <StepContainer>
       <h2>{title}</h2>
-      {err && <p style={{ color: 'red' }}>{err}</p>}
+      {err && <p className="error-message" style={{textAlign: 'center', marginTop: '0', marginBottom: '1rem'}}>{err}</p>}
       <div className="option-list">
-        {options.map(({ value, label }) => {
-          return (
-            <div
-              key={value}
-              className={`option-item ${selected === value ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
-              onClick={() => handleClick(value)}
-            >
-              {label}
-            </div>
-          );
-        })}
+        {options.map(({ value, label }) => (
+          <div
+            key={String(value)} // Ensure key is a string
+            className={`option-item ${selected === value ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+            onClick={() => handleClick(value)}
+          >
+            {label}
+          </div>
+        ))}
       </div>
       <div className="button-group">
-        <button onClick={onBack} className="button-secondary">Back</button>
+        <button onClick={onBack} className="button-secondary" disabled={loading}>
+          Back
+        </button>
       </div>
     </StepContainer>
   );

@@ -1,23 +1,19 @@
-export interface FormData {
-  email: string;
-  name: string;
-  surname: string;
-  dob: string;
-  gender: string;
-  country: string;
-  preference: string;
-  height_feet?: number;
-  height_inches?: number;
-  religion: string;
-  pets: string[];
-  smoking: string;
-  drinking: string;
-  kids: string; // normalize to backend enums later
-  goal: string;
-  profilePicture: File | null;
-  gallery: File[];
-  description: string;
-}
+// src/app/signup/types.ts
+import { profileSchema } from "@/lib/validationSchemas"; // Adjust path if needed
+import { z } from "zod";
+
+// The Zod schema is now the source of truth for the form's shape and types.
+export type FormData = z.infer<typeof profileSchema>;
+
+// 2. Export specific enum types for our selection-based components
+export type Gender = NonNullable<FormData['gender']>;
+export type Preference = NonNullable<FormData['preference']>;
+export type Religion = NonNullable<FormData['religion']>;
+export type SmokingHabit = NonNullable<FormData['smoking']>;
+export type DrinkingHabit = NonNullable<FormData['drinking']>;
+export type KidsStatus = NonNullable<FormData['kids']>;
+export type RelationshipGoal = NonNullable<FormData['goal']>;
+// ... and so on for any other enums
 
 export interface CommonStepProps {
   formData: FormData;
@@ -27,4 +23,5 @@ export interface CommonStepProps {
   isSubmitting: boolean;
   handleSubmit: () => void;
   profileId: string | null;
+  errors: Partial<Record<keyof FormData, string | undefined>>;
 }

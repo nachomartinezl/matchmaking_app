@@ -1,21 +1,47 @@
-'use client';
+"use client";
 
-import React from 'react';
-import StepContainer from './common/StepContainer';
+import React, { useState } from "react";
+import StepContainer from "./common/StepContainer";
+import { profileSchema } from "@/lib/validationSchemas";
+import { FormData } from "../types";
+
+const stepSchema = profileSchema.pick({ description: true });
 
 interface StepProps {
-  formData: {
-    description: string;
-  };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
-  handleSubmit: () => void;
+  formData: Pick<FormData, "description">;
+  updateFormData: (data: Partial<Pick<FormData, "description">>) => void;
+  handleSubmit: () => void; // The final submission function from the parent
   prevStep: () => void;
   isSubmitting: boolean;
 }
 
-export default function Step13_ShortBio({ formData, updateFormData, handleSubmit, prevStep, isSubmitting }: StepProps) {
+export default function Step_ShortBio({
+  formData,
+  updateFormData,
+  handleSubmit,
+  prevStep,
+  isSubmitting,
+}: StepProps) {
+  const [error, setError] = useState<string | undefined>();
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateFormData({ description: e.target.value });
+    // Clear error as the user types
+    if (error) setError(undefined);
+  };
+
+  const validateAndSubmit = () => {
+    // --- PATTERN STEP 5: Validate the data before final submission ---
+    const result = stepSchema.safeParse(formData);
+
+    if (!result.success) {
+      // If validation fails, show the error and stop
+      setError(result.error.flatten().fieldErrors.description?.[0]);
+      return;
+    }
+
+    // --- PATTERN STEP 6: If validation succeeds, clear errors and call the parent's handleSubmit ---
+    setError(undefined);
+    handleSubmit();
   };
 
   return (
@@ -31,11 +57,19 @@ export default function Step13_ShortBio({ formData, updateFormData, handleSubmit
       />
 
       <div className="button-group">
-        <button onClick={prevStep} className="button-secondary" disabled={isSubmitting}>
+        <button
+          onClick={prevStep}
+          className="button-secondary"
+          disabled={isSubmitting}
+        >
           Back
         </button>
-        <button onClick={handleSubmit} className="button-primary" disabled={isSubmitting}>
-          {isSubmitting ? 'Finishing...' : 'Finish Sign Up'}
+        <button
+          onClick={validateAndSubmit}
+          className="button-primary"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Finishing..." : "Finish Sign Up"}
         </button>
       </div>
     </StepContainer>

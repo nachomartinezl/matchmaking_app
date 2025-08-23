@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { saveProgress, loadProgress, clearProgress } from "@/lib/progress";
-import { startProfile, patchProfile, completeProfile, getProfile } from "@/lib/api";
+import {
+  startProfile,
+  patchProfile,
+  completeProfile,
+  getProfile,
+} from "@/lib/api";
+import { ApiError } from "@/lib/errors";
 
 import {
   initialSignupSteps,
@@ -15,7 +21,7 @@ import { FormData, CommonStepProps } from "./types";
 import StepComingSoon from "./components/StepComingSoon";
 import StepContainer from "./components/common/StepContainer";
 import OptionStep from "./components/common/OptionStep";
-import styles from './SignUpPage.module.css';
+import styles from "./SignUpPage.module.css";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -25,6 +31,9 @@ export default function SignUpPage() {
   const [stepIndex, setStepIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
+    {}
+  );
   const [profileId, setProfileId] = useState<string | null>(null);
 
   const pollRef = useRef<number | null>(null);
@@ -35,17 +44,17 @@ export default function SignUpPage() {
     name: "",
     surname: "",
     dob: "",
-    gender: "",
+    gender: undefined,
     country: "",
-    preference: "",
+    preference: undefined,
     height_feet: undefined,
     height_inches: undefined,
-    religion: "",
+    religion: undefined,
     pets: [],
-    smoking: "",
-    drinking: "",
-    kids: "",
-    goal: "",
+    smoking: undefined,
+    drinking: undefined,
+    kids: undefined,
+    goal: undefined,
     profilePicture: null,
     gallery: [],
     description: "",
@@ -68,7 +77,9 @@ export default function SignUpPage() {
 
     (async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profiles/${savedId}`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/profiles/${savedId}`
+        );
         if (!res.ok) {
           // If the profile is gone (e.g., DB wiped), clean up client state.
           localStorage.removeItem("profile_id");
@@ -93,7 +104,9 @@ export default function SignUpPage() {
         // verified → restore saved step in profile flow if present
         if (saved?.profile_id === savedId && saved.flow === "profile") {
           setFlow("profile");
-          setStepIndex(Math.min(saved.stepIndex ?? 0, profileSetupSteps.length - 1));
+          setStepIndex(
+            Math.min(saved.stepIndex ?? 0, profileSetupSteps.length - 1)
+          );
         } else {
           setFlow("thankyou");
         }
@@ -148,6 +161,13 @@ export default function SignUpPage() {
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
 
     saveTimer.current = window.setTimeout(() => {
+      // --- START OF FIX: Create a "clean" version of formData for localStorage ---
+      // This strips out File objects, which cannot be saved in JSON.
+      const formDataToSave = { ...formData };
+      delete formDataToSave.profilePicture;
+      delete formDataToSave.gallery;
+      // --- END OF FIX ---
+
       saveProgress({
         profile_id: profileId!,
         flow:
@@ -157,7 +177,7 @@ export default function SignUpPage() {
             ? "thankyou"
             : "verify_wait",
         stepIndex,
-        formData,
+        formData: formDataToSave, // Save the cleaned version
         savedAt: Date.now(),
       });
     }, 300);
@@ -168,6 +188,10 @@ export default function SignUpPage() {
   }, [formData, stepIndex, flow, canPersist, profileId]);
 
   const updateFormData = (newData: Partial<FormData>) => {
+    if (Object.keys(newData).length > 0) {
+      const field = Object.keys(newData)[0] as keyof FormData;
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
     setFormData((prev) => ({ ...prev, ...newData }));
   };
 
@@ -204,7 +228,9 @@ export default function SignUpPage() {
     dob: formData.dob || undefined,
     gender: formData.gender ? formData.gender.toLowerCase() : undefined,
     country: formData.country?.toUpperCase() || undefined,
-    preference: formData.preference ? formData.preference.toLowerCase() : undefined,
+    preference: formData.preference
+      ? formData.preference.toLowerCase()
+      : undefined,
     height_feet: formData.height_feet ?? undefined,
     height_inches: formData.height_inches ?? undefined,
     religion: formData.religion ? formData.religion.toLowerCase() : undefined,
@@ -222,10 +248,11 @@ export default function SignUpPage() {
   const handleSubmit = async (isFinal = false, isInitialCreate = false) => {
     setIsSubmitting(true);
     setError(null);
+    setErrors({});
 
     try {
       if (isInitialCreate) {
-        const { name, surname, dob, email} = formData;
+        const { name, surname, dob, email } = formData;
         const data = await startProfile({
           first_name: name,
           last_name: surname,
@@ -249,8 +276,11 @@ export default function SignUpPage() {
         }
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "An unknown error occurred.";
-      setError(message || "Something went wrong during sign up. Please try again.");
+      const message =
+        err instanceof Error ? err.message : "An unknown error occurred.";
+      setError(
+        message || "Something went wrong during sign up. Please try again."
+      );
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -285,15 +315,18 @@ export default function SignUpPage() {
   const renderCurrentStep = () => {
     if (flow === "comingsoon") return <StepComingSoon />;
     if (flow === "verify_wait") return <WaitingForVerification />;
-    if (flow === "thankyou") return <ThankYouStepComponent nextStep={nextStep} />;
+    if (flow === "thankyou")
+      return <ThankYouStepComponent nextStep={nextStep} />;
 
-    const currentSteps = flow === "initial" ? initialSignupSteps : profileSetupSteps;
+    const currentSteps =
+      flow === "initial" ? initialSignupSteps : profileSetupSteps;
     const currentStepConfig = currentSteps.find((s) => s.id === stepIndex);
     if (!currentStepConfig) return <p>Invalid step!</p>;
 
     const { component: StepComponent, props: stepProps } = currentStepConfig;
 
-    const isLastStep = flow === "profile" && stepIndex === profileSetupSteps.length - 1;
+    const isLastStep =
+      flow === "profile" && stepIndex === profileSetupSteps.length - 1;
 
     const commonProps: CommonStepProps = {
       formData,
@@ -303,24 +336,26 @@ export default function SignUpPage() {
       isSubmitting,
       handleSubmit: () => handleSubmit(isLastStep),
       profileId,
+      errors,
     };
 
     if (currentStepConfig.component.name === OptionStep.name) {
       // This check satisfies TypeScript and prevents runtime errors.
       if (!stepProps) {
-        console.error("Configuration error: OptionStep is missing props for step ID:", currentStepConfig.id);
+        console.error(
+          "Configuration error: OptionStep is missing props for step ID:",
+          currentStepConfig.id
+        );
         return <p>Error: Step is misconfigured.</p>;
       }
-      
+
       return (
         <StepComponent
           {...stepProps}
           selected={formData[stepProps.field as keyof FormData]}
-          onSelect={(value: string) => {
-            updateFormData({ [stepProps.field]: value });
-            nextStep();
-          }}
+          updateFormData={updateFormData} 
           onBack={prevStep}
+          nextStep={nextStep}
         />
       );
     }
@@ -332,14 +367,18 @@ export default function SignUpPage() {
     if (flow === "initial")
       return { currentStep: stepIndex, totalSteps: initialSignupSteps.length };
     if (flow === "verify_wait" || flow === "thankyou")
-      return { currentStep: initialSignupSteps.length, totalSteps: initialSignupSteps.length };
+      return {
+        currentStep: initialSignupSteps.length,
+        totalSteps: initialSignupSteps.length,
+      };
     return { currentStep: stepIndex, totalSteps: profileSetupSteps.length };
   };
 
   const { currentStep, totalSteps } = getProgressBarProps();
 
   const getTitle = () => {
-    if (flow === "initial" || flow === "verify_wait" || flow === "thankyou") return "Join us";
+    if (flow === "initial" || flow === "verify_wait" || flow === "thankyou")
+      return "Join us";
     return "Create Your Profile";
   };
 
@@ -353,11 +392,7 @@ export default function SignUpPage() {
       )}
       <div className="form-container">
         {renderCurrentStep()}
-        {error && (
-          <p className={styles.errorText}>
-            {error}
-          </p>
-        )}
+        {error && <p className={styles.errorText}>{error}</p>}
       </div>
     </>
   );

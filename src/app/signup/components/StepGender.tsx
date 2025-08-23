@@ -1,26 +1,24 @@
-﻿'use client';
+﻿"use client";
 
-import React, { useState } from 'react';
-import StepContainer from './common/StepContainer';
-import { patchProfile } from '@/lib/api';
+import React, { useState } from "react";
+import StepContainer from "./common/StepContainer";
+import { patchProfile } from "@/lib/api";
+import { FormData, Gender } from "../types";
 
-interface StepProps {
-  formData: {
-    gender: string;
-  };
-  updateFormData: (data: Partial<StepProps['formData']>) => void;
-  nextStep: () => void;
-  prevStep: () => void;
-}
-
-const GENDER_OPTIONS = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'non-binary', label: 'Non-binary' },
-  { value: 'other', label: 'Other' },
+const GENDER_OPTIONS: { value: Gender; label: string }[] = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "non-binary", label: "Non-binary" },
+  { value: "other", label: "Other" },
 ];
 
-export default function Step2_Gender({
+interface StepProps {
+  formData: Pick<FormData, "gender">;
+  updateFormData: (data: Partial<Pick<FormData, "gender">>) => void;
+  nextStep: () => void;
+}
+
+export default function Step_Gender({
   formData,
   updateFormData,
   nextStep,
@@ -28,7 +26,7 @@ export default function Step2_Gender({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const handleSelect = async (value: string) => {
+  const handleSelect = async (value: Gender) => {
     if (loading) return;
     setErr(null);
     setLoading(true);
@@ -43,7 +41,7 @@ export default function Step2_Gender({
       // Move to next step only if backend update succeeded
       nextStep();
     } catch (e: any) {
-      setErr(e.message || 'Something went wrong.');
+      setErr(e.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -52,14 +50,12 @@ export default function Step2_Gender({
   return (
     <StepContainer>
       <h2>How do you identify?</h2>
-      {err && <p style={{ color: 'red' }}>{err}</p>}
+      {err && <p className="error-message" style={{textAlign: 'center', marginTop: '0', marginBottom: '1rem'}}>{err}</p>}
       <div className="option-list">
         {GENDER_OPTIONS.map(({ value, label }) => (
           <div
             key={value}
-            className={`option-item ${
-              formData.gender === value ? 'selected' : ''
-            } ${loading ? 'disabled' : ''}`}
+            className={`option-item ${formData.gender === value ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
             onClick={() => handleSelect(value)}
           >
             {label}
@@ -69,4 +65,3 @@ export default function Step2_Gender({
     </StepContainer>
   );
 }
-

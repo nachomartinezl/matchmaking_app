@@ -3,27 +3,22 @@
 import React, { useEffect, useMemo, useState } from "react";
 import StepContainer from "./common/StepContainer";
 import { uploadFile, patchProfile } from "@/lib/api";
+import { profileSchema } from '@/lib/validationSchemas';
+import { FormData } from '../types';
+import { processImage } from '@/lib/imageProcessor';
 
-// turn anything into a usable <img src>
-const toSrc = (f: File | Blob | string): string | null => {
-  if (f instanceof Blob) return URL.createObjectURL(f);
-  if (typeof f === "string") return f;
-  return null;
-};
+const stepSchema = profileSchema.pick({ profilePicture: true, gallery: true });
 
 interface StepProps {
-  formData: {
-    profilePicture: File | null;
-    gallery: File[];
-  };
-  updateFormData: (data: Partial<StepProps["formData"]>) => void;
+  formData: Pick<FormData, 'profilePicture' | 'gallery'>;
+  updateFormData: (data: Partial<Pick<FormData, 'profilePicture' | 'gallery'>>) => void;
   nextStep: () => void;
   prevStep: () => void;
   isSubmitting: boolean;
-  profileId: string | null; // Correctly typed prop
+  profileId: string | null;
 }
 
-type UploadState = "idle" | "uploading" | "saving" | "done";
+type UploadState = "idle" | "processing" | "uploading" | "saving" | "done";
 
 export default function StepProfileGallery({
   formData,
@@ -34,176 +29,140 @@ export default function StepProfileGallery({
   profileId,
 }: StepProps) {
   const [uploadState, setUploadState] = useState<UploadState>("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ profilePicture?: string[], gallery?: string[] }>({});
 
-  // ---- PREVIEW URLS (no upload yet) ----
+  const toSrc = (f: Blob): string => URL.createObjectURL(f);
+  
   const profilePreview = useMemo(() => {
     const f = formData.profilePicture;
-    return f instanceof Blob ? URL.createObjectURL(f) : null;
+    return f instanceof Blob ? toSrc(f) : null;
   }, [formData.profilePicture]);
 
   const galleryPreviews = useMemo(() => {
-    const files = Array.isArray(formData.gallery) ? formData.gallery : [];
-    return files.map(toSrc).filter(Boolean) as string[];
+    const galleryFiles = (formData.gallery ?? []).filter(f => f instanceof Blob);
+    return galleryFiles.map(toSrc);
   }, [formData.gallery]);
 
-  // Cleanup Object URLs to avoid memory leaks
   useEffect(() => {
     return () => {
-      if (profilePreview?.startsWith("blob:"))
-        URL.revokeObjectURL(profilePreview);
-      galleryPreviews
-        .filter((u) => u.startsWith("blob:"))
-        .forEach((u) => URL.revokeObjectURL(u));
+      if (profilePreview) URL.revokeObjectURL(profilePreview);
+      galleryPreviews.forEach(URL.revokeObjectURL);
     };
   }, [profilePreview, galleryPreviews]);
 
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      updateFormData({ profilePicture: e.target.files[0] });
-    }
-  };
-
-  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = Array.from(e.target.files ?? []);
-    if (!selected.length) return;
-
-    const current = Array.isArray(formData.gallery) ? formData.gallery : [];
-    const next = [...current, ...selected]
-      .filter((f) => (f?.type || "").startsWith("image/"))
-      .slice(0, 6);
-
-    updateFormData({ gallery: next });
-  };
-
-  const removeProfile = () => {
-    updateFormData({ profilePicture: null });
-  };
-
-  const removeFromGallery = (idx: number) => {
-    const next = [...formData.gallery];
-    next.splice(idx, 1);
-    updateFormData({ gallery: next });
-  };
-
-  // replaces: const safeName = (name: string) => ...
-  function safeName(
-    input?: { name?: string; type?: string } | string | Blob | null
-  ): string {
-    if (!input) return `upload_${Date.now()}.png`;
-
-    // If it's a string, sanitize it as a filename
-    if (typeof input === "string") {
-      return (
-        input
-          .normalize?.("NFKD")
-          .replace(/[^\w.\-]+/g, "_")
-          .slice(0, 100) || `upload_${Date.now()}.png`
-      );
-    }
-
-    // Try to read .name (File has it; Blob may not)
-    const maybeName = (input as any).name;
-    const mime = (input as any).type || "";
-    const ext = mime?.includes("/") ? mime.split("/")[1] : "png";
-
-    const base =
-      typeof maybeName === "string" && maybeName.trim()
-        ? maybeName
-        : `upload_${Date.now()}.${ext || "png"}`;
-
-    return base
-      .normalize?.("NFKD")
-      .replace(/[^\w.\-]+/g, "_")
-      .slice(0, 100);
-  }
-
-  const handleSaveAndNext = async () => {
-    if (busy) return;
-    if (
-      !formData.profilePicture &&
-      (!formData.gallery || formData.gallery.length === 0)
-    ) {
-      setError("Please add at least one image");
-      return;
-    }
-    setError(null);
+  const handleProfileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadState("processing");
+    setErrors({}); // Clear all errors
     try {
-      if (!profileId) {
-        setError("Missing profile id. Please go back and restart signup.");
-        return;
-      }
-
-      setUploadState("uploading");
-
-      // --- normalize profile picture ---
-      const p = formData.profilePicture;
-      const profileIsFile = p && typeof (p as any).name === "string";
-      let profileUrl: string | null = null;
-      if (p) {
-        const file = profileIsFile
-          ? (p as File)
-          : new File([p as Blob], safeName(p), {
-              type: (p as any).type || "image/png",
-            });
-        const path = `${profileId}/${Date.now()}-${safeName(file)}`;
-        profileUrl = await uploadFile("profile-pictures", path, file);
-      }
-
-      // --- normalize gallery (cap to 6, only images) ---
-      const rawGallery = Array.isArray(formData.gallery)
-        ? formData.gallery
-        : [];
-      const galleryFiles = rawGallery
-        .filter(Boolean)
-        .map((g, i) =>
-          typeof (g as any).name === "string"
-            ? (g as File)
-            : new File([g as Blob], safeName(g), {
-                type: (g as any).type || "image/png",
-              })
-        )
-        .filter((f) => (f.type || "").startsWith("image/"))
-        .slice(0, 6);
-
-      const uploadPromises = galleryFiles.map((file, i) => {
-      const path = `${profileId}/${Date.now()}_${i}-${safeName(file)}`;
-      return uploadFile("profile-gallery", path, file);
-      });
-
-      const galleryUrls = await Promise.all(uploadPromises);
-
-      setUploadState("saving");
-
-      await patchProfile({
-        profile_picture_url: profileUrl || undefined,
-        gallery_urls: galleryUrls.length ? galleryUrls : undefined,
-      });
-
-      setUploadState("done");
-      nextStep();
-    } catch (e: any) {
-      console.error(e);
-      setError(e?.message || "Upload failed");
+      const processedFile = await processImage(file);
+      updateFormData({ profilePicture: processedFile });
+    } catch (error) {
+      console.error("Image processing failed:", error);
+      setErrors({ profilePicture: ["Could not process this image."] });
+    } finally {
       setUploadState("idle");
     }
   };
 
-  const busy =
-    isSubmitting || uploadState === "uploading" || uploadState === "saving";
+  const handleGalleryChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? []);
+    if (!selected.length) return;
+    setErrors({}); // Clear all errors
+
+    const currentGallery = (formData.gallery ?? []).filter(f => f instanceof Blob);
+
+    // --- START OF FIX: Check the gallery limit BEFORE processing ---
+    if (currentGallery.length + selected.length > 6) {
+      setErrors({ gallery: ["You can only upload a maximum of 6 images."] });
+      return;
+    }
+    // --- END OF FIX ---
+
+    setUploadState("processing");
+    try {
+      const processingPromises = selected.map(processImage);
+      const processedFiles = await Promise.all(processingPromises);
+      const next = [...currentGallery, ...processedFiles];
+      updateFormData({ gallery: next });
+    } catch (error) {
+      console.error("Gallery processing failed:", error);
+      setErrors({ gallery: ["Could not process one or more images."] });
+    } finally {
+      setUploadState("idle");
+    }
+  };
+
+  const removeProfile = () => updateFormData({ profilePicture: null });
+
+  const removeFromGallery = (idx: number) => {
+    const currentGallery = (formData.gallery ?? []).filter(f => f instanceof Blob);
+    const next = [...currentGallery];
+    next.splice(idx, 1);
+    updateFormData({ gallery: next });
+  };
+  
+  const safeName = (file: File): string => (
+    file.name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(0, 100)
+  );
+
+  const handleSaveAndNext = async () => {
+    const validationResult = stepSchema.safeParse(formData);
+    if (!validationResult.success) {
+      setErrors(validationResult.error.flatten().fieldErrors);
+      return;
+    }
+    const currentGallery = (formData.gallery ?? []).filter(f => f instanceof Blob);
+    if (!formData.profilePicture && currentGallery.length === 0) {
+      setErrors({ profilePicture: ["Please add at least one image."] });
+      return;
+    }
+    if (busy) return;
+    setErrors({});
+    try {
+      if (!profileId) {
+        setErrors({ profilePicture: ["Missing profile ID. Please restart signup."] });
+        return;
+      }
+      setUploadState("uploading");
+      let profileUrl: string | null = null;
+      if (formData.profilePicture) {
+        const file = formData.profilePicture;
+        const path = `${profileId}/${Date.now()}-${safeName(file)}`;
+        profileUrl = await uploadFile("profile-pictures", path, file);
+      }
+      const uploadPromises = currentGallery.map((file, i) => {
+        const path = `${profileId}/${Date.now()}_${i}-${safeName(file)}`;
+        return uploadFile("profile-gallery", path, file);
+      });
+      const galleryUrls = await Promise.all(uploadPromises);
+      setUploadState("saving");
+      await patchProfile({
+        profile_picture_url: profileUrl || undefined,
+        gallery_urls: galleryUrls.length ? galleryUrls : undefined,
+      });
+      setUploadState("done");
+      nextStep();
+    } catch (e: any) {
+      console.error(e);
+      setErrors({ profilePicture: [e?.message || "Upload failed. Please try again."] });
+      setUploadState("idle");
+    }
+  };
+
+  const busy = isSubmitting || uploadState !== 'idle';
+  const mainError = errors.profilePicture?.[0] || errors.gallery?.[0];
+
 
   return (
     <StepContainer>
       <h2>Show us your best photos</h2>
 
-      {/* PROFILE PICTURE PICKER + PREVIEW */}
       <div style={{ marginBottom: "1rem" }}>
         <label htmlFor="profilePicture">Profile picture</label>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <label
-            className="button-secondary"
-            style={{ cursor: "pointer", margin: 0 }}
-          >
+          <label className={`button-secondary ${busy ? 'disabled' : ''}`} style={{ cursor: "pointer", margin: 0 }}>
             Choose file
             <input
               type="file"
@@ -215,66 +174,30 @@ export default function StepProfileGallery({
               style={{ display: "none" }}
             />
           </label>
-
           {profilePreview ? (
-            <div
-              style={{
-                width: 72,
-                height: 72,
-                borderRadius: "50%",
-                overflow: "hidden",
-                border: "1px solid var(--border)",
-                boxShadow: "var(--shadow-sm)",
-                position: "relative",
-              }}
-            >
-              <img
-                src={profilePreview}
-                alt="Profile preview"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+            <div className="profile-preview-container">
+              <img src={profilePreview} alt="Profile preview" className="profile-preview-image" />
               <button
-                className="icon-button"
+                className="icon-button remove-image-button"
                 onClick={removeProfile}
                 type="button"
-                style={{
-                  position: "absolute",
-                  top: -6,
-                  right: -6,
-                  background: "#222",
-                  border: "1px solid var(--border)",
-                }}
                 disabled={busy}
                 aria-label="Remove profile picture"
                 title="Remove"
               >
-                âœ•
+                ×
               </button>
             </div>
           ) : (
-            <span style={{ color: "var(--text-secondary)" }}>
-              No picture selected
-            </span>
+            <span style={{ color: "var(--text-secondary)" }}>No picture selected</span>
           )}
         </div>
       </div>
 
-      {/* GALLERY PICKER + PREVIEWS GRID */}
       <div style={{ marginTop: "1.25rem" }}>
         <label htmlFor="gallery">More pics you want to show off</label>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "0.75rem",
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <label
-            className="button-secondary"
-            style={{ cursor: "pointer", margin: 0 }}
-          >
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+          <label className={`button-secondary ${busy ? 'disabled' : ''}`} style={{ cursor: "pointer", margin: 0 }}>
             Add images
             <input
               type="file"
@@ -291,50 +214,20 @@ export default function StepProfileGallery({
             Up to 6 images
           </span>
         </div>
-
         {galleryPreviews.length > 0 && (
-          <div
-            style={{
-              marginTop: "1rem",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
-              gap: "0.75rem",
-            }}
-          >
+          <div className="gallery-grid">
             {galleryPreviews.map((src, idx) => (
-              <div
-                key={`${idx}-${src}`}
-                style={{
-                  position: "relative",
-                  borderRadius: "0.75rem",
-                  overflow: "hidden",
-                  background: "var(--input-bg)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "var(--shadow-sm)",
-                  height: 110,
-                }}
-              >
-                <img
-                  src={src}
-                  alt={`Gallery ${idx + 1}`}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
+              <div key={`${idx}-${src}`} className="gallery-item">
+                <img src={src} alt={`Gallery ${idx + 1}`} className="gallery-item-image" />
                 <button
-                  className="icon-button"
+                  className="icon-button remove-image-button"
                   onClick={() => removeFromGallery(idx)}
                   type="button"
-                  style={{
-                    position: "absolute",
-                    top: 6,
-                    right: 6,
-                    background: "#222",
-                    border: "1px solid var(--border)",
-                  }}
                   disabled={busy}
                   aria-label={`Remove image ${idx + 1}`}
                   title="Remove"
                 >
-                  x
+                  ×
                 </button>
               </div>
             ))}
@@ -342,32 +235,26 @@ export default function StepProfileGallery({
         )}
       </div>
 
-      {/* STATUS + ERRORS */}
+      {uploadState === 'processing' && (
+        <p style={{textAlign: 'center', color: 'var(--text-secondary)', margin: '1rem 0'}}>Optimizing images...</p>
+      )}
       {(uploadState === "uploading" || uploadState === "saving") && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            margin: "1rem 0",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "center", margin: "1rem 0" }}>
           <div className="spinner" />
         </div>
       )}
-      {error && (
-        <p style={{ color: "#ff5555", marginTop: "0.5rem" }}>{error}</p>
+      {mainError && (
+        <p className="error-message" style={{ textAlign: 'center', marginTop: '1rem' }}>
+          {mainError}
+        </p>
       )}
 
       <div className="button-group" style={{ marginTop: "1.25rem" }}>
         <button onClick={prevStep} className="button-secondary" disabled={busy}>
           Back
         </button>
-        <button
-          onClick={handleSaveAndNext}
-          className="button-primary"
-          disabled={busy}
-        >
-          {busy ? "Working¦" : "Next"}
+        <button onClick={handleSaveAndNext} className="button-primary" disabled={busy}>
+          {uploadState === 'processing' ? 'Processing...' : uploadState === 'uploading' ? 'Uploading...' : 'Next'}
         </button>
       </div>
     </StepContainer>

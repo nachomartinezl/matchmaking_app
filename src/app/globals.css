@@ -275,3 +275,74 @@ button:disabled {
 input[type="date"] {
   color-scheme: dark; /* flips icons to white in dark mode */
 }
+
+.error-message {
+  color: var(--accent);
+  font-size: 0.9rem;
+  text-align: left;
+  /* Negative margin pulls the message up closer to the input field */
+  margin-top: -1.5rem; 
+  margin-bottom: 1rem;
+}
+
+.profile-preview-container {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.profile-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.75rem;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  height: 110px;
+}
+
+.gallery-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--border);
+  width: 24px;
+  height: 24px;
+  font-size: 1rem;
+  line-height: 1;
+}
+.remove-image-button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.button-secondary.disabled {
+  background: #555555 !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.6;
+}
