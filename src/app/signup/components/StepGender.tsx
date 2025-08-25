@@ -1,10 +1,10 @@
 ﻿"use client";
 
-import React, { useState } from "react";
+// No longer need useState or patchProfile
 import StepContainer from "./common/StepContainer";
-import { patchProfile } from "@/lib/api";
 import { FormData, Gender } from "../types";
 
+// The constants and types remain the same, they are already excellent.
 const GENDER_OPTIONS: { value: Gender; label: string }[] = [
   { value: "male", label: "Male" },
   { value: "female", label: "Female" },
@@ -16,52 +16,46 @@ interface StepProps {
   formData: Pick<FormData, "gender">;
   updateFormData: (data: Partial<Pick<FormData, "gender">>) => void;
   nextStep: () => void;
+  // No prevStep prop needed as it's the first step in this flow
 }
 
-export default function Step_Gender({
+export default function StepGender({ // Renamed for consistency
   formData,
   updateFormData,
   nextStep,
 }: StepProps) {
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+  // --- START OF SIMPLIFICATION ---
+  // No more loading or error state is needed.
+  // const [loading, setLoading] = useState(false); // REMOVED
+  // const [err, setErr] = useState<string | null>(null); // REMOVED
 
-  const handleSelect = async (value: Gender) => {
-    if (loading) return;
-    setErr(null);
-    setLoading(true);
-
-    try {
-      // Update form locally first for responsiveness
-      updateFormData({ gender: value });
-
-      // Send patch to backend
-      await patchProfile({ gender: value });
-
-      // Move to next step only if backend update succeeded
-      nextStep();
-    } catch (e: any) {
-      setErr(e.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
+  // The handler is now a simple, synchronous function.
+  const handleSelect = (value: Gender) => {
+    updateFormData({ gender: value });
+    nextStep(); // Immediately proceed to the next step
   };
+  // --- END OF SIMPLIFICATION ---
 
   return (
     <StepContainer>
       <h2>How do you identify?</h2>
-      {err && <p className="error-message" style={{textAlign: 'center', marginTop: '0', marginBottom: '1rem'}}>{err}</p>}
+      
+      {/* Error display is removed, as this component no longer makes API calls */}
+
       <div className="option-list">
         {GENDER_OPTIONS.map(({ value, label }) => (
           <div
             key={value}
-            className={`option-item ${formData.gender === value ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+            // The `disabled` class is removed as there's no loading state
+            className={`option-item ${formData.gender === value ? "selected" : ""}`}
             onClick={() => handleSelect(value)}
           >
             {label}
           </div>
         ))}
       </div>
+      
+      {/* The button group is removed as there are no buttons at the bottom of this step */}
     </StepContainer>
   );
 }

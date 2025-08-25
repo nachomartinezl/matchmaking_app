@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { saveProgress, loadProgress, clearProgress } from "@/lib/progress";
 import {
   startProfile,
   patchProfile,
@@ -20,8 +19,6 @@ import ProgressBar from "./components/ProgressBar";
 import { FormData, CommonStepProps } from "./types";
 import StepComingSoon from "./components/StepComingSoon";
 import StepContainer from "./components/common/StepContainer";
-import OptionStep from "./components/common/OptionStep";
-import styles from "./SignUpPage.module.css";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -31,13 +28,10 @@ export default function SignUpPage() {
   const [stepIndex, setStepIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
-    {}
-  );
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof FormData, string | undefined>>
+  >({});
   const [profileId, setProfileId] = useState<string | null>(null);
-
-  const pollRef = useRef<number | null>(null);
-  const saveTimer = useRef<number | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -60,132 +54,35 @@ export default function SignUpPage() {
     description: "",
   });
 
-  const canPersist = Boolean(profileId);
+  const pollRef = useRef<number | null>(null);
 
-  // --- Bootstrap: load saved id & form, then validate the id against backend
   useEffect(() => {
+    // On mount, check if a profile ID was saved (e.g., user refreshed on verification page)
     const savedId = localStorage.getItem("profile_id");
-    const saved = loadProgress();
-
-    if (saved?.formData) {
-      setFormData((prev) => ({ ...prev, ...saved.formData }));
+    if (savedId) {
+      setProfileId(savedId);
     }
-
-    if (!savedId) return;
-
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/profiles/${savedId}`
-        );
-        if (!res.ok) {
-          // If the profile is gone (e.g., DB wiped), clean up client state.
-          localStorage.removeItem("profile_id");
-          clearProgress();
-          if (res.status === 404) {
-            setProfileId(null);
-            setFlow("initial");
-          }
-          return;
-        }
-
-        const profile = await res.json();
-        if (cancelled) return;
-
-        setProfileId(savedId);
-
-        if (!profile.email_verified) {
-          setFlow("verify_wait");
-          return;
-        }
-
-        // verified → restore saved step in profile flow if present
-        if (saved?.profile_id === savedId && saved.flow === "profile") {
-          setFlow("profile");
-          setStepIndex(
-            Math.min(saved.stepIndex ?? 0, profileSetupSteps.length - 1)
-          );
-        } else {
-          setFlow("thankyou");
-        }
-      } catch {
-        // Network/CORS/etc: don’t crash the app; user can just start again
-        // (if you want, you could show a toast here)
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
-  // --- Poll backend while waiting for verification
   useEffect(() => {
     if (flow !== "verify_wait" || !profileId) return;
-
     const poll = async () => {
       try {
         const profile = await getProfile(profileId);
-        if (profile === null) {
-          // Profile disappeared → reset
-          if (pollRef.current) window.clearInterval(pollRef.current);
-          localStorage.removeItem("profile_id");
-          clearProgress();
-          setProfileId(null);
-          setFlow("initial");
-          return;
-        }
-
-        if (profile.email_verified === true) {
+        if (profile?.email_verified === true) {
           if (pollRef.current) window.clearInterval(pollRef.current);
           setFlow("thankyou");
         }
       } catch (err) {
-        // soft-fail; try again next tick
-        // console.error("Polling error:", err);
+        console.error("Polling error:", err);
       }
     };
-
     poll();
     pollRef.current = window.setInterval(poll, 4000);
     return () => {
       if (pollRef.current) window.clearInterval(pollRef.current);
     };
   }, [flow, profileId]);
-
-  // --- Debounced persistence (only after we have a profile id)
-  useEffect(() => {
-    if (!canPersist) return;
-    if (saveTimer.current) window.clearTimeout(saveTimer.current);
-
-    saveTimer.current = window.setTimeout(() => {
-      // --- START OF FIX: Create a "clean" version of formData for localStorage ---
-      // This strips out File objects, which cannot be saved in JSON.
-      const formDataToSave = { ...formData };
-      delete formDataToSave.profilePicture;
-      delete formDataToSave.gallery;
-      // --- END OF FIX ---
-
-      saveProgress({
-        profile_id: profileId!,
-        flow:
-          flow === "profile"
-            ? "profile"
-            : flow === "thankyou"
-            ? "thankyou"
-            : "verify_wait",
-        stepIndex,
-        formData: formDataToSave, // Save the cleaned version
-        savedAt: Date.now(),
-      });
-    }, 300);
-
-    return () => {
-      if (saveTimer.current) window.clearTimeout(saveTimer.current);
-    };
-  }, [formData, stepIndex, flow, canPersist, profileId]);
 
   const updateFormData = (newData: Partial<FormData>) => {
     if (Object.keys(newData).length > 0) {
@@ -196,60 +93,50 @@ export default function SignUpPage() {
   };
 
   const nextStep = () => {
-    if (flow === "initial") {
-      if (stepIndex < initialSignupSteps.length - 1) {
-        setStepIndex((prev) => prev + 1);
-      } else {
-        // finishing initial → create profile and begin verification wait
+    const currentFlowSteps =
+      flow === "initial" ? initialSignupSteps : profileSetupSteps;
+    if (stepIndex < currentFlowSteps.length - 1) {
+      setStepIndex((prev) => prev + 1);
+    } else {
+      // It's the last step of the current flow, trigger the appropriate submission
+      if (flow === "initial") {
         handleSubmit(false, true);
-      }
-    } else if (flow === "thankyou") {
-      setFlow("profile");
-      setStepIndex(0);
-    } else if (flow === "profile") {
-      if (stepIndex < profileSetupSteps.length - 1) {
-        setStepIndex((prev) => prev + 1);
+      } else if (flow === "profile") {
+        handleSubmit(true, false);
       }
     }
   };
 
   const prevStep = () => {
-    if (flow === "initial") {
-      if (stepIndex > 0) setStepIndex((prev) => prev - 1);
-    } else if (flow === "profile") {
-      if (stepIndex > 0) setStepIndex((prev) => prev - 1);
+    if ((flow === "initial" || flow === "profile") && stepIndex > 0) {
+      setStepIndex((prev) => prev - 1);
     }
   };
 
-  const buildPayload = () => ({
-    email: formData.email || undefined,
-    first_name: formData.name || undefined,
-    last_name: formData.surname || undefined,
-    dob: formData.dob || undefined,
-    gender: formData.gender ? formData.gender.toLowerCase() : undefined,
-    country: formData.country?.toUpperCase() || undefined,
-    preference: formData.preference
-      ? formData.preference.toLowerCase()
-      : undefined,
-    height_feet: formData.height_feet ?? undefined,
-    height_inches: formData.height_inches ?? undefined,
-    religion: formData.religion ? formData.religion.toLowerCase() : undefined,
-    pets:
-      Array.isArray(formData.pets) && formData.pets.length > 0
-        ? formData.pets.map((p) => p.toLowerCase())
-        : undefined,
-    smoking: formData.smoking ? formData.smoking.toLowerCase() : undefined,
-    drinking: formData.drinking ? formData.drinking.toLowerCase() : undefined,
-    kids: formData.kids || undefined,
-    goal: formData.goal ? formData.goal.toLowerCase() : undefined,
-    description: formData.description || undefined,
-  });
+  const buildProfilePatchPayload = () => {
+    const payload: { [key: string]: any } = {};
+    for (const key in formData) {
+      const value = formData[key as keyof FormData];
+      // Exclude file objects from this final patch
+      if (
+        key !== "profilePicture" &&
+        key !== "gallery" &&
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        (!Array.isArray(value) || value.length > 0)
+      ) {
+        payload[key] = value;
+      }
+    }
+    if (payload.country) payload.country = payload.country.toUpperCase();
+    return payload;
+  };
 
   const handleSubmit = async (isFinal = false, isInitialCreate = false) => {
     setIsSubmitting(true);
     setError(null);
     setErrors({});
-
     try {
       if (isInitialCreate) {
         const { name, surname, dob, email } = formData;
@@ -259,29 +146,35 @@ export default function SignUpPage() {
           dob,
           email,
         });
-        const newId = data.id;
-        setProfileId(newId);
-        localStorage.setItem("profile_id", newId);
-        setFlow("verify_wait");
-      } else if (profileId) {
-        const payload = buildPayload();
-        await patchProfile(payload);
-
-        if (isFinal) {
-          await completeProfile(profileId);
-          clearProgress();
-          localStorage.removeItem("profile_id");
-          setProfileId(null);
-          setFlow("comingsoon");
+        setProfileId(data.id);
+        localStorage.setItem("profile_id", data.id);
+        if (data.status === "verified_resume") {
+          setFlow("thankyou");
+        } else {
+          setFlow("verify_wait");
         }
+      } else if (isFinal && profileId) {
+        // The image step has already validated and patched its data.
+        // We now patch the remaining text-based data and complete the profile.
+        const payload = buildProfilePatchPayload();
+        if (Object.keys(payload).length > 0) {
+          await patchProfile(payload);
+        }
+
+        await completeProfile(profileId);
+        localStorage.removeItem("profile_id");
+        setProfileId(null);
+        setFlow("comingsoon");
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "An unknown error occurred.";
-      setError(
-        message || "Something went wrong during sign up. Please try again."
-      );
-      console.error(err);
+      if (err instanceof ApiError && err.status === 409) {
+        setErrors({ email: err.message });
+      } else {
+        const message =
+          err instanceof Error ? err.message : "An unknown error occurred.";
+        setError(message);
+        console.error(err);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -290,19 +183,27 @@ export default function SignUpPage() {
   const WaitingForVerification = () => (
     <StepContainer>
       <h2>Check your email to verify</h2>
-      <p className={styles.verificationText}>
+      <p style={{ textAlign: "center", margin: "0.5rem auto" }}>
         We’ve sent you a verification link. Click it to continue.
       </p>
-      <div className={styles.spinnerContainer}>
+      <div
+        style={{ display: "flex", justifyContent: "center", margin: "1rem 0" }}
+      >
         <div className="spinner" />
       </div>
-      <p className={styles.resendText}>
+      <p
+        style={{
+          fontSize: "0.9rem",
+          color: "var(--text-secondary)",
+          textAlign: "center",
+        }}
+      >
         Didn’t get it? Check spam or{" "}
         <span
-          className={`link-accent ${styles.resendLink}`}
+          className="link-accent"
+          style={{ cursor: "pointer" }}
           onClick={() => {
-            // TODO: call a /profiles/{id}/resend endpoint once you add it.
-            router.refresh();
+            /* TODO: Implement resend logic */
           }}
         >
           resend
@@ -315,23 +216,29 @@ export default function SignUpPage() {
   const renderCurrentStep = () => {
     if (flow === "comingsoon") return <StepComingSoon />;
     if (flow === "verify_wait") return <WaitingForVerification />;
-    if (flow === "thankyou")
-      return <ThankYouStepComponent nextStep={nextStep} />;
+    if (flow === "thankyou") {
+      return (
+        <ThankYouStepComponent
+          nextStep={() => {
+            setFlow("profile");
+            setStepIndex(0);
+          }}
+        />
+      );
+    }
 
-    const currentSteps =
-      flow === "initial" ? initialSignupSteps : profileSetupSteps;
-    const currentStepConfig = currentSteps.find((s) => s.id === stepIndex);
-    if (!currentStepConfig) return <p>Invalid step!</p>;
-
-    const { component: StepComponent, props: stepProps } = currentStepConfig;
+    const steps = flow === "initial" ? initialSignupSteps : profileSetupSteps;
+    const current = steps[stepIndex];
+    if (!current) return <p>Invalid step index {stepIndex}.</p>;
 
     const isLastStep =
       flow === "profile" && stepIndex === profileSetupSteps.length - 1;
+    const onNext = isLastStep ? () => handleSubmit(true, false) : nextStep;
 
     const commonProps: CommonStepProps = {
       formData,
       updateFormData,
-      nextStep,
+      nextStep: onNext,
       prevStep,
       isSubmitting,
       handleSubmit: () => handleSubmit(isLastStep),
@@ -339,27 +246,22 @@ export default function SignUpPage() {
       errors,
     };
 
-    if (currentStepConfig.component.name === OptionStep.name) {
-      // This check satisfies TypeScript and prevents runtime errors.
-      if (!stepProps) {
-        console.error(
-          "Configuration error: OptionStep is missing props for step ID:",
-          currentStepConfig.id
-        );
-        return <p>Error: Step is misconfigured.</p>;
-      }
+    if ("type" in current && current.type === "option") {
+      const StepComponent = current.component;
+      const stepProps = current.props;
+      const selected = formData[stepProps.field];
 
       return (
         <StepComponent
+          {...commonProps}
           {...stepProps}
-          selected={formData[stepProps.field as keyof FormData]}
-          updateFormData={updateFormData} 
+          selected={selected}
           onBack={prevStep}
-          nextStep={nextStep}
         />
       );
     }
 
+    const StepComponent = current.component;
     return <StepComponent {...commonProps} />;
   };
 
@@ -378,7 +280,7 @@ export default function SignUpPage() {
 
   const getTitle = () => {
     if (flow === "initial" || flow === "verify_wait" || flow === "thankyou")
-      return "Join us";
+      return "Join Us";
     return "Create Your Profile";
   };
 
@@ -392,7 +294,17 @@ export default function SignUpPage() {
       )}
       <div className="form-container">
         {renderCurrentStep()}
-        {error && <p className={styles.errorText}>{error}</p>}
+        {error && (
+          <p
+            style={{
+              color: "var(--accent)",
+              textAlign: "center",
+              marginTop: "1rem",
+            }}
+          >
+            {error}
+          </p>
+        )}
       </div>
     </>
   );

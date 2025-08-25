@@ -7,41 +7,45 @@ import { FormData } from "../types";
 
 const stepSchema = profileSchema.pick({ description: true });
 
+// --- Refined props: No more `handleSubmit` ---
 interface StepProps {
   formData: Pick<FormData, "description">;
   updateFormData: (data: Partial<Pick<FormData, "description">>) => void;
-  handleSubmit: () => void; // The final submission function from the parent
+  nextStep: () => void; // It now calls the standard `nextStep`
   prevStep: () => void;
   isSubmitting: boolean;
 }
 
-export default function Step_ShortBio({
+export default function StepShortBio({
   formData,
   updateFormData,
-  handleSubmit,
+  nextStep, // Use nextStep instead of handleSubmit
   prevStep,
   isSubmitting,
 }: StepProps) {
   const [error, setError] = useState<string | undefined>();
+  
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateFormData({ description: e.target.value });
-    // Clear error as the user types
     if (error) setError(undefined);
   };
 
-  const validateAndSubmit = () => {
-    // --- PATTERN STEP 5: Validate the data before final submission ---
-    const result = stepSchema.safeParse(formData);
+  // --- The handler now validates and calls `nextStep` ---
+  const handleNext = () => {
+    // Treat an empty string as "not provided" for optional fields
+    const dataToValidate = {
+      description: formData.description?.trim() === '' ? undefined : formData.description
+    };
+    
+    const result = stepSchema.safeParse(dataToValidate);
 
     if (!result.success) {
-      // If validation fails, show the error and stop
       setError(result.error.flatten().fieldErrors.description?.[0]);
       return;
     }
 
-    // --- PATTERN STEP 6: If validation succeeds, clear errors and call the parent's handleSubmit ---
     setError(undefined);
-    handleSubmit();
+    nextStep(); // Call the standard nextStep function
   };
 
   return (
@@ -50,12 +54,15 @@ export default function Step_ShortBio({
       <textarea
         id="description"
         name="description"
-        value={formData.description}
+        value={formData.description ?? ''}
         onChange={handleTextChange}
         placeholder="I am awesome because..."
         disabled={isSubmitting}
+        rows={6}
       />
 
+      {error && <p className="error-message">{error}</p>}
+      
       <div className="button-group">
         <button
           onClick={prevStep}
@@ -65,7 +72,7 @@ export default function Step_ShortBio({
           Back
         </button>
         <button
-          onClick={validateAndSubmit}
+          onClick={handleNext} // Call the simplified handler
           className="button-primary"
           disabled={isSubmitting}
         >

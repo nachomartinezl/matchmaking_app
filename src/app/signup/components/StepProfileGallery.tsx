@@ -3,22 +3,24 @@
 import React, { useEffect, useMemo, useState } from "react";
 import StepContainer from "./common/StepContainer";
 import { uploadFile, patchProfile } from "@/lib/api";
-import { profileSchema } from '@/lib/validationSchemas';
-import { FormData } from '../types';
-import { processImage } from '@/lib/imageProcessor';
+import { profileSchema } from "@/lib/validationSchemas";
+import { FormData } from "../types";
+import { processImage } from "@/lib/imageProcessor";
 
 const stepSchema = profileSchema.pick({ profilePicture: true, gallery: true });
 
 interface StepProps {
-  formData: Pick<FormData, 'profilePicture' | 'gallery'>;
-  updateFormData: (data: Partial<Pick<FormData, 'profilePicture' | 'gallery'>>) => void;
+  formData: Pick<FormData, "profilePicture" | "gallery">;
+  updateFormData: (
+    data: Partial<Pick<FormData, "profilePicture" | "gallery">>
+  ) => void;
   nextStep: () => void;
   prevStep: () => void;
   isSubmitting: boolean;
   profileId: string | null;
 }
 
-type UploadState = "idle" | "processing" | "uploading" | "saving" | "done";
+type UploadState = "idle" | "processing" | "uploading" | "saving";
 
 export default function StepProfileGallery({
   formData,
@@ -29,17 +31,22 @@ export default function StepProfileGallery({
   profileId,
 }: StepProps) {
   const [uploadState, setUploadState] = useState<UploadState>("idle");
-  const [errors, setErrors] = useState<{ profilePicture?: string[], gallery?: string[] }>({});
+  const [errors, setErrors] = useState<{
+    profilePicture?: string[];
+    gallery?: string[];
+  }>({});
 
   const toSrc = (f: Blob): string => URL.createObjectURL(f);
-  
+
   const profilePreview = useMemo(() => {
     const f = formData.profilePicture;
     return f instanceof Blob ? toSrc(f) : null;
   }, [formData.profilePicture]);
 
   const galleryPreviews = useMemo(() => {
-    const galleryFiles = (formData.gallery ?? []).filter(f => f instanceof Blob);
+    const galleryFiles = (formData.gallery ?? []).filter(
+      (f) => f instanceof Blob
+    );
     return galleryFiles.map(toSrc);
   }, [formData.gallery]);
 
@@ -50,11 +57,13 @@ export default function StepProfileGallery({
     };
   }, [profilePreview, galleryPreviews]);
 
-  const handleProfileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadState("processing");
-    setErrors({}); // Clear all errors
+    setErrors({});
     try {
       const processedFile = await processImage(file);
       updateFormData({ profilePicture: processedFile });
@@ -66,20 +75,19 @@ export default function StepProfileGallery({
     }
   };
 
-  const handleGalleryChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const selected = Array.from(e.target.files ?? []);
     if (!selected.length) return;
-    setErrors({}); // Clear all errors
-
-    const currentGallery = (formData.gallery ?? []).filter(f => f instanceof Blob);
-
-    // --- START OF FIX: Check the gallery limit BEFORE processing ---
+    setErrors({});
+    const currentGallery = (formData.gallery ?? []).filter(
+      (f) => f instanceof Blob
+    );
     if (currentGallery.length + selected.length > 6) {
       setErrors({ gallery: ["You can only upload a maximum of 6 images."] });
       return;
     }
-    // --- END OF FIX ---
-
     setUploadState("processing");
     try {
       const processingPromises = selected.map(processImage);
@@ -95,18 +103,20 @@ export default function StepProfileGallery({
   };
 
   const removeProfile = () => updateFormData({ profilePicture: null });
-
   const removeFromGallery = (idx: number) => {
-    const currentGallery = (formData.gallery ?? []).filter(f => f instanceof Blob);
+    const currentGallery = (formData.gallery ?? []).filter(
+      (f) => f instanceof Blob
+    );
     const next = [...currentGallery];
     next.splice(idx, 1);
     updateFormData({ gallery: next });
   };
-  
+
   const safeName = (file: File): string => (
     file.name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(0, 100)
   );
 
+  // --- The 'Next' handler is now synchronous and only validates ---
   const handleSaveAndNext = async () => {
     const validationResult = stepSchema.safeParse(formData);
     if (!validationResult.success) {
@@ -142,7 +152,6 @@ export default function StepProfileGallery({
         profile_picture_url: profileUrl || undefined,
         gallery_urls: galleryUrls.length ? galleryUrls : undefined,
       });
-      setUploadState("done");
       nextStep();
     } catch (e: any) {
       console.error(e);
@@ -151,9 +160,9 @@ export default function StepProfileGallery({
     }
   };
 
+  // The component is "busy" if it's processing an image OR if the parent form is submitting.
   const busy = isSubmitting || uploadState !== 'idle';
   const mainError = errors.profilePicture?.[0] || errors.gallery?.[0];
-
 
   return (
     <StepContainer>

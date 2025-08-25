@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import StepContainer from './common/StepContainer';
-import { patchProfile } from '@/lib/api';
+// --- `patchProfile` is no longer needed ---
 import { profileSchema } from '@/lib/validationSchemas';
 import { FormData } from '../types';
 
@@ -16,53 +16,45 @@ interface StepProps {
 }
 
 export default function StepHeight({ formData, updateFormData, nextStep, prevStep }: StepProps) {
-  const [loading, setLoading] = useState(false);
+  // --- `loading` state is removed ---
   const [errors, setErrors] = useState<{ height_feet?: string[]; height_inches?: string[] }>({});
 
   const handleChange = (key: 'height_feet' | 'height_inches') => (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Let Zod handle coercion from string to number during validation
+    // `Number()` handles empty strings and converts to 0, which is fine for our schema
     updateFormData({ [key]: e.target.value === '' ? undefined : Number(e.target.value) });
+    
     // Clear errors for the field being edited
     if (errors[key]) {
       setErrors(prev => ({ ...prev, [key]: undefined }));
     }
-    // Also clear the feet error if inches are changed, to reset the refine() message
+    // Also clear the `feet` error when `inches` changes, to reset the refine() message
     if (key === 'height_inches' && errors.height_feet) {
       setErrors(prev => ({ ...prev, height_feet: undefined }));
     }
   };
 
-  const handleNext = async () => {
-    // --- PATTERN STEP 5: Validate first ---
+  // --- The handler is now synchronous and only validates ---
+  const handleNext = () => {
     const result = stepSchema.safeParse(formData);
     if (!result.success) {
       setErrors(result.error.flatten().fieldErrors);
       return;
     }
 
-    if (loading) return;
-    setErrors({}); // Clear previous errors
-    setLoading(true);
-
-    try {
-      // Data is valid, now send it to the backend
-      await patchProfile({
-        height_feet: formData.height_feet,
-        height_inches: formData.height_inches,
-      });
-      nextStep();
-    } catch (e: any) {
-      // If the API fails, display a general error message on the main field
-      setErrors({ height_feet: [e.message || 'Failed to save height'] });
-    } finally {
-      setLoading(false);
-    }
+    setErrors({}); // Clear errors on success
+    nextStep(); // Proceed to the next step
   };
+
+  // Consolidate the main error for display (handles the .refine() message)
+  const mainError = errors.height_feet?.[0];
 
   return (
     <StepContainer>
       <h2>How tall are you?</h2>
-      {errors.height_feet && <p className="error-message">{errors.height_feet[0]}</p>}
+      
+      {/* Display the main error message above the inputs */}
+      {mainError && <p className="error-message" style={{textAlign: 'center'}}>{mainError}</p>}
+      
       <div style={{ display: 'flex', gap: '1rem' }}>
         <div style={{ flex: 1 }}>
           <label htmlFor="feet">Feet</label>
@@ -85,19 +77,19 @@ export default function StepHeight({ formData, updateFormData, nextStep, prevSte
             value={formData.height_inches ?? ''}
             onChange={handleChange('height_inches')}
           />
-          {/* Specific errors for inches will appear here */}
+          {/* Specific errors just for inches will appear here, though less common */}
           {errors.height_inches && <p className="error-message">{errors.height_inches[0]}</p>}
         </div>
       </div>
 
       <div className="button-group">
-        <button onClick={prevStep} className="button-secondary" disabled={loading}>Back</button>
+        {/* The `disabled` prop is removed */}
+        <button onClick={prevStep} className="button-secondary">Back</button>
         <button
           onClick={handleNext}
           className="button-primary"
-          disabled={loading}
         >
-          {loading ? 'Saving…' : 'Next'}
+          Next
         </button>
       </div>
     </StepContainer>

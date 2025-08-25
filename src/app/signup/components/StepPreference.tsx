@@ -1,17 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+// --- `useState` and `patchProfile` are no longer needed ---
 import StepContainer from './common/StepContainer';
-import { patchProfile } from '@/lib/api';
+// --- Import the specific types we need for full type safety ---
 import { FormData, Preference } from '../types';
 
-interface StepProps {
-  formData: Pick<FormData, 'preference'>;
-  updateFormData: (data: Partial<Pick<FormData, 'preference'>>) => void;
-  nextStep: () => void;
-  prevStep: () => void;
-}
-
+// --- Type our options array with the specific `Preference` type ---
+// This guarantees the `value` is always a valid preference option.
 const PREF_OPTIONS: { value: Preference; label: string }[] = [
   { value: 'women', label: 'Women' },
   { value: 'men', label: 'Men' },
@@ -19,36 +14,43 @@ const PREF_OPTIONS: { value: Preference; label: string }[] = [
   { value: 'not_sure', label: 'Not sure' },
 ];
 
-export default function Step4_Preference({ formData, updateFormData, nextStep, prevStep }: StepProps) {
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+// --- Refined props using our central FormData type ---
+interface StepProps {
+  formData: Pick<FormData, 'preference'>;
+  updateFormData: (data: Partial<Pick<FormData, 'preference'>>) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+}
 
-  const handleSelect = async (value: Preference) => {
-    if (loading) return;
-    setErr(null);
-    setLoading(true);
-    
-    try {
-      // This is now perfectly type-safe
-      updateFormData({ preference: value });
-      await patchProfile({ preference: value });
-      nextStep();
-    } catch (e: any) {
-      setErr(e.message || 'Failed to save preference');
-    } finally {
-      setLoading(false);
-    }
+export default function StepPreference({ 
+  formData, 
+  updateFormData, 
+  nextStep, 
+  prevStep 
+}: StepProps) {
+  // --- All state is removed. This is now a "dumb" component. ---
+  // const [loading, setLoading] = useState(false); // REMOVED
+  // const [err, setErr] = useState<string | null>(null); // REMOVED
+
+  // --- The handler is now a simple, synchronous function ---
+  const handleSelect = (value: Preference) => {
+    updateFormData({ preference: value });
+    nextStep(); // Immediately proceed to the next step
   };
 
   return (
     <StepContainer>
       <h2>Who are you interested in?</h2>
-      {err && <p className="error-message" style={{textAlign: 'center', marginTop: '0', marginBottom: '1rem'}}>{err}</p>}
+      
+      {/* Error display is removed, as this component no longer makes API calls */}
+
       <div className="option-list">
         {PREF_OPTIONS.map(({ value, label }) => (
           <div
             key={value}
-            className={`option-item ${formData.preference === value ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+            // The `disabled` class is removed as there's no loading state
+            className={`option-item ${formData.preference === value ? 'selected' : ''}`}
+            // The call is now simple and fully type-safe
             onClick={() => handleSelect(value)}
           >
             {label}
@@ -57,7 +59,10 @@ export default function Step4_Preference({ formData, updateFormData, nextStep, p
       </div>
 
       <div className="button-group">
-        <button onClick={prevStep} className="button-secondary">Back</button>
+        {/* The `disabled` prop is removed as there's no loading state */}
+        <button onClick={prevStep} className="button-secondary">
+          Back
+        </button>
       </div>
     </StepContainer>
   );

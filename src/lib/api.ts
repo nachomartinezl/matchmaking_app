@@ -20,7 +20,7 @@ export async function startProfile(payload: {
   last_name: string;
   dob: string; // YYYY-MM-DD
   email: string;
-}): Promise<{ id: UUID }> {
+}): Promise<{ id: UUID; status: string }> {
   const res = await fetch(`${API}/profiles`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
