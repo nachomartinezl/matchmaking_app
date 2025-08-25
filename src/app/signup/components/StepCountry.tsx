@@ -1,67 +1,101 @@
 'use client';
 
+import React, { useMemo, useState } from 'react';
 import StepContainer from './common/StepContainer';
-// --- Removed `useState` and `patchProfile` as they are no longer needed
-// --- Import the specific types we need for full type safety
-import { FormData, Preference } from '../types';
+import Select, { components, SingleValue, OptionProps, SingleValueProps, MultiValue } from 'react-select';
+import countryList from 'react-select-country-list';
+import ReactCountryFlag from 'react-country-flag';
+// --- `patchProfile` is no longer needed ---
+import styles from './Step3_Country.module.css'; // --- KEPT YOUR STYLES ---
+import { profileSchema } from '@/lib/validationSchemas';
+import { FormData } from '../types'
 
-// --- Type our options array with the specific `Preference` type
-// This guarantees the `value` is always a valid preference option.
-const PREF_OPTIONS: { value: Preference; label: string }[] = [
-  { value: 'women', label: 'Women' },
-  { value: 'men', label: 'Men' },
-  { value: 'both', label: 'Both' },
-  { value: 'not_sure', label: 'Not sure' },
-];
+const stepSchema = profileSchema.pick({ country: true });
 
-// --- Refined props using our central FormData type ---
+interface CountryOption { value: string; label: string; }
 interface StepProps {
-  formData: Pick<FormData, 'preference'>;
-  updateFormData: (data: Partial<Pick<FormData, 'preference'>>) => void;
+  formData: Pick<FormData, 'country'>;
+  updateFormData: (data: Partial<Pick<FormData, 'country'>>) => void;
   nextStep: () => void;
   prevStep: () => void;
 }
 
-export default function StepPreference({ 
-  formData, 
-  updateFormData, 
-  nextStep, 
-  prevStep 
-}: StepProps) {
-  // --- All state is removed. This is now a "dumb" component. ---
-  // const [loading, setLoading] = useState(false); // REMOVED
-  // const [err, setErr] = useState<string | null>(null); // REMOVED
+const Option = (props: OptionProps<CountryOption>) => (
+  <components.Option {...props}>
+    <ReactCountryFlag countryCode={props.data.value.toUpperCase()} svg style={{ width: '1.5em', height: '1.5em', marginRight: '0.5em' }} />
+    {props.data.label}
+  </components.Option>
+);
 
-  // --- The handler is now a simple, synchronous function ---
-  const handleSelect = (value: Preference) => {
-    updateFormData({ preference: value });
-    nextStep(); // Immediately proceed to the next step
+const SingleValueComponent = (props: SingleValueProps<CountryOption>) => (
+  <components.SingleValue {...props}>
+    <ReactCountryFlag countryCode={props.data.value.toUpperCase()} svg style={{ width: '1.5em', height: '1.5em', marginRight: '0.5em' }} />
+    {props.data.label}
+  </components.SingleValue>
+);
+
+export default function StepCountry({ formData, updateFormData, nextStep, prevStep }: StepProps) {
+  // --- `loading` state is removed ---
+  const [error, setError] = useState<string | undefined>();
+
+  const options = useMemo<CountryOption[]>(
+    () => countryList().getData().map((c) => ({ value: c.value, label: c.label })),
+    []
+  );
+
+  const selectedOption = options.find((o) => o.value === formData.country) || null;
+
+  const handleChange = (newValue: SingleValue<CountryOption> | MultiValue<CountryOption>) => {
+    if (error) setError(undefined);
+    
+    if (newValue && !Array.isArray(newValue)) {
+      const selectedValue = (newValue as CountryOption).value;
+      updateFormData({ country: selectedValue });
+    } else if (newValue === null) {
+      updateFormData({ country: '' });
+    }
+  };
+
+  // --- The handler is now synchronous and only validates ---
+  const handleNext = () => {
+    const validationResult = stepSchema.safeParse(formData);
+    if (!validationResult.success) {
+      setError(validationResult.error.flatten().fieldErrors.country?.[0]);
+      return;
+    }
+    setError(undefined);
+    nextStep(); // Proceed without API call
   };
 
   return (
     <StepContainer>
-      <h2>Who are you interested in?</h2>
+      <h2>Where are you from?</h2>
       
-      {/* Error display is removed, as this component no longer makes API calls */}
+      {/* This error is now ONLY for Zod validation */}
+      {error && <p className="error-message" style={{ textAlign: 'center' }}>{error}</p>}
 
-      <div className="option-list">
-        {PREF_OPTIONS.map(({ value, label }) => (
-          <div
-            key={value}
-            // The `disabled` class is removed as there's no loading state
-            className={`option-item ${formData.preference === value ? 'selected' : ''}`}
-            // The call is now simple and fully type-safe
-            onClick={() => handleSelect(value)}
-          >
-            {label}
-          </div>
-        ))}
+      {/* --- KEPT YOUR STYLES --- */}
+      <div className={styles.countrySelect}>
+        <Select<CountryOption>
+          options={options}
+          value={selectedOption}
+          onChange={handleChange}
+          placeholder="Select your country"
+          isSearchable
+          classNamePrefix="select"
+          components={{ Option, SingleValue: SingleValueComponent }}
+        />
       </div>
 
       <div className="button-group">
-        {/* The `disabled` prop is removed as there's no loading state */}
-        <button onClick={prevStep} className="button-secondary">
-          Back
+        {/* `disabled` prop is removed */}
+        <button onClick={prevStep} className="button-secondary">Back</button>
+        <button 
+          onClick={handleNext} 
+          className="button-primary"
+        >
+          {/* Text is now static */}
+          Next
         </button>
       </div>
     </StepContainer>

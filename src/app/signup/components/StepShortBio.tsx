@@ -76,7 +76,7 @@ export default function StepShortBio({
           className="button-primary"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Finishing..." : "Finish Sign Up"}
+          {isSubmitting ? "Finishing..." : "Next"}
         </button>
       </div>
     </StepContainer>

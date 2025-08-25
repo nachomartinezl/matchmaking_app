@@ -102,8 +102,8 @@ export const profileSchema = z
 
     description: z
       .string()
-      .min(100, "Bio must be at least 100 characters.")
-      .max(500, "Bio cannot exceed 500 characters.").optional(),
+      .min(50, "Bio must be at least 50 characters.")
+      .max(100, "Bio cannot exceed 100 characters.").optional(),
   })
   .refine(
     (data) =>
