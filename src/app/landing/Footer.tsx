@@ -16,22 +16,6 @@ function SocialIcon({
   forceLocal?: boolean; // Accept the optional prop
 }) {
   const fallback = `/landing/footer/icons/${keyName}.png`;
-
-  // If forceLocal is true, render the local image immediately.
-  if (forceLocal) {
-    return (
-      <img
-        src={fallback}
-        alt={label}
-        className={styles.socialIcon}
-        width={18}
-        height={18}
-        decoding="async"
-      />
-    );
-  }
-
-  // The original logic remains for all other icons.
   const slug = useMemo(
     () =>
       (
@@ -45,20 +29,23 @@ function SocialIcon({
       )[keyName] || keyName,
     [keyName]
   );
-
   const cdn = `https://cdn.simpleicons.org/${slug}/ffffff`;
   const [src, setSrc] = useState<string>(cdn);
 
+  const finalSrc = forceLocal ? fallback : src;
+
+  // If forceLocal is true, render the local image immediately.
   return (
-    <img
-      src={src}
+    // Use the next/image component for better performance and to satisfy the linter.
+    <Image
+      src={finalSrc}
       alt={label}
       className={styles.socialIcon}
       width={18}
       height={18}
-      decoding="async"
-      referrerPolicy="no-referrer"
+      unoptimized={!forceLocal} // Don't optimize remote CDN images
       onError={() => {
+        // Only try the fallback if the current source isn't already the fallback
         if (src !== fallback) setSrc(fallback);
       }}
     />
@@ -81,17 +68,21 @@ export default function Footer() {
       {/* CTA card */}
       <section className={styles.cta}>
         <div className={styles.ctaCard}>
-          <img
+          <Image
             src="/landing/footer/two_hearts.png"
             alt=""
             aria-hidden
             className={`${styles.cornerImg} ${styles.left}`}
+            width={150} // Provide an estimated or actual width
+            height={150} // Provide an estimated or actual height
           />
-          <img
+          <Image
             src="/landing/footer/two_hearts_2.png"
             alt=""
             aria-hidden
             className={`${styles.cornerImg} ${styles.right}`}
+            width={150}
+            height={150}
           />
 
           <p className={styles.kicker}>READY TO CONNECT?</p>
