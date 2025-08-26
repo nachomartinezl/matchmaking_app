@@ -39,17 +39,16 @@ export default function StepPets({
     // Clear any previous validation errors when the user interacts
     if (error) setError(undefined);
 
-    let newPets: string[];
-    if (pet === "none") {
-      newPets = selectedPets.includes("none") ? [] : ["none"];
-    } else {
-      let currentPets = selectedPets.filter((p) => p !== "none");
-      if (currentPets.includes(pet)) {
-        newPets = currentPets.filter((p) => p !== pet);
-      } else {
-        newPets = [...currentPets, pet];
+    const newPets = (() => {
+      if (pet === "none") {
+        return selectedPets.includes("none") ? [] : ["none"];
       }
-    }
+      const currentPets = selectedPets.filter((p) => p !== "none");
+      if (currentPets.includes(pet)) {
+        return currentPets.filter((p) => p !== pet);
+      }
+      return [...currentPets, pet];
+    })();
     updateFormData({ pets: newPets });
   };
 

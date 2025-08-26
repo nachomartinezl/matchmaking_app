@@ -45,7 +45,7 @@ export default function StepCredentials({
 
   return (
     <StepContainer>
-      <h2>What's your email?</h2>
+      <h2>What&apos;s your email?</h2>
       <input
         id="email"
         type="email"

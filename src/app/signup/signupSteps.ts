@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { FormData } from './types'; // <-- make sure this path is right
+import { FormData, CommonStepProps } from './types'; // <-- make sure this path is right
 import StepCredentials from './components/StepCredentials';
 import StepPersonalData from './components/StepPersonalData';
 import StepDOB from './components/StepDOB';
@@ -21,7 +21,7 @@ type OptionProps<K extends keyof FormData> = {
 type ComponentStep = {
   id: number;
   type?: 'component';
-  component: FC<any>;
+  component: FC<CommonStepProps>;
 };
 
 type OptionStepConfig<K extends keyof FormData> = {
