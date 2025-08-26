@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import StepContainer from "./common/StepContainer";
 import { uploadFile, patchProfile } from "@/lib/api";
 import { profileSchema } from "@/lib/validationSchemas";
@@ -153,9 +154,10 @@ export default function StepProfileGallery({
         gallery_urls: galleryUrls.length ? galleryUrls : undefined,
       });
       nextStep();
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
-      setErrors({ profilePicture: [e?.message || "Upload failed. Please try again."] });
+      const message = e instanceof Error ? e.message : "An unknown error occurred.";
+      setErrors({ profilePicture: [message || "Upload failed. Please try again."] });
       setUploadState("idle");
     }
   };
@@ -185,7 +187,7 @@ export default function StepProfileGallery({
           </label>
           {profilePreview ? (
             <div className="profile-preview-container">
-              <img src={profilePreview} alt="Profile preview" className="profile-preview-image" />
+              <Image src={profilePreview} alt="Profile preview" className="profile-preview-image" width={100} height={100} />
               <button
                 className="icon-button remove-image-button"
                 onClick={removeProfile}
@@ -227,7 +229,7 @@ export default function StepProfileGallery({
           <div className="gallery-grid">
             {galleryPreviews.map((src, idx) => (
               <div key={`${idx}-${src}`} className="gallery-item">
-                <img src={src} alt={`Gallery ${idx + 1}`} className="gallery-item-image" />
+                <Image src={src} alt={`Gallery ${idx + 1}`} className="gallery-item-image" width={150} height={150} />
                 <button
                   className="icon-button remove-image-button"
                   onClick={() => removeFromGallery(idx)}

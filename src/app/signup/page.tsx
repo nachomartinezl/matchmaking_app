@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import {
   startProfile,
   patchProfile,
@@ -21,8 +20,6 @@ import StepComingSoon from "./components/StepComingSoon";
 import StepContainer from "./components/common/StepContainer";
 
 export default function SignUpPage() {
-  const router = useRouter();
-
   type Flow = "initial" | "verify_wait" | "thankyou" | "profile" | "comingsoon";
   const [flow, setFlow] = useState<Flow>("initial");
   const [stepIndex, setStepIndex] = useState(0);
@@ -114,7 +111,7 @@ export default function SignUpPage() {
   };
 
   const buildProfilePatchPayload = () => {
-    const payload: { [key: string]: any } = {};
+    const payload: Record<string, unknown> = {};
     for (const key in formData) {
       const value = formData[key as keyof FormData];
       // Exclude file objects from this final patch

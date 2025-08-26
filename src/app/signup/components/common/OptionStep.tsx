@@ -32,7 +32,7 @@ export default function OptionStep<K extends keyof FormData>({
 
   const handleClick = (value: NonNullable<FormData[K]>) => {
     // The `as any` is a safe workaround for a TypeScript limitation.
-    updateFormData({ [field]: value } as any);
+    updateFormData({ [field]: value } as Partial<Pick<FormData, K>>);
     nextStep(); // Immediately proceed to the next step
   };
 
