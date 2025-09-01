@@ -13,7 +13,7 @@ const stepSchema = profileSchema.pick({ profilePicture: true, gallery: true });
 interface StepProps {
   formData: Pick<FormData, "profilePicture" | "gallery">;
   updateFormData: (
-     Partial<Pick<FormData, "profilePicture" | "gallery">>
+    data: Partial<Pick<FormData, "profilePicture" | "gallery">>
   ) => void;
   nextStep: () => void;
   prevStep: () => void;
