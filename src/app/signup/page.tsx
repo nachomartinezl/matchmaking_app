@@ -111,22 +111,33 @@ export default function SignUpPage() {
   };
 
   const buildProfilePatchPayload = () => {
-    const payload: Record<string, unknown> = {};
-    for (const key in formData) {
-      const value = formData[key as keyof FormData];
-      // Exclude file objects from this final patch
-      if (
-        key !== "profilePicture" &&
-        key !== "gallery" &&
-        value !== undefined &&
-        value !== null &&
-        value !== "" &&
-        (!Array.isArray(value) || value.length > 0)
-      ) {
-        payload[key] = value;
+    // 1. Start with a full, type-safe copy of the form data.
+    const payload: Partial<FormData> = { ...formData };
+
+    // 2. Loop through the keys and delete the ones we don't want to send.
+    // We use `Object.keys` to safely iterate.
+    (Object.keys(payload) as Array<keyof FormData>).forEach((key) => {
+      const value = payload[key];
+
+      const shouldDelete =
+        key === "profilePicture" ||
+        key === "gallery" ||
+        value === undefined ||
+        value === null ||
+        value === "" ||
+        (Array.isArray(value) && value.length === 0);
+
+      if (shouldDelete) {
+        delete payload[key];
       }
+    });
+
+    // 3. Perform the mutation. This now works perfectly because TypeScript
+    // knows `payload` is of type `Partial<FormData>`.
+    if (payload.country) {
+      payload.country = payload.country.toUpperCase();
     }
-    if (payload.country) payload.country = payload.country.toUpperCase();
+
     return payload;
   };
 
