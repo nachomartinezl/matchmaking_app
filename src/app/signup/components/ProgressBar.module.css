@@ -34,3 +34,9 @@
   transition: left 0.4s ease;
   z-index: 1;
 }
+
+@media (max-width: 640px) {
+  .progressBarContainer {
+    margin-bottom: 1.5rem;
+  }
+}
