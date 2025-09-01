@@ -181,7 +181,9 @@ button:disabled {
   background: #444444;
 }
 
-.button-compact {
+/* Modifier for smaller buttons, increases specificity to override base styles */
+button.button-compact,
+label.button-compact {
   padding: 0.6rem 1.2rem;
   font-size: 0.95rem;
 }
