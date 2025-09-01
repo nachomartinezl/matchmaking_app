@@ -181,6 +181,11 @@ button:disabled {
   background: #444444;
 }
 
+.button-compact {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+}
+
 .link-accent {
   color: var(--accent);
   font-weight: 600;

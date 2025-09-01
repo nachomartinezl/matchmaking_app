@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -13,7 +13,7 @@ const stepSchema = profileSchema.pick({ profilePicture: true, gallery: true });
 interface StepProps {
   formData: Pick<FormData, "profilePicture" | "gallery">;
   updateFormData: (
-    data: Partial<Pick<FormData, "profilePicture" | "gallery">>
+     Partial<Pick<FormData, "profilePicture" | "gallery">>
   ) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -173,7 +173,7 @@ export default function StepProfileGallery({
       <div style={{ marginBottom: "1rem" }}>
         <label htmlFor="profilePicture">Profile picture</label>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <label className={`button-secondary ${busy ? 'disabled' : ''}`} style={{ cursor: "pointer", margin: 0 }}>
+          <label className={`button-secondary button-compact ${busy ? 'disabled' : ''}`} style={{ cursor: "pointer", margin: 0 }}>
             Choose file
             <input
               type="file"
@@ -208,7 +208,7 @@ export default function StepProfileGallery({
       <div style={{ marginTop: "1.25rem" }}>
         <label htmlFor="gallery">More pics you want to show off</label>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
-          <label className={`button-secondary ${busy ? 'disabled' : ''}`} style={{ cursor: "pointer", margin: 0 }}>
+          <label className={`button-secondary button-compact ${busy ? 'disabled' : ''}`} style={{ cursor: "pointer", margin: 0 }}>
             Add images
             <input
               type="file"
