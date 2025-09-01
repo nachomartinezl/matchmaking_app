@@ -33,7 +33,7 @@ export default function HowItWorks() {
             </p>
           </div>
 
-          <img className={`${styles.arrow} ${styles.arrow1}`} src="/landing/howitworks/arrow.png" alt="" aria-hidden />
+          <Image className={`${styles.arrow} ${styles.arrow1}`} src="/landing/howitworks/arrow.png" alt="" aria-hidden width={48} height={48} />
         </div>
 
         {/* Step 2 (left) */}
@@ -66,7 +66,7 @@ export default function HowItWorks() {
             </p>
           </div>
 
-          <img className={`${styles.arrow} ${styles.arrow2}`} src="/landing/howitworks/arrow.png" alt="" aria-hidden />
+          <Image className={`${styles.arrow} ${styles.arrow2}`} src="/landing/howitworks/arrow.png" alt="" aria-hidden width={48} height={48} />
         </div>
 
         {/* Step 3 (right) */}
